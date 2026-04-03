@@ -1,46 +1,28 @@
-require('dotenv').config();
+// backend/server.js
 const express = require('express');
 const cors = require('cors');
+const dotenv = require('dotenv');
 const connectDB = require('./src/config/db');
-const errorHandler = require('./src/middleware/errorHandler');
 
-// Routes
-const authRoutes = require('./src/routes/authRoutes');
-const categoryRoutes = require('./src/routes/categoryRoutes');
-const menuRoutes = require('./src/routes/menuRoutes');
-const orderRoutes = require('./src/routes/orderRoutes');
+// Load environment variables
+dotenv.config();
 
-// Connect to MongoDB
+// Connect to the database
 connectDB();
 
 const app = express();
 
-// ── Middleware ────────────────────────────────────────────────────────────────
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Middleware
+app.use(cors());
+app.use(express.json()); // Allows us to accept JSON data in the body
 
-// ── Health Check ──────────────────────────────────────────────────────────────
-app.get('/api/health', (req, res) => {
-  res.json({ success: true, status: 'ok', environment: process.env.NODE_ENV });
+// Basic route to test the server
+app.get('/', (req, res) => {
+  res.send('Smart Canteen API is running...');
 });
 
-// ── API Routes ────────────────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/menu', menuRoutes);
-app.use('/api/orders', orderRoutes);
-
-// ── 404 Handler ───────────────────────────────────────────────────────────────
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
-});
-
-// ── Centralized Error Handler ─────────────────────────────────────────────────
-app.use(errorHandler);
-
-// ── Start Server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

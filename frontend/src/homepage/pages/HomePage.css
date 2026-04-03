@@ -1,0 +1,312 @@
+.homepage {
+  min-height: 100vh;
+}
+
+/* ── Sections ──────────────────────────────────────────────── */
+.section {
+  padding: 36px 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* ── Filter Tabs ───────────────────────────────────────────── */
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 7px 18px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  background: transparent;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-tab:hover {
+  border-color: #D1D5DB;
+}
+
+.filter-tab.active {
+  border-color: #374151;
+  color: #111827;
+  font-weight: 600;
+}
+
+/* ── Food Cards (Promotions / Recommendations) ─────────────── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.food-card {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  aspect-ratio: 16/10;
+}
+
+.food-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+}
+
+.food-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.food-card:hover .food-card-img {
+  transform: scale(1.04);
+}
+
+/* Discount badge */
+.food-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #111827;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+/* Bottom overlay */
+.food-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 14px 14px;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.food-card-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #60A5FA;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.food-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+
+/* ── Category Cards (Most Popular Dishes) ──────────────────── */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-align: center;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 1px solid #F3F4F6;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.category-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.category-img-wrap {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.category-count {
+  font-size: 11px;
+  color: #2563EB;
+  font-weight: 500;
+}
+
+/* ── Stall Cards (Associative Food Stalls) ─────────────────── */
+.stalls-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+.stall-card {
+  border: 1.5px solid #E5E7EB;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.stall-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.stall-logo-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 110px;
+  padding: 16px;
+  background: #fff;
+}
+
+/* Generic stall logo */
+.stall-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+  font-family: inherit;
+}
+
+/* Big U */
+.stall-logo.bigu p {
+  font-size: 20px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #F97316, #8B5CF6, #06B6D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stall-logo.bigu .bigu-icon { font-size: 20px; }
+
+/* Com Viet */
+.stall-logo.comviet p {
+  font-size: 14px;
+  font-weight: 800;
+  color: #DC2626;
+  letter-spacing: 0.5px;
+}
+
+/* H & D */
+.stall-logo.hd {
+  border-radius: 50%;
+  width: 78px;
+  height: 78px;
+  color: #fff;
+}
+.stall-logo.hd p { font-size: 18px; font-weight: 900; line-height: 1; }
+.stall-logo.hd small { font-size: 7px; font-weight: 600; letter-spacing: 0.5px; }
+
+/* Gao & Noi */
+.stall-logo.gaonoi {
+  border-radius: 50%;
+  width: 78px;
+  height: 78px;
+  color: #fff;
+}
+.stall-logo.gaonoi p { font-size: 11px; font-weight: 800; text-align: center; line-height: 1.3; }
+
+/* Coffee Story */
+.stall-logo.coffeestory {
+  border: 2px solid #111;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+.stall-logo.coffeestory p { font-size: 13px; font-weight: 800; line-height: 1.2; color: #111; }
+.stall-logo.coffeestory .cs-sub { font-size: 16px; font-weight: 900; }
+.stall-logo.coffeestory small { font-size: 8px; color: #666; letter-spacing: 1px; }
+
+/* Zero Coffee */
+.stall-logo.zerocoffee {
+  border-radius: 8px;
+  padding: 10px;
+}
+.stall-logo.zerocoffee p { font-size: 10px; font-weight: 700; color: #fff; letter-spacing: 0.5px; text-align: center; }
+
+/* Stall card footer */
+.stall-card-footer {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fff;
+  border-top: 1px solid #F3F4F6;
+}
+
+.stall-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+}
+
+.stall-btn {
+  width: 100%;
+  background: #2563EB;
+  color: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.stall-btn:hover {
+  background: #1D4ED8;
+}
