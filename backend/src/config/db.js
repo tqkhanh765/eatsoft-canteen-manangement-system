@@ -1,15 +1,6 @@
-// backend/config/db.js
-const mongoose = require('mongoose');
+// backend/src/config/db.js
+const { PrismaClient } = require('@prisma/client');
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
+const prisma = new PrismaClient();
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error connecting to MongoDB: ${error.message}`);
-    process.exit(1); // Stop the server if the database connection fails
-  }
-};
-
-module.exports = connectDB;
+module.exports = prisma;

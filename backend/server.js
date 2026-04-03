@@ -2,13 +2,12 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const connectDB = require('./src/config/db');
+
 
 // Load environment variables
 dotenv.config();
 
-// Connect to the database
-connectDB();
+// Connect to the database handled automatically by Prisma on first query
 
 const app = express();
 
