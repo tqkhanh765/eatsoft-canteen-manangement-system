@@ -1,132 +1,121 @@
-const Order = require('../models/Order');
-const MenuItem = require('../models/MenuItem');
+const pool = require('../db/pool');
 
-// @desc    Place a new order
-// @route   POST /api/orders
-// @access  Private
-const placeOrder = async (req, res, next) => {
+// Valid order statuses matching the app spec
+const VALID_STATUSES = ['Pending', 'Cooking', 'Ready', 'Delivering', 'Completed', 'Cancelled'];
+
+// GET /orders  (supports ?user_id=&store_id=&status= filters)
+const getAllOrders = async (req, res) => {
   try {
-    const { items, paymentMethod, notes } = req.body;
+    const { user_id, store_id, status } = req.query;
+    let query = `
+      SELECT o.*, u.name AS customer_name, s.name AS store_name
+      FROM orders o
+      LEFT JOIN users u ON o.user_id = u.id
+      LEFT JOIN stores s ON o.store_id = s.id
+      WHERE 1=1
+    `;
+    const params = [];
+    if (user_id)  { params.push(user_id);  query += ` AND o.user_id = $${params.length}`; }
+    if (store_id) { params.push(store_id); query += ` AND o.store_id = $${params.length}`; }
+    if (status)   { params.push(status);   query += ` AND o.status = $${params.length}`; }
+    query += ' ORDER BY o.created_at DESC';
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-    if (!items || items.length === 0) {
-      return res.status(400).json({ success: false, message: 'Order must have at least one item' });
-    }
+// GET /orders/:id  (with order items)
+const getOrderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const orderResult = await pool.query(
+      `SELECT o.*, u.name AS customer_name, s.name AS store_name
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       LEFT JOIN stores s ON o.store_id = s.id
+       WHERE o.id = $1`,
+      [id]
+    );
+    if (orderResult.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
 
-    // Resolve prices from DB and build order items
-    let totalAmount = 0;
-    const orderItems = [];
+    const itemsResult = await pool.query(
+      `SELECT oi.*, p.name AS product_name, p.image_url
+       FROM order_items oi
+       LEFT JOIN products p ON oi.product_id = p.id
+       WHERE oi.order_id = $1`,
+      [id]
+    );
+    res.json({ ...orderResult.rows[0], items: itemsResult.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// POST /orders  (creates order + order items in a transaction)
+const createOrder = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { user_id, store_id, items, delivery_address, note } = req.body;
+    // items: [{ product_id, quantity, unit_price }]
+    await client.query('BEGIN');
+
+    const total_price = items.reduce((sum, i) => sum + i.unit_price * i.quantity, 0);
+    const orderResult = await client.query(
+      `INSERT INTO orders (user_id, store_id, total_price, delivery_address, note, status)
+       VALUES ($1,$2,$3,$4,$5,'Pending') RETURNING *`,
+      [user_id, store_id, total_price, delivery_address, note]
+    );
+    const order = orderResult.rows[0];
 
     for (const item of items) {
-      const menuItem = await MenuItem.findById(item.menuItem);
-      if (!menuItem) {
-        return res.status(404).json({ success: false, message: `Menu item ${item.menuItem} not found` });
-      }
-      if (!menuItem.isAvailable) {
-        return res.status(400).json({ success: false, message: `${menuItem.name} is currently unavailable` });
-      }
-
-      const lineTotal = menuItem.price * item.quantity;
-      totalAmount += lineTotal;
-
-      orderItems.push({
-        menuItem: menuItem._id,
-        name: menuItem.name,
-        price: menuItem.price,
-        quantity: item.quantity,
-      });
+      await client.query(
+        `INSERT INTO order_items (order_id, product_id, quantity, unit_price)
+         VALUES ($1,$2,$3,$4)`,
+        [order.id, item.product_id, item.quantity, item.unit_price]
+      );
     }
 
-    const order = await Order.create({
-      user: req.user._id,
-      items: orderItems,
-      totalAmount,
-      paymentMethod,
-      notes,
-    });
-
-    res.status(201).json({ success: true, data: order });
-  } catch (error) {
-    next(error);
+    await client.query('COMMIT');
+    res.status(201).json({ ...order, items });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
   }
 };
 
-// @desc    Get logged-in user's orders
-// @route   GET /api/orders/my
-// @access  Private
-const getMyOrders = async (req, res, next) => {
+// PATCH /orders/:id/status
+const updateOrderStatus = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
-    res.json({ success: true, count: orders.length, data: orders });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Get all orders (admin/staff)
-// @route   GET /api/orders
-// @access  Private/Admin/Staff
-const getAllOrders = async (req, res, next) => {
-  try {
-    const filter = {};
-    if (req.query.status) filter.status = req.query.status;
-
-    const orders = await Order.find(filter)
-      .populate('user', 'name email')
-      .sort({ createdAt: -1 });
-
-    res.json({ success: true, count: orders.length, data: orders });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Get single order by ID
-// @route   GET /api/orders/:id
-// @access  Private
-const getOrderById = async (req, res, next) => {
-  try {
-    const order = await Order.findById(req.params.id).populate('user', 'name email');
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    // Customers can only view their own orders
-    if (req.user.role === 'customer' && order.user._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Access denied' });
-    }
-
-    res.json({ success: true, data: order });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Update order status
-// @route   PUT /api/orders/:id/status
-// @access  Private/Admin/Staff
-const updateOrderStatus = async (req, res, next) => {
-  try {
+    const { id } = req.params;
     const { status } = req.body;
-    const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
-
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid order status' });
+    if (!VALID_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
     }
-
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true, runValidators: true }
+    const result = await pool.query(
+      'UPDATE orders SET status=$1, updated_at=NOW() WHERE id=$2 RETURNING *',
+      [status, id]
     );
-
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    res.json({ success: true, data: order });
-  } catch (error) {
-    next(error);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-module.exports = { placeOrder, getMyOrders, getAllOrders, getOrderById, updateOrderStatus };
+// DELETE /orders/:id
+const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('DELETE FROM orders WHERE id=$1 RETURNING id', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
+    res.json({ message: 'Order deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getAllOrders, getOrderById, createOrder, updateOrderStatus, deleteOrder };

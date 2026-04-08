@@ -1,75 +1,67 @@
-const Category = require('../models/Category');
+const pool = require('../db/pool');
 
-// @desc    Get all categories
-// @route   GET /api/categories
-// @access  Public
-const getCategories = async (req, res, next) => {
+// GET /categories
+const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find({ isActive: true }).sort({ createdAt: -1 });
-    res.json({ success: true, count: categories.length, data: categories });
-  } catch (error) {
-    next(error);
+    const result = await pool.query('SELECT * FROM categories ORDER BY id ASC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// @desc    Get single category
-// @route   GET /api/categories/:id
-// @access  Public
-const getCategoryById = async (req, res, next) => {
+// GET /categories/:id
+const getCategoryById = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
-    if (!category) {
-      return res.status(404).json({ success: false, message: 'Category not found' });
-    }
-    res.json({ success: true, data: category });
-  } catch (error) {
-    next(error);
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM categories WHERE id=$1', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Category not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// @desc    Create a category
-// @route   POST /api/categories
-// @access  Private/Admin
-const createCategory = async (req, res, next) => {
+// POST /categories
+const createCategory = async (req, res) => {
   try {
-    const category = await Category.create(req.body);
-    res.status(201).json({ success: true, data: category });
-  } catch (error) {
-    next(error);
+    const { name, description } = req.body;
+    const result = await pool.query(
+      'INSERT INTO categories (name, description) VALUES ($1,$2) RETURNING *',
+      [name, description]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// @desc    Update a category
-// @route   PUT /api/categories/:id
-// @access  Private/Admin
-const updateCategory = async (req, res, next) => {
+// PUT /categories/:id
+const updateCategory = async (req, res) => {
   try {
-    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!category) {
-      return res.status(404).json({ success: false, message: 'Category not found' });
-    }
-    res.json({ success: true, data: category });
-  } catch (error) {
-    next(error);
+    const { id } = req.params;
+    const { name, description } = req.body;
+    const result = await pool.query(
+      'UPDATE categories SET name=$1, description=$2, updated_at=NOW() WHERE id=$3 RETURNING *',
+      [name, description, id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Category not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// @desc    Delete a category
-// @route   DELETE /api/categories/:id
-// @access  Private/Admin
-const deleteCategory = async (req, res, next) => {
+// DELETE /categories/:id
+const deleteCategory = async (req, res) => {
   try {
-    const category = await Category.findByIdAndDelete(req.params.id);
-    if (!category) {
-      return res.status(404).json({ success: false, message: 'Category not found' });
-    }
-    res.json({ success: true, message: 'Category deleted successfully' });
-  } catch (error) {
-    next(error);
+    const { id } = req.params;
+    const result = await pool.query('DELETE FROM categories WHERE id=$1 RETURNING id', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Category not found' });
+    res.json({ message: 'Category deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-module.exports = { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory };
+module.exports = { getAllCategories, getCategoryById, createCategory, updateCategory, deleteCategory };
