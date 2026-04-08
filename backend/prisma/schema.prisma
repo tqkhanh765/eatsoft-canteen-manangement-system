@@ -7,20 +7,100 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Role {
+  roleId   Int     @id @default(autoincrement())
+  roleName String
+
+  users    User[]
+}
+
 model User {
-  id        Int      @id @default(autoincrement()) // Or use String @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      String   @default("customer")
-  createdAt DateTime @default(now())
-  orders    Order[]
+  userId   Int     @id @default(autoincrement())
+  userName String
+  password String
+  email    String  @unique
+  phone    String
+  status   String
+
+  roleId   Int
+  role     Role    @relation(fields: [roleId], references: [roleId])
+
+  stores   Store[]   // manage
+  orders   Order[]   // place
+}
+
+model Store {
+  storeId    Int      @id @default(autoincrement())
+  storeName  String
+  description String?
+  location   String
+  isOpen     Boolean  @default(true)
+
+  managerId  Int
+  manager    User     @relation(fields: [managerId], references: [userId])
+
+  products   Product[]
+  orders     Order[]
+}
+
+model Product {
+  productId   Int      @id @default(autoincrement())
+  name        String
+  price       Decimal
+  imageURL    String?
+  isAvailable Boolean  @default(true)
+
+  storeId     Int
+  store       Store    @relation(fields: [storeId], references: [storeId])
+
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [categoryId])
+
+  orderItems  OrderItem[]
+}
+
+model Category {
+  categoryId   Int      @id @default(autoincrement())
+  categoryName String
+
+  products     Product[]
 }
 
 model Order {
-  id         Int      @id @default(autoincrement())
-  totalPrice Float
-  status     String   @default("pending")
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id])
+  orderId     Int       @id @default(autoincrement())
+  orderDate   DateTime  @default(now())
+  status      String
+  totalAmount Decimal
+
+  userId      Int
+  user        User      @relation(fields: [userId], references: [userId])
+
+  storeId     Int
+  store       Store     @relation(fields: [storeId], references: [storeId])
+
+  orderItems  OrderItem[]
+}
+
+model OrderItem {
+  orderItemId Int      @id @default(autoincrement())
+  quantity    Int
+  unitPrice   Decimal
+
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [orderId])
+
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [productId])
+
+  feedback    Feedback?
+}
+
+model Feedback {
+  feedbackId Int      @id @default(autoincrement())
+  rating     Int
+  comment    String?
   createdAt  DateTime @default(now())
+
+  orderItemId    Int      @unique
+  orderItem  OrderItem    @relation(fields: [orderItemId], references: [orderItemId])
 }
