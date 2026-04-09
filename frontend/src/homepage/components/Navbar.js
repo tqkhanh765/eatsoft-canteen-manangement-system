@@ -21,7 +21,7 @@ const NAV_LINKS = [
   { id: 'history', label: 'Order History' },
 ];
 
-const Navbar = () => {
+const Navbar = ({ onLoginClick }) => {
   const [active, setActive] = useState('home');
 
   return (
@@ -54,7 +54,11 @@ const Navbar = () => {
           <button className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
             <CartIcon />
           </button>
-          <button className="login-btn" id="navbar-login">
+          <button
+            className="login-btn"
+            id="navbar-login"
+            onClick={onLoginClick}
+          >
             <span className="login-avatar"><UserIcon /></span>
             Login/Signup
           </button>
