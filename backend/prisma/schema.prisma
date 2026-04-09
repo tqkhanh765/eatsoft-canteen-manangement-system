@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Role {
@@ -46,7 +45,7 @@ model Store {
 model Product {
   productId   Int      @id @default(autoincrement())
   name        String
-  price       Decimal
+  price       Int
   imageURL    String?
   isAvailable Boolean  @default(true)
 
