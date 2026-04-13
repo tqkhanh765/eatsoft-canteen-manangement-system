@@ -1,0 +1,6 @@
+.toggle-wrapper   { position: relative; display: inline-flex; align-items: center; }
+.toggle-checkbox  { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track     { width: 40px; height: 22px; background: #D1D5DB; border-radius: 9999px; cursor: pointer; transition: background 0.2s; position: relative; display: block; }
+.toggle-track.on  { background: #16A34A; }
+.toggle-thumb     { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle-track.on .toggle-thumb { left: 21px; }
