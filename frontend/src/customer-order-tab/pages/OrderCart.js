@@ -51,7 +51,7 @@ const OrderCart = () => {
     setError(null);
     try {
       // Fetch all Pending orders for the logged-in user
-      const orders = await fetchOrders({ user_id: MOCK_USER_ID, status: 'Pending' });
+      const orders = await fetchOrders({ user_id: 54, status: 'Pending' });
       if (orders.length > 0) {
         // Use the most recent pending order; it already includes joined store_name
         const latestOrder = orders[0];
