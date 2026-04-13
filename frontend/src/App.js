@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import HomePage from './homepage/pages/HomePage';
+import OrderCart from './customer-order-tab/pages/OrderCart';
 import AuthModal from './homepage/components/AuthModal';
 import './App.css';
 
@@ -19,7 +19,7 @@ function App() {
   return (
     <div className="app">
       <Navbar onLoginClick={() => openAuth('login')} />
-      <HomePage />
+      <OrderCart />
       <Footer />
       <AuthModal
         isOpen={authOpen}
