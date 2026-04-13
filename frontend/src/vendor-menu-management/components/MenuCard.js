@@ -20,18 +20,23 @@ const TrashIcon = () => (
 );
 
 const MenuCard = ({ item, onEdit, onDelete, onToggle }) => {
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  // null | 'toggle' | 'delete'
+  const [dialog, setDialog] = useState(null);
 
-  const handleStatusClick = () => setConfirmOpen(true);
+  const closeDialog = () => setDialog(null);
 
   const handleConfirm = () => {
-    setConfirmOpen(false);
-    onToggle(item.id);
+    closeDialog();
+    if (dialog === 'toggle') onToggle(item.id);
+    if (dialog === 'delete') onDelete(item.id);
   };
 
-  const dialogMessage = item.available
-    ? `Mark "${item.name}" as Sold Out?`
-    : `Mark "${item.name}" as Available again?`;
+  const dialogMessage =
+    dialog === 'delete'
+      ? `Delete "${item.name}"? This action cannot be undone.`
+      : item.available
+        ? `Mark "${item.name}" as Sold Out?`
+        : `Mark "${item.name}" as Available again?`;
 
   return (
     <>
@@ -57,7 +62,7 @@ const MenuCard = ({ item, onEdit, onDelete, onToggle }) => {
                 <button className="action-btn edit" id={`edit-item-${item.id}`} onClick={() => onEdit(item)}>
                   <EditIcon /> Edit
                 </button>
-                <button className="action-btn delete" id={`delete-item-${item.id}`} onClick={() => onDelete(item.id)}>
+                <button className="action-btn delete" id={`delete-item-${item.id}`} onClick={() => setDialog('delete')}>
                   <TrashIcon /> Delete
                 </button>
               </div>
@@ -74,17 +79,17 @@ const MenuCard = ({ item, onEdit, onDelete, onToggle }) => {
               <span className={`availability-label ${item.available ? 'available' : 'soldout'}`}>
                 {item.available ? 'Available' : 'Sold Out'}
               </span>
-              <Toggle id={item.id} on={item.available} onChange={handleStatusClick} />
+              <Toggle id={item.id} on={item.available} onChange={() => setDialog('toggle')} />
             </div>
           </div>
         </div>
       </div>
 
       <ConfirmDialog
-        isOpen={confirmOpen}
+        isOpen={dialog !== null}
         message={dialogMessage}
         onConfirm={handleConfirm}
-        onCancel={() => setConfirmOpen(false)}
+        onCancel={closeDialog}
       />
     </>
   );
