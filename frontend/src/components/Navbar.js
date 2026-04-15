@@ -15,14 +15,31 @@ const UserIcon = () => (
   </svg>
 );
 
-const NAV_LINKS = [
+const BellIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
+);
+
+const CUSTOMER_LINKS = [
   { id: 'home', label: 'Home' },
   { id: 'stalls', label: 'Food Stalls' },
   { id: 'history', label: 'Order History' },
 ];
 
-const Navbar = ({ onLoginClick }) => {
+const VENDOR_LINKS = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'menu', label: 'Menu' },
+];
+
+const Navbar = ({ onLoginClick, user, onLogout }) => {
   const [active, setActive] = useState('home');
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Determine navigation links based on user role
+  const isVendor = user?.role?.roleName === 'Vendor';
+  const navLinks = isVendor ? VENDOR_LINKS : CUSTOMER_LINKS;
 
   return (
     <nav className="navbar" id="main-navbar">
@@ -34,10 +51,10 @@ const Navbar = ({ onLoginClick }) => {
 
         {/* Nav Links */}
         <ul className="navbar-links" role="navigation" aria-label="Main navigation">
-          {NAV_LINKS.map(({ id, label }) => (
+          {navLinks.map(({ id, label }) => (
             <li key={id}>
               <a
-                href="#"
+                href="#!"
                 id={`nav-${id}`}
                 className={`nav-link ${active === id ? 'active' : ''}`}
                 onClick={(e) => { e.preventDefault(); setActive(id); }}
@@ -54,14 +71,38 @@ const Navbar = ({ onLoginClick }) => {
           <button className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
             <CartIcon />
           </button>
-          <button
-            className="login-btn"
-            id="navbar-login"
-            onClick={onLoginClick}
-          >
-            <span className="login-avatar"><UserIcon /></span>
-            Login/Signup
-          </button>
+          {user ? (
+            <>
+              <button className="bell-btn" id="navbar-bell" aria-label="Notifications">
+                <BellIcon />
+              </button>
+              <div className="user-menu-wrapper">
+                <button
+                  className="login-btn user-menu-btn"
+                  id="navbar-user"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                >
+                  <span className="login-avatar"><UserIcon /></span>
+                  {user.userName}
+                </button>
+                {showUserMenu && (
+                  <div className="user-dropdown">
+                    <button className="dropdown-item">User Profile</button>
+                    <button className="dropdown-item dropdown-item--danger" onClick={onLogout}>Logout</button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <button
+              className="login-btn"
+              id="navbar-login"
+              onClick={() => onLoginClick('login')}
+            >
+              <span className="login-avatar"><UserIcon /></span>
+              Login/Signup
+            </button>
+          )}
         </div>
       </div>
     </nav>

@@ -40,12 +40,12 @@ const Footer = () => (
           <input id="newsletter-email" type="email" placeholder="youremail@gmail.com" />
           <button id="newsletter-subscribe">Subscribe</button>
         </div>
-        <p className="newsletter-note">we won't spam, read our <a href="#">email policy</a></p>
+        <p className="newsletter-note">we won't spam, read our <a href="#!">email policy</a></p>
         <div className="social-icons">
-          <a href="#" id="social-facebook" aria-label="Facebook"><FacebookIcon /></a>
-          <a href="#" id="social-instagram" aria-label="Instagram"><InstagramIcon /></a>
-          <a href="#" id="social-tiktok" aria-label="TikTok"><TiktokIcon /></a>
-          <a href="#" id="social-snapchat" aria-label="Snapchat"><SnapchatIcon /></a>
+          <a href="#!" id="social-facebook" aria-label="Facebook"><FacebookIcon /></a>
+          <a href="#!" id="social-instagram" aria-label="Instagram"><InstagramIcon /></a>
+          <a href="#!" id="social-tiktok" aria-label="TikTok"><TiktokIcon /></a>
+          <a href="#!" id="social-snapchat" aria-label="Snapchat"><SnapchatIcon /></a>
         </div>
       </div>
 
@@ -53,10 +53,10 @@ const Footer = () => (
       <div className="footer-links-col">
         <h4>Legal Pages</h4>
         <ul>
-          <li><a href="#">Terms and conditions</a></li>
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Cookies</a></li>
-          <li><a href="#">Modern Slavery Statement</a></li>
+          <li><a href="#!">Terms and conditions</a></li>
+          <li><a href="#!">Privacy</a></li>
+          <li><a href="#!">Cookies</a></li>
+          <li><a href="#!">Modern Slavery Statement</a></li>
         </ul>
       </div>
 
@@ -64,10 +64,10 @@ const Footer = () => (
       <div className="footer-links-col">
         <h4>Important Links</h4>
         <ul>
-          <li><a href="#">Get help</a></li>
-          <li><a href="#">Add your restaurant</a></li>
-          <li><a href="#">Sign up to deliver</a></li>
-          <li><a href="#">Create a business account</a></li>
+          <li><a href="#!">Get help</a></li>
+          <li><a href="#!">Add your restaurant</a></li>
+          <li><a href="#!">Sign up to deliver</a></li>
+          <li><a href="#!">Create a business account</a></li>
         </ul>
       </div>
     </div>
@@ -77,10 +77,10 @@ const Footer = () => (
       <div className="footer-bottom-inner container">
         <span>EatSoft Copyright 2026, All Rights Reserved.</span>
         <div className="footer-bottom-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms</a>
-          <a href="#">Pricing</a>
-          <a href="#">Do not sell or share my personal information</a>
+          <a href="#!">Privacy Policy</a>
+          <a href="#!">Terms</a>
+          <a href="#!">Pricing</a>
+          <a href="#!">Do not sell or share my personal information</a>
         </div>
       </div>
     </div>

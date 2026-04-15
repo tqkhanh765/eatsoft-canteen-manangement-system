@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Footer from '../../components/Footer';
-import VendorNavbar from '../components/VendorNavbar';
+import Navbar from '../../components/Navbar';
 import MenuCard from '../components/MenuCard';
 import MenuToolbar from '../components/MenuToolbar';
 import ItemForm from '../components/ItemForm';
@@ -17,7 +17,7 @@ const PlusIcon = () => (
 // Store ID - in a real app, this would come from auth context or route params
 const STORE_ID = 1;
 
-const VendorMenuPage = () => {
+const VendorMenuPage = ({ user, onLogout }) => {
   const [items, setItems]           = useState([]);
   const [view, setView]             = useState('list'); // 'list' | 'add' | 'edit'
   const [editTarget, setEditTarget] = useState(null);
@@ -147,7 +147,7 @@ const VendorMenuPage = () => {
   if (view === 'add') {
     return (
       <>
-        <VendorNavbar />
+        <Navbar user={user} onLogout={onLogout} />
         <ItemForm
           title="Add Item"
           form={form}
@@ -165,7 +165,7 @@ const VendorMenuPage = () => {
   if (view === 'edit') {
     return (
       <>
-        <VendorNavbar />
+        <Navbar user={user} onLogout={onLogout} />
         <ItemForm
           title="Edit Item"
           form={form}
@@ -182,7 +182,7 @@ const VendorMenuPage = () => {
   // ── List view (default)
   return (
     <>
-      <VendorNavbar />
+      <Navbar user={user} onLogout={onLogout} />
       <div className="vendor-page">
         <div className="container">
           <div className="vendor-header">
