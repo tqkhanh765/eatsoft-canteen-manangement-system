@@ -1,10 +1,10 @@
-const pool = require('../db/pool');
+const prisma = require('../lib/prisma');
 
 // GET /roles
 const getAllRoles = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM roles ORDER BY id ASC');
-    res.json(result.rows);
+    const roles = await prisma.role.findMany({ orderBy: { roleId: 'asc' } });
+    res.json(roles);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -13,10 +13,9 @@ const getAllRoles = async (req, res) => {
 // GET /roles/:id
 const getRoleById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query('SELECT * FROM roles WHERE id = $1', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Role not found' });
-    res.json(result.rows[0]);
+    const role = await prisma.role.findUnique({ where: { roleId: Number(req.params.id) } });
+    if (!role) return res.status(404).json({ error: 'Role not found' });
+    res.json(role);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -25,12 +24,9 @@ const getRoleById = async (req, res) => {
 // POST /roles
 const createRole = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const result = await pool.query(
-      'INSERT INTO roles (name, description) VALUES ($1, $2) RETURNING *',
-      [name, description]
-    );
-    res.status(201).json(result.rows[0]);
+    const { roleName } = req.body;
+    const role = await prisma.role.create({ data: { roleName } });
+    res.status(201).json(role);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -39,15 +35,14 @@ const createRole = async (req, res) => {
 // PUT /roles/:id
 const updateRole = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, description } = req.body;
-    const result = await pool.query(
-      'UPDATE roles SET name = $1, description = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
-      [name, description, id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Role not found' });
-    res.json(result.rows[0]);
+    const { roleName } = req.body;
+    const role = await prisma.role.update({
+      where: { roleId: Number(req.params.id) },
+      data:  { roleName },
+    });
+    res.json(role);
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Role not found' });
     res.status(500).json({ error: err.message });
   }
 };
@@ -55,11 +50,10 @@ const updateRole = async (req, res) => {
 // DELETE /roles/:id
 const deleteRole = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query('DELETE FROM roles WHERE id = $1 RETURNING *', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Role not found' });
+    await prisma.role.delete({ where: { roleId: Number(req.params.id) } });
     res.json({ message: 'Role deleted successfully' });
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Role not found' });
     res.status(500).json({ error: err.message });
   }
 };

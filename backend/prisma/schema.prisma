@@ -45,7 +45,8 @@ model Store {
 model Product {
   productId   Int      @id @default(autoincrement())
   name        String
-  price       Int
+  description String?
+  price       Decimal
   imageURL    String?
   isAvailable Boolean  @default(true)
 

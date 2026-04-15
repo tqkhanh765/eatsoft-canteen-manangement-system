@@ -1,19 +1,15 @@
-const pool = require('../db/pool');
+const prisma = require('../lib/prisma');
 
-// GET /order-items?order_id=
+// GET /order-items  (supports ?orderId= filter)
 const getAllOrderItems = async (req, res) => {
   try {
-    const { order_id } = req.query;
-    let query = `
-      SELECT oi.*, p.name AS product_name, p.image_url
-      FROM order_items oi
-      LEFT JOIN products p ON oi.product_id = p.id
-    `;
-    const params = [];
-    if (order_id) { params.push(order_id); query += ` WHERE oi.order_id = $1`; }
-    query += ' ORDER BY oi.id ASC';
-    const result = await pool.query(query, params);
-    res.json(result.rows);
+    const { orderId } = req.query;
+    const items = await prisma.orderItem.findMany({
+      where:   orderId ? { orderId: Number(orderId) } : undefined,
+      orderBy: { orderItemId: 'asc' },
+      include: { product: true },
+    });
+    res.json(items);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -22,16 +18,12 @@ const getAllOrderItems = async (req, res) => {
 // GET /order-items/:id
 const getOrderItemById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query(
-      `SELECT oi.*, p.name AS product_name, p.image_url
-       FROM order_items oi
-       LEFT JOIN products p ON oi.product_id = p.id
-       WHERE oi.id = $1`,
-      [id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Order item not found' });
-    res.json(result.rows[0]);
+    const item = await prisma.orderItem.findUnique({
+      where:   { orderItemId: Number(req.params.id) },
+      include: { product: true },
+    });
+    if (!item) return res.status(404).json({ error: 'Order item not found' });
+    res.json(item);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -40,20 +32,19 @@ const getOrderItemById = async (req, res) => {
 // POST /order-items
 const createOrderItem = async (req, res) => {
   try {
-    const { order_id, product_id, quantity, unit_price } = req.body;
-    const result = await pool.query(
-      `INSERT INTO order_items (order_id, product_id, quantity, unit_price)
-       VALUES ($1,$2,$3,$4) RETURNING *`,
-      [order_id, product_id, quantity, unit_price]
-    );
-    // Recalculate order total
-    await pool.query(
-      `UPDATE orders SET total_price = (
-         SELECT SUM(quantity * unit_price) FROM order_items WHERE order_id = $1
-       ), updated_at=NOW() WHERE id = $1`,
-      [order_id]
-    );
-    res.status(201).json(result.rows[0]);
+    const { orderId, productId, quantity, unitPrice } = req.body;
+    const item = await prisma.orderItem.create({
+      data: {
+        orderId:   Number(orderId),
+        productId: Number(productId),
+        quantity:  Number(quantity),
+        unitPrice: Number(unitPrice),
+      },
+      include: { product: true },
+    });
+    // Recalculate order totalAmount
+    await recalcOrderTotal(Number(orderId));
+    res.status(201).json(item);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -62,22 +53,16 @@ const createOrderItem = async (req, res) => {
 // PUT /order-items/:id
 const updateOrderItem = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { quantity, unit_price } = req.body;
-    const result = await pool.query(
-      `UPDATE order_items SET quantity=$1, unit_price=$2 WHERE id=$3 RETURNING *`,
-      [quantity, unit_price, id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Order item not found' });
-    // Recalculate order total
-    await pool.query(
-      `UPDATE orders SET total_price = (
-         SELECT SUM(quantity * unit_price) FROM order_items WHERE order_id = $1
-       ), updated_at=NOW() WHERE id = $1`,
-      [result.rows[0].order_id]
-    );
-    res.json(result.rows[0]);
+    const { quantity, unitPrice } = req.body;
+    const item = await prisma.orderItem.update({
+      where: { orderItemId: Number(req.params.id) },
+      data:  { quantity: Number(quantity), unitPrice: Number(unitPrice) },
+      include: { product: true },
+    });
+    await recalcOrderTotal(item.orderId);
+    res.json(item);
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Order item not found' });
     res.status(500).json({ error: err.message });
   }
 };
@@ -85,20 +70,27 @@ const updateOrderItem = async (req, res) => {
 // DELETE /order-items/:id
 const deleteOrderItem = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query('DELETE FROM order_items WHERE id=$1 RETURNING *', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Order item not found' });
-    // Recalculate order total
-    await pool.query(
-      `UPDATE orders SET total_price = (
-         SELECT COALESCE(SUM(quantity * unit_price), 0) FROM order_items WHERE order_id = $1
-       ), updated_at=NOW() WHERE id = $1`,
-      [result.rows[0].order_id]
-    );
+    const item = await prisma.orderItem.delete({
+      where: { orderItemId: Number(req.params.id) },
+    });
+    await recalcOrderTotal(item.orderId);
     res.json({ message: 'Order item deleted successfully' });
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Order item not found' });
     res.status(500).json({ error: err.message });
   }
 };
+
+// ── Helper: recalculate totalAmount on the parent order ──────────
+async function recalcOrderTotal(orderId) {
+  const agg = await prisma.orderItem.aggregate({
+    where:  { orderId },
+    _sum:   { unitPrice: true },  // Note: real total = Σ(unitPrice * quantity)
+  });
+  // Use groupBy workaround since Prisma doesn't support multiplying in aggregate
+  const items = await prisma.orderItem.findMany({ where: { orderId } });
+  const totalAmount = items.reduce((sum, i) => sum + Number(i.unitPrice) * i.quantity, 0);
+  await prisma.order.update({ where: { orderId }, data: { totalAmount } });
+}
 
 module.exports = { getAllOrderItems, getOrderItemById, createOrderItem, updateOrderItem, deleteOrderItem };

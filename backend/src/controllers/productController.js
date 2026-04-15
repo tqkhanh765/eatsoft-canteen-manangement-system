@@ -1,22 +1,18 @@
-const pool = require('../db/pool');
+const prisma = require('../lib/prisma');
 
-// GET /products  (supports ?store_id=&category_id= filters)
+// GET /products  (supports ?storeId=&categoryId= filters)
 const getAllProducts = async (req, res) => {
   try {
-    const { store_id, category_id } = req.query;
-    let query = `
-      SELECT p.*, s.name AS store_name, c.name AS category_name
-      FROM products p
-      LEFT JOIN stores s ON p.store_id = s.id
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE 1=1
-    `;
-    const params = [];
-    if (store_id) { params.push(store_id); query += ` AND p.store_id = $${params.length}`; }
-    if (category_id) { params.push(category_id); query += ` AND p.category_id = $${params.length}`; }
-    query += ' ORDER BY p.id ASC';
-    const result = await pool.query(query, params);
-    res.json(result.rows);
+    const { storeId, categoryId } = req.query;
+    const products = await prisma.product.findMany({
+      where: {
+        ...(storeId    && { storeId:    Number(storeId)    }),
+        ...(categoryId && { categoryId: Number(categoryId) }),
+      },
+      orderBy: { productId: 'asc' },
+      include: { store: true, category: true },
+    });
+    res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -25,17 +21,12 @@ const getAllProducts = async (req, res) => {
 // GET /products/:id
 const getProductById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query(
-      `SELECT p.*, s.name AS store_name, c.name AS category_name
-       FROM products p
-       LEFT JOIN stores s ON p.store_id = s.id
-       LEFT JOIN categories c ON p.category_id = c.id
-       WHERE p.id = $1`,
-      [id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Product not found' });
-    res.json(result.rows[0]);
+    const product = await prisma.product.findUnique({
+      where:   { productId: Number(req.params.id) },
+      include: { store: true, category: true },
+    });
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -44,13 +35,19 @@ const getProductById = async (req, res) => {
 // POST /products
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, image_url, store_id, category_id, is_available } = req.body;
-    const result = await pool.query(
-      `INSERT INTO products (name, description, price, image_url, store_id, category_id, is_available)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [name, description, price, image_url, store_id, category_id, is_available ?? true]
-    );
-    res.status(201).json(result.rows[0]);
+    const { name, description, price, imageURL, isAvailable, storeId, categoryId } = req.body;
+    const product = await prisma.product.create({
+      data: {
+        name,
+        description,
+        price:       Number(price),
+        imageURL,
+        isAvailable: isAvailable ?? true,
+        storeId:     Number(storeId),
+        categoryId:  Number(categoryId),
+      },
+    });
+    res.status(201).json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -59,16 +56,21 @@ const createProduct = async (req, res) => {
 // PUT /products/:id
 const updateProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, description, price, image_url, category_id, is_available } = req.body;
-    const result = await pool.query(
-      `UPDATE products SET name=$1, description=$2, price=$3, image_url=$4,
-       category_id=$5, is_available=$6, updated_at=NOW() WHERE id=$7 RETURNING *`,
-      [name, description, price, image_url, category_id, is_available, id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Product not found' });
-    res.json(result.rows[0]);
+    const { name, description, price, imageURL, isAvailable, categoryId } = req.body;
+    const product = await prisma.product.update({
+      where: { productId: Number(req.params.id) },
+      data:  {
+        name,
+        description,
+        price:       price      !== undefined ? Number(price)      : undefined,
+        imageURL,
+        isAvailable,
+        categoryId:  categoryId !== undefined ? Number(categoryId) : undefined,
+      },
+    });
+    res.json(product);
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Product not found' });
     res.status(500).json({ error: err.message });
   }
 };
@@ -76,14 +78,13 @@ const updateProduct = async (req, res) => {
 // PATCH /products/:id/sold-out
 const markSoldOut = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query(
-      'UPDATE products SET is_available=false, updated_at=NOW() WHERE id=$1 RETURNING *',
-      [id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Product not found' });
-    res.json(result.rows[0]);
+    const product = await prisma.product.update({
+      where: { productId: Number(req.params.id) },
+      data:  { isAvailable: false },
+    });
+    res.json(product);
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Product not found' });
     res.status(500).json({ error: err.message });
   }
 };
@@ -91,11 +92,10 @@ const markSoldOut = async (req, res) => {
 // DELETE /products/:id
 const deleteProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query('DELETE FROM products WHERE id=$1 RETURNING id', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Product not found' });
+    await prisma.product.delete({ where: { productId: Number(req.params.id) } });
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Product not found' });
     res.status(500).json({ error: err.message });
   }
 };

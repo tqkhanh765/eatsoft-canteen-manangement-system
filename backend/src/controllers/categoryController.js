@@ -1,10 +1,10 @@
-const pool = require('../db/pool');
+const prisma = require('../lib/prisma');
 
 // GET /categories
 const getAllCategories = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM categories ORDER BY id ASC');
-    res.json(result.rows);
+    const categories = await prisma.category.findMany({ orderBy: { categoryId: 'asc' } });
+    res.json(categories);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -13,10 +13,11 @@ const getAllCategories = async (req, res) => {
 // GET /categories/:id
 const getCategoryById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query('SELECT * FROM categories WHERE id=$1', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Category not found' });
-    res.json(result.rows[0]);
+    const category = await prisma.category.findUnique({
+      where: { categoryId: Number(req.params.id) },
+    });
+    if (!category) return res.status(404).json({ error: 'Category not found' });
+    res.json(category);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -25,12 +26,9 @@ const getCategoryById = async (req, res) => {
 // POST /categories
 const createCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const result = await pool.query(
-      'INSERT INTO categories (name, description) VALUES ($1,$2) RETURNING *',
-      [name, description]
-    );
-    res.status(201).json(result.rows[0]);
+    const { categoryName } = req.body;
+    const category = await prisma.category.create({ data: { categoryName } });
+    res.status(201).json(category);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -39,15 +37,14 @@ const createCategory = async (req, res) => {
 // PUT /categories/:id
 const updateCategory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, description } = req.body;
-    const result = await pool.query(
-      'UPDATE categories SET name=$1, description=$2, updated_at=NOW() WHERE id=$3 RETURNING *',
-      [name, description, id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Category not found' });
-    res.json(result.rows[0]);
+    const { categoryName } = req.body;
+    const category = await prisma.category.update({
+      where: { categoryId: Number(req.params.id) },
+      data:  { categoryName },
+    });
+    res.json(category);
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Category not found' });
     res.status(500).json({ error: err.message });
   }
 };
@@ -55,11 +52,10 @@ const updateCategory = async (req, res) => {
 // DELETE /categories/:id
 const deleteCategory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query('DELETE FROM categories WHERE id=$1 RETURNING id', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Category not found' });
+    await prisma.category.delete({ where: { categoryId: Number(req.params.id) } });
     res.json({ message: 'Category deleted successfully' });
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Category not found' });
     res.status(500).json({ error: err.message });
   }
 };

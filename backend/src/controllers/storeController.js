@@ -1,12 +1,13 @@
-const pool = require('../db/pool');
+const prisma = require('../lib/prisma');
 
 // GET /stores
 const getAllStores = async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT s.*, u.name AS owner_name FROM stores s LEFT JOIN users u ON s.owner_id = u.id ORDER BY s.id ASC'
-    );
-    res.json(result.rows);
+    const stores = await prisma.store.findMany({
+      orderBy: { storeId: 'asc' },
+      include: { manager: { omit: { password: true } } },
+    });
+    res.json(stores);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -15,13 +16,12 @@ const getAllStores = async (req, res) => {
 // GET /stores/:id
 const getStoreById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query(
-      'SELECT s.*, u.name AS owner_name FROM stores s LEFT JOIN users u ON s.owner_id = u.id WHERE s.id = $1',
-      [id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Store not found' });
-    res.json(result.rows[0]);
+    const store = await prisma.store.findUnique({
+      where:   { storeId: Number(req.params.id) },
+      include: { manager: { omit: { password: true } }, products: true },
+    });
+    if (!store) return res.status(404).json({ error: 'Store not found' });
+    res.json(store);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -30,12 +30,17 @@ const getStoreById = async (req, res) => {
 // POST /stores
 const createStore = async (req, res) => {
   try {
-    const { name, description, owner_id, image_url, is_open } = req.body;
-    const result = await pool.query(
-      'INSERT INTO stores (name, description, owner_id, image_url, is_open) VALUES ($1,$2,$3,$4,$5) RETURNING *',
-      [name, description, owner_id, image_url, is_open ?? true]
-    );
-    res.status(201).json(result.rows[0]);
+    const { storeName, description, location, isOpen, managerId } = req.body;
+    const store = await prisma.store.create({
+      data: {
+        storeName,
+        description,
+        location,
+        isOpen: isOpen ?? true,
+        managerId: Number(managerId),
+      },
+    });
+    res.status(201).json(store);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -44,29 +49,28 @@ const createStore = async (req, res) => {
 // PUT /stores/:id
 const updateStore = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, description, image_url, is_open } = req.body;
-    const result = await pool.query(
-      'UPDATE stores SET name=$1, description=$2, image_url=$3, is_open=$4, updated_at=NOW() WHERE id=$5 RETURNING *',
-      [name, description, image_url, is_open, id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Store not found' });
-    res.json(result.rows[0]);
+    const { storeName, description, location, isOpen } = req.body;
+    const store = await prisma.store.update({
+      where: { storeId: Number(req.params.id) },
+      data:  { storeName, description, location, isOpen },
+    });
+    res.json(store);
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Store not found' });
     res.status(500).json({ error: err.message });
   }
 };
 
-// PATCH /stores/:id/toggle
+// PATCH /stores/:id/toggle  – flip isOpen
 const toggleStoreStatus = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query(
-      'UPDATE stores SET is_open = NOT is_open, updated_at=NOW() WHERE id=$1 RETURNING *',
-      [id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Store not found' });
-    res.json(result.rows[0]);
+    const current = await prisma.store.findUnique({ where: { storeId: Number(req.params.id) } });
+    if (!current) return res.status(404).json({ error: 'Store not found' });
+    const store = await prisma.store.update({
+      where: { storeId: current.storeId },
+      data:  { isOpen: !current.isOpen },
+    });
+    res.json(store);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -75,11 +79,10 @@ const toggleStoreStatus = async (req, res) => {
 // DELETE /stores/:id
 const deleteStore = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query('DELETE FROM stores WHERE id=$1 RETURNING id', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Store not found' });
+    await prisma.store.delete({ where: { storeId: Number(req.params.id) } });
     res.json({ message: 'Store deleted successfully' });
   } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Store not found' });
     res.status(500).json({ error: err.message });
   }
 };
