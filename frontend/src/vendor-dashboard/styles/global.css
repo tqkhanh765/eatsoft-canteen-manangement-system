@@ -1,0 +1,91 @@
+/* Vendor Dashboard page styles (match screenshot layout) */
+
+.vd-page {
+  background: #f3f4f6;
+  padding: 18px 0 0;
+}
+
+.vd-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 0;
+}
+
+.vd-title {
+  margin: 0 0 18px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.vd-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.vd-card--wide {
+  margin-bottom: 18px;
+}
+
+.vd-card-title {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.vd-card-title--center {
+  text-align: center;
+}
+
+.vd-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.vd-summary {
+  background: transparent;
+}
+
+.vd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.vd-table th,
+.vd-table td {
+  padding: 10px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+.vd-table th {
+  font-weight: 700;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.vd-status {
+  font-weight: 700;
+}
+
+.vd-status.open {
+  color: #16a34a;
+}
+
+.vd-status.close {
+  color: #ef4444;
+}
+
+@media (max-width: 900px) {
+  .vd-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
