@@ -1,0 +1,135 @@
+/* Sync with your Navbar.css colors and spacing */
+.profile-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 40px; /* Khớp với padding của navbar-container */
+    font-family: 'Inter', sans-serif;
+}
+
+.profile-header {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    color: #111827; /* Màu giống login-btn background */
+}
+
+/* Tabs Navigation - Sync with nav-link style */
+.tab-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.tab-btn {
+    padding: 9px 22px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151; /* Màu của nav-link */
+    border-radius: 9999px; /* Bo tròn giống navbar */
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: #EFF6FF;
+    color: #2563EB;
+}
+
+.tab-btn.active {
+    background: #2563EB; /* Màu Blue từ Navbar active */
+    color: #ffffff;
+}
+
+/* Content Box */
+.content-box {
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 16px;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #111827;
+}
+
+/* Form Styles - Sync with login-btn styling */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px 16px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border 0.2s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #2563EB;
+    ring: 2px solid #EFF6FF;
+}
+
+.primary-btn {
+    background: #111827; /* Màu đen của login-btn */
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 9999px; /* Pill shape */
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.primary-btn:hover {
+    background: #1F2937;
+}
+
+/* Table Style */
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-table th {
+    text-align: left;
+    padding: 12px;
+    font-size: 13px;
+    color: #6B7280;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.order-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 14px;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-completed { background: #DCFCE7; color: #166534; }
+.status-processing { background: #FEF3C7; color: #92400E; }

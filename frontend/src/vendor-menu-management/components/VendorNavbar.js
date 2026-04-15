@@ -29,7 +29,7 @@ const VendorNavbar = () => {
       <div className="navbar-container">
         <a href="/" className="navbar-logo" id="vendor-navbar-logo">
           <img src="/eatsoft-logo.png" alt="EatSoft" />
-        </a>
+        </Link>
 
         <ul className="navbar-links" role="navigation" aria-label="Vendor navigation">
           {NAV_LINKS.map(({ id, label }) => (
@@ -38,11 +38,10 @@ const VendorNavbar = () => {
                 href="#!"
                 id={`vendor-nav-${id}`}
                 className={`nav-link ${active === id ? 'active' : ''}`}
-                onClick={(e) => { e.preventDefault(); setActive(id); }}
-                aria-current={active === id ? 'page' : undefined}
+                onClick={() => setActive(id)}
               >
                 {label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
