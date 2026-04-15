@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import '../styles/OrderCart.css';
+import '../styles/layout.css';
+import '../styles/cart-items.css';
+import '../styles/delivery.css';
+import '../styles/summary.css';
+import '../styles/states.css';
+import '../styles/alerts.css';
+import '../styles/animations.css';
 import { useCart } from '../hooks/useCart';
 import { useOrderActions } from '../hooks/useOrderActions';
 import { APP_CONSTANTS } from '../constants/appConstants';
