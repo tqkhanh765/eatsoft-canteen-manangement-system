@@ -3,12 +3,11 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AuthModal from './homepage/components/AuthModal';
 import VendorMenuPage from './vendor-menu-management/pages/VendorMenuPage';
-import './App.css';
-import Checkout from './customer-checkout-tab/pages/Checkout';  
-import OrderCart from './customer-order-tab/pages/OrderCart'; 
+import HomePage from './homepage/pages/HomePage';
+import './App.css'; 
 
 // Temporary dev page switcher (replace with React Router later)
-const DEV_PAGE = 'vendor'; // Change to 'home' to see the homepage
+const DEV_PAGE = 'home'; // Change to 'vendor' to see the vendor page
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -28,7 +27,7 @@ function App() {
   return (
     <div className="app">
       <Navbar onLoginClick={() => openAuth('login')} />
-      <OrderCart />
+      <HomePage />
       <Footer />
       <AuthModal
         isOpen={authOpen}
