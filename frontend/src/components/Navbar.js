@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
 const CartIcon = () => (
@@ -23,54 +24,57 @@ const BellIcon = () => (
 );
 
 const CUSTOMER_LINKS = [
-  { id: 'home', label: 'Home' },
-  { id: 'stalls', label: 'Food Stalls' },
-  { id: 'history', label: 'Order History' },
+  { id: 'home', label: 'Home', path: '/' },
+  { id: 'stalls', label: 'Food Stalls', path: '/stalls' },
+  { id: 'history', label: 'Order History', path: '/order-history' },
 ];
 
 const VENDOR_LINKS = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'menu', label: 'Menu' },
+  { id: 'tracking', label: 'Order Tracking', path: '/vendor-tracking' },
+  { id: 'dashboard', label: 'My Dashboard', path: '/dashboard' },
+  { id: 'menu', label: 'My Menu', path: '/vendor-menu' },
 ];
 
 const Navbar = ({ onLoginClick, user, onLogout }) => {
-  const [active, setActive] = useState('home');
+  const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Determine navigation links based on user role
   const isVendor = user?.role?.roleName === 'Vendor';
   const navLinks = isVendor ? VENDOR_LINKS : CUSTOMER_LINKS;
 
+  // Get active link based on current path
+  const active = navLinks.find(link => location.pathname === link.path)?.id || '';
+
   return (
     <nav className="navbar" id="main-navbar">
       <div className="navbar-container">
         {/* Logo */}
-        <a href="/" className="navbar-logo" id="navbar-logo">
+        <Link to="/" className="navbar-logo" id="navbar-logo">
           <img src="/eatsoft-logo.png" alt="EatSoft" />
-        </a>
+        </Link>
 
         {/* Nav Links */}
         <ul className="navbar-links" role="navigation" aria-label="Main navigation">
-          {navLinks.map(({ id, label }) => (
+          {navLinks.map(({ id, label, path }) => (
             <li key={id}>
-              <a
-                href="#!"
+              <Link
+                to={path}
                 id={`nav-${id}`}
                 className={`nav-link ${active === id ? 'active' : ''}`}
-                onClick={(e) => { e.preventDefault(); setActive(id); }}
                 aria-current={active === id ? 'page' : undefined}
               >
                 {label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
 
         {/* Actions */}
         <div className="navbar-actions">
-          <button className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
+          <Link to="/cart" className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
             <CartIcon />
-          </button>
+          </Link>
           {user ? (
             <>
               <button className="bell-btn" id="navbar-bell" aria-label="Notifications">
@@ -87,7 +91,7 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
                 </button>
                 {showUserMenu && (
                   <div className="user-dropdown">
-                    <button className="dropdown-item">User Profile</button>
+                    <Link to="/profile" className="dropdown-item">User Profile</Link>
                     <button className="dropdown-item dropdown-item--danger" onClick={onLogout}>Logout</button>
                   </div>
                 )}
