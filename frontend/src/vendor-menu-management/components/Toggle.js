@@ -1,5 +1,5 @@
 import React from 'react';
-import './Toggle.css';
+import '../styles/Toggle.css';
 
 const Toggle = ({ id, on, onChange }) => (
   <label className="toggle-wrapper" htmlFor={`toggle-${id}`}>

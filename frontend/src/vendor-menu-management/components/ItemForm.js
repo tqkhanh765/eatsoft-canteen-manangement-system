@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import Footer from '../../components/Footer';
 import ConfirmDialog from './ConfirmDialog';
 import { CATEGORIES } from '../constants';
-import './ItemForm.css';
+import '../styles/ItemForm.css';
 
 const ImageIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

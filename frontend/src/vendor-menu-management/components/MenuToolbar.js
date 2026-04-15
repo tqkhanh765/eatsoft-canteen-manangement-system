@@ -1,6 +1,6 @@
 import React from 'react';
 import { CATEGORIES } from '../constants';
-import './MenuToolbar.css';
+import '../styles/MenuToolbar.css';
 
 const SearchIcon = () => (
   <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

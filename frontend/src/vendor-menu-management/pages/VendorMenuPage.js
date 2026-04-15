@@ -5,7 +5,7 @@ import MenuCard from '../components/MenuCard';
 import MenuToolbar from '../components/MenuToolbar';
 import ItemForm from '../components/ItemForm';
 import { SEED_ITEMS, EMPTY_FORM } from '../constants';
-import './VendorMenuPage.css';
+import '../styles/VendorMenuPage.css';
 
 const PlusIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

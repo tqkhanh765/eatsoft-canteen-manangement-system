@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ConfirmDialog from './ConfirmDialog';
 import Toggle from './Toggle';
 import { formatVND } from '../constants';
-import './MenuCard.css';
+import '../styles/MenuCard.css';
 
 const EditIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

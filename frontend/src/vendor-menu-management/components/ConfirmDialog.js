@@ -1,5 +1,5 @@
 import React from 'react';
-import './ConfirmDialog.css';
+import '../styles/ConfirmDialog.css';
 
 const WarningIcon = () => (
   <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
