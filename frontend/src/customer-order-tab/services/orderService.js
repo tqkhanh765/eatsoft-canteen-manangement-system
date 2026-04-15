@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api';
+import { API_CONFIG } from '../config/apiConfig';
 
 // ── Orders ──────────────────────────────────────────────────────────────────
 
@@ -7,7 +7,7 @@ const BASE_URL = 'http://localhost:8080/api';
  * GET /api/orders/:id
  */
 export const fetchOrderById = async (orderId) => {
-  const res = await fetch(`${BASE_URL}/orders/${orderId}`);
+  const res = await fetch(`${API_CONFIG.BASE_URL}/orders/${orderId}`);
   if (!res.ok) throw new Error(`Failed to fetch order: ${res.statusText}`);
   return res.json();
 };
@@ -18,7 +18,7 @@ export const fetchOrderById = async (orderId) => {
  */
 export const fetchOrders = async (filters = {}) => {
   const params = new URLSearchParams(filters).toString();
-  const res = await fetch(`${BASE_URL}/orders${params ? `?${params}` : ''}`);
+  const res = await fetch(`${API_CONFIG.BASE_URL}/orders${params ? `?${params}` : ''}`);
   if (!res.ok) throw new Error(`Failed to fetch orders: ${res.statusText}`);
   return res.json();
 };
@@ -29,7 +29,7 @@ export const fetchOrders = async (filters = {}) => {
  * Body: { user_id, store_id, items: [{product_id, quantity, unit_price}], delivery_address, note }
  */
 export const createOrder = async (orderPayload) => {
-  const res = await fetch(`${BASE_URL}/orders`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}/orders`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(orderPayload),
@@ -47,7 +47,7 @@ export const createOrder = async (orderPayload) => {
  * Body: { status }  — one of: Pending, Cooking, Ready, Delivering, Completed, Cancelled
  */
 export const updateOrderStatus = async (orderId, status) => {
-  const res = await fetch(`${BASE_URL}/orders/${orderId}/status`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}/orders/${orderId}/status`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status }),
@@ -64,7 +64,7 @@ export const updateOrderStatus = async (orderId, status) => {
  * DELETE /api/orders/:id
  */
 export const deleteOrder = async (orderId) => {
-  const res = await fetch(`${BASE_URL}/orders/${orderId}`, { method: 'DELETE' });
+  const res = await fetch(`${API_CONFIG.BASE_URL}/orders/${orderId}`, { method: 'DELETE' });
   if (!res.ok) throw new Error(`Failed to delete order: ${res.statusText}`);
   return res.json();
 };
@@ -78,7 +78,7 @@ export const deleteOrder = async (orderId) => {
  * Note: backend automatically recalculates order total_price.
  */
 export const updateOrderItem = async (itemId, { quantity, unit_price }) => {
-  const res = await fetch(`${BASE_URL}/order-items/${itemId}`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}/order-items/${itemId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ quantity, unit_price }),
@@ -96,7 +96,7 @@ export const updateOrderItem = async (itemId, { quantity, unit_price }) => {
  * Note: backend automatically recalculates order total_price.
  */
 export const deleteOrderItem = async (itemId) => {
-  const res = await fetch(`${BASE_URL}/order-items/${itemId}`, { method: 'DELETE' });
+  const res = await fetch(`${API_CONFIG.BASE_URL}/order-items/${itemId}`, { method: 'DELETE' });
   if (!res.ok) throw new Error(`Failed to delete item: ${res.statusText}`);
   return res.json();
 };
