@@ -1,0 +1,53 @@
+.discovery-header {
+  padding: 40px 0;
+  color: white;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+
+.header-text h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+}
+
+.header-text p {
+  font-size: 16px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 50px;
+  padding: 12px 20px;
+  min-width: 300px;
+  border: 1px solid #ccc;
+}
+
+.search-box svg {
+  color: #666;
+  margin-right: 12px;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  color: #333;
+}
+
+.search-box input::placeholder {
+  color: #999;
+}
