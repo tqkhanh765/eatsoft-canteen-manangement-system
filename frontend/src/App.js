@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import OrderCart from './customer-order-tab/pages/OrderCart';
 import AuthModal from './homepage/components/AuthModal';
 import './App.css';
+import Checkout from './customer-checkout-tab/pages/Checkout';  
+import OrderCart from './customer-order-tab/pages/OrderCart'; 
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
