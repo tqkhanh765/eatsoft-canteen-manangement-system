@@ -8,6 +8,9 @@ export const OrderProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // 🔥 NEW: trạng thái nhận đơn
+    const [isOpen, setIsOpen] = useState(true);
+
     useEffect(() => {
         loadOrders();
     }, []);
@@ -26,7 +29,6 @@ export const OrderProvider = ({ children }) => {
 
     const handleUpdate = async (id, action) => {
         try {
-            // 🔥 Optimistic UI (update ngay không cần reload)
             setOrders(prev =>
                 prev.map(o =>
                     o.id === id ? { ...o, status: action } : o
@@ -36,12 +38,26 @@ export const OrderProvider = ({ children }) => {
             await updateOrder(id, action);
         } catch (err) {
             setError("Update failed");
-            loadOrders(); // fallback nếu lỗi
+            loadOrders();
         }
     };
 
+    // 🔥 toggle pause ordering
+    const toggleStore = () => {
+        setIsOpen(prev => !prev);
+    };
+
     return (
-        <OrderContext.Provider value={{ orders, handleUpdate, loading, error }}>
+        <OrderContext.Provider
+            value={{
+                orders,
+                handleUpdate,
+                loading,
+                error,
+                isOpen,
+                toggleStore
+            }}
+        >
             {children}
         </OrderContext.Provider>
     );

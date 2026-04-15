@@ -1,0 +1,160 @@
+/* ===== NAVBAR ===== */
+.navbar {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    z-index: 1000;
+}
+
+/* CONTAINER */
+.navbar-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 64px;
+
+    display: flex;                 /* 🔥 QUAN TRỌNG */
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ===== LEFT ===== */
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo {
+    height: 40px;
+}
+
+/* ===== CENTER ===== */
+.nav-center {
+    display: flex;                 /* 🔥 FIX MENU DỌC */
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.nav-center a {
+    text-decoration: none;
+    color: #6b7280;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    transition: all 0.2s;
+}
+
+.nav-center-btn {
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+/* HOVER */
+.nav-center a:hover,
+.nav-center-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+/* ACTIVE */
+.nav-center a.active {
+    background: #2563eb;
+    color: white;
+}
+
+/* ===== RIGHT ===== */
+.nav-right {
+    display: flex;                 /* 🔥 FIX bị xuống dòng */
+    align-items: center;
+    gap: 12px;
+}
+
+/* Settings text */
+.nav-settings {
+    background: transparent;
+    border: none;
+    padding: 8px 10px;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.nav-settings:hover {
+    background: #f3f4f6;
+    border-radius: 8px;
+}
+
+/* User pill */
+.nav-user-pill {
+    border: none;
+    cursor: pointer;
+    background: #111827;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 34px;
+}
+
+.nav-user-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: #f59e0b;
+    color: #111827;
+    font-weight: 900;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.nav-user-name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+/* Bell */
+.nav-bell {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+
+.nav-bell:hover {
+    background: #f3f4f6;
+}
+
+.nav-bell-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.nav-bell-dot {
+    position: absolute;
+    top: 7px;
+    right: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #ef4444;
+}

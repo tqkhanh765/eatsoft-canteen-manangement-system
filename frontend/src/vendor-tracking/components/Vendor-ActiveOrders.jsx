@@ -6,16 +6,14 @@ import { filterOrdersByStatus } from "../utils/filterOrders";
 const VendorActiveOrders = () => {
     const { orders, handleUpdate } = useOrder();
 
-    const activeOrders = filterOrdersByStatus(orders, "active");
+    const activeOrders = filterOrdersByStatus(orders || [], "active");
 
     return (
-        <div className="section">
-            <h2 className="section-title">
-                🔄 Active Orders ({activeOrders.length})
-            </h2>
+        <div className="card">
+            <h2 className="section-title">Active Orders</h2>
 
             {activeOrders.length === 0 ? (
-                <p className="empty">No active orders</p>
+                <p className="muted">No active orders</p>
             ) : (
                 activeOrders.map(order => (
                     <VendorOrder

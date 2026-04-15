@@ -4,18 +4,26 @@ import "../styles/global.css";
 import { filterOrdersByStatus } from "../utils/filterOrders";
 
 const VendorNewOrders = () => {
-    const { orders, handleUpdate } = useOrder();
+    const { orders, handleUpdate, isOpen } = useOrder();
 
-    const newOrders = filterOrdersByStatus(orders, "new");
+    // ❌ nếu pause thì không nhận đơn mới
+    if (!isOpen) {
+        return (
+            <div className="card">
+                <h2 className="section-title">New Orders</h2>
+                <p className="muted">Ordering is paused</p>
+            </div>
+        );
+    }
+
+    const newOrders = filterOrdersByStatus(orders || [], "new");
 
     return (
-        <div className="section">
-            <h2 className="section-title">
-                🆕 New Orders ({newOrders.length})
-            </h2>
+        <div className="card">
+            <h2 className="section-title">New Orders</h2>
 
             {newOrders.length === 0 ? (
-                <p className="empty">No new orders</p>
+                <p className="muted">No new orders</p>
             ) : (
                 newOrders.map(order => (
                     <VendorOrder
