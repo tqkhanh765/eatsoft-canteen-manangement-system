@@ -9,6 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // ── API Routes ────────────────────────────────────────────────────
+app.use('/api/auth',        require('./src/routes/authRoutes'));
 app.use('/api/roles',       require('./src/routes/roleRoutes'));
 app.use('/api/users',       require('./src/routes/userRoutes'));
 app.use('/api/stores',      require('./src/routes/storeRoutes'));
