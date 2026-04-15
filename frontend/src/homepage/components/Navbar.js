@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom'; // Thêm Link và useLocation
 import './Navbar.css';
 
 const CartIcon = () => (
@@ -15,36 +16,36 @@ const UserIcon = () => (
   </svg>
 );
 
+// Cập nhật path để khớp với App.js
 const NAV_LINKS = [
-  { id: 'home', label: 'Home' },
-  { id: 'stalls', label: 'Food Stalls' },
-  { id: 'history', label: 'Order History' },
+  { id: 'home', label: 'Home', path: '/' },
+  { id: 'stalls', label: 'Food Stalls', path: '/stalls' },
+  { id: 'history', label: 'Order History', path: '/profile' }, 
 ];
 
 const Navbar = () => {
-  const [active, setActive] = useState('home');
+  const location = useLocation(); // Lấy path hiện tại để tự động active menu
 
   return (
     <nav className="navbar" id="main-navbar">
       <div className="navbar-container">
-        {/* Logo */}
-        <a href="/" className="navbar-logo" id="navbar-logo">
+        {/* Logo dùng Link để về Home */}
+        <Link to="/" className="navbar-logo" id="navbar-logo">
           <img src="/eatsoft-logo.png" alt="EatSoft" />
-        </a>
+        </Link>
 
         {/* Nav Links */}
         <ul className="navbar-links" role="navigation" aria-label="Main navigation">
-          {NAV_LINKS.map(({ id, label }) => (
+          {NAV_LINKS.map(({ id, label, path }) => (
             <li key={id}>
-              <a
-                href="#"
+              <Link
+                to={path}
                 id={`nav-${id}`}
-                className={`nav-link ${active === id ? 'active' : ''}`}
-                onClick={(e) => { e.preventDefault(); setActive(id); }}
-                aria-current={active === id ? 'page' : undefined}
+                className={`nav-link ${location.pathname === path ? 'active' : ''}`}
+                aria-current={location.pathname === path ? 'page' : undefined}
               >
                 {label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -54,10 +55,12 @@ const Navbar = () => {
           <button className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
             <CartIcon />
           </button>
-          <button className="login-btn" id="navbar-login">
+          
+          {/* Chuyển button thành Link dẫn vào Profile khi đã "đăng nhập" */}
+          <Link to="/profile" className="login-btn" id="navbar-login" style={{ textDecoration: 'none' }}>
             <span className="login-avatar"><UserIcon /></span>
-            Login/Signup
-          </button>
+            Nguyen Van A
+          </Link>
         </div>
       </div>
     </nav>
