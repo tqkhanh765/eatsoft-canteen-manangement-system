@@ -2,117 +2,209 @@ import React, { useState } from 'react';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
-    const [activeTab, setActiveTab] = useState('profile');
-    const [selectedOrder, setSelectedOrder] = useState(null);
+  const [activeTab, setActiveTab] = useState('info'); // 'info' hoặc 'history'
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
-    // Mock Data
-    const userData = {
-        name: "Giao Vo",
-        id: "ITDSIU23036",
-        email: "itdsiu23036@student.hcmiu.edu.vn",
-        phone: "+84 901 234 567"
-    };
+  // Mock data
+  const userData = {
+    firstName: "Quoc Khanh",
+    lastName: "Truong",
+    studentId: "ITCSIU23015",
+    phone: "+84 38-485-xxxx",
+    email: "ITCSIU23015@student.hcmiu.edu.vn",
+    country: "Vietnam",
+    university: "International University"
+  };
 
-    const orders = [
-        { id: "EAT-2026-001", date: "Apr 12, 2026", outlet: "Big U", total: "50,000 VND", status: "Completed", items: ["Chicken Rice x1", "Iced Tea x1"] },
-        { id: "EAT-2026-002", date: "Apr 15, 2026", outlet: "Gạo và Nồi", total: "30,000 VND", status: "Processing", items: ["Chicken Banh Mi x1"] }
-    ];
+  const orders = [
+    { id: '#001', items: 'Big U, Com Viet, +1 more', count: 5, time: '12:00, 25-03-2026', total: '350.000VND', status: 'In progress' },
+    { id: '#001', items: 'Big U, Com Viet, +1 more', count: 5, time: '12:00, 25-03-2026', total: '350.000VND', status: 'In progress' },
+    { id: '#001', items: 'Big U, Com Viet, +1 more', count: 5, time: '12:00, 25-03-2026', total: '350.000VND', status: 'In progress' },
+  ];
 
-    return (
-        <div className="profile-container">
-            <h1 className="profile-header">Settings</h1>
-
-            <div className="tab-bar">
-                <button 
-                    className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
-                    onClick={() => {setActiveTab('profile'); setSelectedOrder(null);}}>
-                    Personal Information
-                </button>
-                <button 
-                    className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-                    onClick={() => {setActiveTab('history'); setSelectedOrder(null);}}>
-                    Order History
-                </button>
-            </div>
-
-            <div className="content-box">
-                {/* 1. Personal Info Tab */}
-                {activeTab === 'profile' && (
-                    <div className="fade-in">
-                        <h3 className="section-title">Personal Details</h3>
-                        <div className="input-group">
-                            <label>Full Name</label>
-                            <input type="text" className="input-field" defaultValue={userData.name} />
-                        </div>
-                        <div className="input-group">
-                            <label>Student ID / Account ID</label>
-                            <input type="text" className="input-field" value={userData.id} disabled />
-                        </div>
-                        <div className="input-group">
-                            <label>Email Address</label>
-                            <input type="email" className="input-field" value={userData.email} disabled />
-                        </div>
-                        <button className="primary-btn">Update Profile</button>
-                    </div>
-                )}
-
-                {/* 2. Order History List */}
-                {activeTab === 'history' && !selectedOrder && (
-                    <div className="fade-in">
-                        <h3 className="section-title">Your Orders</h3>
-                        <table className="order-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Date</th>
-                                    <th>Outlet</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {orders.map(order => (
-                                    <tr key={order.id}>
-                                        <td><strong>{order.id}</strong></td>
-                                        <td>{order.date}</td>
-                                        <td>{order.outlet}</td>
-                                        <td>
-                                            <span className={order.status === 'Completed' ? 'status-completed' : 'status-processing'}>
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className="view-detail-link" onClick={() => setSelectedOrder(order)}>View Detail</span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {/* 3. Order Detail View */}
-                {selectedOrder && (
-                    <div className="fade-in">
-                        <p className="view-detail-link" onClick={() => setSelectedOrder(null)}>← Back to History</p>
-                        <h3 className="section-title" style={{marginTop: '20px'}}>Order Summary: {selectedOrder.id}</h3>
-                        <div style={{background: '#fcfcfc', padding: '30px', borderRadius: '15px', border: '1px dashed #DDD'}}>
-                            <p><strong>Vendor:</strong> {selectedOrder.outlet}</p>
-                            <p><strong>Order Date:</strong> {selectedOrder.date}</p>
-                            <hr style={{margin: '20px 0', border: '0.5px solid #EEE'}} />
-                            <h4>Order Items:</h4>
-                            <ul style={{listStyle: 'none', padding: 0}}>
-                                {selectedOrder.items.map((item, idx) => (
-                                    <li key={idx} style={{padding: '8px 0', borderBottom: '1px solid #F1F1F1'}}>{item}</li>
-                                ))}
-                            </ul>
-                            <h3 style={{textAlign: 'right', color: 'var(--primary-orange)'}}>Total: {selectedOrder.total}</h3>
-                        </div>
-                    </div>
-                )}
-            </div>
+  return (
+    <div className={`profile-container ${selectedOrder ? 'full-width' : ''}`}>
+  
+  {!selectedOrder && (
+    <aside className="sidebar">
+      <div className="user-avatar-section">
+        <div className="avatar-circle">
+          <i className="fas fa-user"></i>
         </div>
-    );
+        <h3>Nguyen Van A</h3>
+        <p>ID: 001</p>
+      </div>
+
+      <nav className="sidebar-nav">
+        <button 
+          className={activeTab === 'info' ? 'active' : ''} 
+          onClick={() => {setActiveTab('info'); setSelectedOrder(null);}}
+        >
+          PERSONAL INFORMATION
+        </button>
+
+        <button 
+          className={activeTab === 'history' ? 'active' : ''} 
+          onClick={() => setActiveTab('history')}
+        >
+          ORDER HISTORY
+        </button>
+      </nav>
+    </aside>
+  )}
+
+  <main className="profile-content">
+        {selectedOrder ? (
+          /* ORDER DETAIL */
+          <div className="order-detail">
+            <button className="back-btn" onClick={() => setSelectedOrder(null)}>
+              ← Order {selectedOrder.id}
+            </button>
+            <p className="ready-time">Order will be ready in about 5 minutes</p>
+            
+            <div className="order-stepper">
+              <div className="step completed">Order placed</div>
+              <div className="step completed">Order accepted</div>
+              <div className="step active">Preparing dishes</div>
+              <div className="step pending">Order completed</div>
+            </div>
+
+            <div className="detail-grid">
+              <div className="items-list">
+                <h3>Items ordered</h3>
+                {[1, 2, 3].map((_, i) => (
+                  <div key={i} className="order-item-card">
+                    <div className="item-info">
+                      <strong>Big U</strong>
+                      <p>Cơm gà xé Hội An</p>
+                      <span>Không ớt, ít cơm</span>
+                    </div>
+                    <div className="item-qty">
+                      <button>-</button> <span>2</span> <button>+</button>
+                    </div>
+                    <div className="item-price">70.000VND</div>
+                    <div className="item-actions">
+                      <button className="edit-icon">✎</button>
+                      <button className="delete-icon">🗑</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ✅ UPDATED CHECKOUT INFO */}
+              <div className="checkout-info">
+                <h3>Checkout Info</h3>
+                <div className="info-table">
+                  <div className="info-row-detail">
+                    <span className="label">Location:</span>
+                    <span className="value">IU Campus, Quarter 6, Linh Trung Ward</span>
+                  </div>
+                  <div className="info-row-detail">
+                    <span className="label">Room:</span>
+                    <span className="value">A1.409</span>
+                  </div>
+                  <div className="info-row-detail">
+                    <span className="label">Name:</span>
+                    <span className="value">Nguyen Van A</span>
+                  </div>
+                  <div className="info-row-detail">
+                    <span className="label">Phone:</span>
+                    <span className="value">(+84) 901 234 567</span>
+                  </div>
+                  <div className="info-row-detail">
+                    <span className="label">Pickup options:</span>
+                    <span className="value">Delivery</span>
+                  </div>
+                  <div className="info-row-detail">
+                    <span className="label">Payment method:</span>
+                    <span className="value">Momo</span>
+                  </div>
+                  
+                  <hr className="detail-divider" />
+                  
+                  <div className="info-row-detail">
+                    <span className="label">Sub Total:</span>
+                    <span className="value">350.000VND</span>
+                  </div>
+                  <div className="info-row-detail">
+                    <span className="label">Discount:</span>
+                    <span className="value">-20.000VND</span>
+                  </div>
+                  <div className="info-row-detail">
+                    <span className="label">Delivery fee:</span>
+                    <span className="value">10.000VND</span>
+                  </div>
+                  <div className="info-row-detail grand-total">
+                    <span className="label">Grand total:</span>
+                    <span className="value">340.000VND</span>
+                  </div>
+                </div>
+                
+                <button className="feedback-btn">Give feedback</button>
+                <p className="contact-seller-text">
+                  Meet any problems? <a href="#">Contact seller</a>
+                </p>
+              </div>
+
+            </div>
+          </div>
+        ) : activeTab === 'info' ? (
+          /* PERSONAL INFO */
+          <div className="personal-info">
+            <h2>Personal Information</h2>
+            <div className="info-card">
+              <div className="input-group-row">
+                <div className="input-field">
+                  <label>First Name</label>
+                  <input type="text" defaultValue={userData.firstName} readOnly />
+                </div>
+                <div className="input-field">
+                  <label>Last Name</label>
+                  <input type="text" defaultValue={userData.lastName} readOnly />
+                </div>
+              </div>
+              <div className="input-group-row">
+                <div className="input-field">
+                  <label>Student ID</label>
+                  <input type="text" defaultValue={userData.studentId} readOnly />
+                </div>
+                <div className="input-field">
+                  <label>Phone Number</label>
+                  <input type="text" defaultValue={userData.phone} readOnly />
+                </div>
+              </div>
+              <div className="input-field">
+                <label>Email Address</label>
+                <input type="email" defaultValue={userData.email} readOnly />
+              </div>
+              <button className="edit-btn">EDIT</button>
+            </div>
+          </div>
+        ) : (
+          /* ORDER HISTORY */
+          <div className="order-history">
+            <h2>Order History</h2>
+            <div className="history-list">
+              {orders.map((order, index) => (
+                <div key={index} className="history-item">
+                  <div className="item-main">
+                    <p className="item-summary">🛒 {order.items}</p>
+                    <h4 className="order-id">Order {order.id}</h4>
+                    <span>{order.count} items | Created at: {order.time}</span>
+                  </div>
+                  <div className="item-price">{order.total}</div>
+                  <div className="item-status">
+                    Status: <span className="status-tag">{order.status}</span>
+                  </div>
+                  <button className="view-btn" onClick={() => setSelectedOrder(order)}>👁</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 };
 
 export default ProfilePage;

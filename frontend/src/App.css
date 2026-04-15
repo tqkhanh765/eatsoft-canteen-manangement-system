@@ -3,3 +3,16 @@
   flex-direction: column;
   min-height: 100vh;
 }
+
+.main-content {
+  flex: 1; /* Cực kỳ quan trọng: giúp đẩy Footer xuống cuối màn hình */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Đảm bảo không có khoảng trắng thừa xung quanh trang */
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}

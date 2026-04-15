@@ -1,135 +1,255 @@
-/* Sync with your Navbar.css colors and spacing */
+/* ================== LAYOUT ================== */
 .profile-container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 40px; /* Khớp với padding của navbar-container */
-    font-family: 'Inter', sans-serif;
-}
-
-.profile-header {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 32px;
-    color: #111827; /* Màu giống login-btn background */
-}
-
-/* Tabs Navigation - Sync with nav-link style */
-.tab-bar {
     display: flex;
-    gap: 8px;
-    margin-bottom: 32px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #f0f0f0;
+    flex: 1;
+    padding: 40px 10%;
+    gap: 40px;
+    background-color: #fff;
 }
 
-.tab-btn {
-    padding: 9px 22px;
+/* ================== SIDEBAR ================== */
+.sidebar {
+    width: 280px;
+    text-align: center;
+}
+
+.avatar-circle {
+    width: 120px;
+    height: 120px;
+    background-color: #FF9800;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 50px;
+}
+
+.sidebar-nav {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-nav button {
+    background: none;
     border: none;
-    background: transparent;
+    text-align: left;
+    padding: 15px;
+    font-weight: bold;
+    color: #888;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151; /* Màu của nav-link */
-    border-radius: 9999px; /* Bo tròn giống navbar */
-    transition: all 0.2s ease;
+    transition: 0.3s;
+    border-radius: 8px;
 }
 
-.tab-btn:hover {
-    background: #EFF6FF;
-    color: #2563EB;
+.sidebar-nav button.active {
+    color: #000;
+    background-color: #f0f0f0;
 }
 
-.tab-btn.active {
-    background: #2563EB; /* Màu Blue từ Navbar active */
-    color: #ffffff;
+/* ================== CONTENT ================== */
+.profile-content {
+    flex: 1;
 }
 
-/* Content Box */
-.content-box {
-    background: #ffffff;
-    padding: 32px;
-    border-radius: 16px;
-    border: 1px solid #f0f0f0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+h2 {
+    font-size: 28px;
+    margin-bottom: 25px;
 }
 
-.section-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 24px;
-    color: #111827;
+/* ================== PERSONAL INFO ================== */
+.info-card {
+    background: #F4F9FF;
+    padding: 30px;
+    border-radius: 15px;
 }
 
-/* Form Styles - Sync with login-btn styling */
-.input-group {
-    margin-bottom: 20px;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
+.input-group-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
 }
 
 .input-field {
-    width: 100%;
-    padding: 10px 16px;
-    border: 1px solid #D1D5DB;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border 0.2s;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
 }
 
-.input-field:focus {
-    outline: none;
-    border-color: #2563EB;
-    ring: 2px solid #EFF6FF;
+.input-field label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #2D3748;
 }
 
-.primary-btn {
-    background: #111827; /* Màu đen của login-btn */
+.input-field input {
+    padding: 12px;
+    border: 1px solid #CBD5E0;
+    border-radius: 5px;
+    background: #E2E8F0;
+}
+
+.edit-btn {
+    background: #007BFF;
     color: white;
     border: none;
-    padding: 10px 24px;
-    border-radius: 9999px; /* Pill shape */
-    font-size: 14px;
-    font-weight: 600;
+    padding: 10px 40px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background 0.2s;
+    font-weight: bold;
 }
 
-.primary-btn:hover {
-    background: #1F2937;
+/* ================== ORDER HISTORY ================== */
+.history-item {
+    display: flex;
+    align-items: center;
+    background: #F4F9FF;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    justify-content: space-between;
 }
 
-/* Table Style */
-.order-table {
-    width: 100%;
-    border-collapse: collapse;
+.status-tag {
+    color: #D4AF37;
+    font-weight: bold;
 }
 
-.order-table th {
-    text-align: left;
-    padding: 12px;
-    font-size: 13px;
-    color: #6B7280;
-    border-bottom: 1px solid #F3F4F6;
+.view-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
 }
 
-.order-table td {
-    padding: 16px 12px;
-    border-bottom: 1px solid #F3F4F6;
-    font-size: 14px;
+/* ================== ORDER DETAIL ================== */
+.order-stepper {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
 }
 
-.status-badge {
-    padding: 4px 12px;
-    border-radius: 9999px;
+.step {
     font-size: 12px;
-    font-weight: 500;
+    color: #ccc;
+    text-align: center;
 }
 
-.status-completed { background: #DCFCE7; color: #166534; }
-.status-processing { background: #FEF3C7; color: #92400E; }
+.step.active {
+    color: #007BFF;
+    font-weight: bold;
+}
+
+.step.completed {
+    color: #28a745;
+}
+
+/* ================== GRID ================== */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+}
+
+.order-item-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* ================== CHECKOUT INFO (FINAL VERSION) ================== */
+.checkout-info {
+    background: #fff;
+    border: 1px solid #E0E0E0;
+    border-radius: 15px;
+    padding: 25px;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.checkout-info h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.info-row-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.info-row-detail .label {
+    color: #000;
+    font-weight: 500;
+    flex: 1;
+}
+
+.info-row-detail .value {
+    color: #444;
+    text-align: right;
+    flex: 2;
+    font-weight: 400;
+}
+
+.detail-divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 15px 0;
+}
+
+.grand-total {
+    margin-top: 15px;
+}
+
+.grand-total .label,
+.grand-total .value {
+    font-size: 18px;
+    font-weight: 800;
+    color: #000;
+}
+
+/* ================== BUTTON ================== */
+.feedback-btn {
+    width: 100%;
+    background-color: #0085FF;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: 0.2s;
+}
+
+.feedback-btn:hover {
+    background-color: #006fd6;
+}
+
+/* ================== CONTACT ================== */
+.contact-seller-text {
+    text-align: center;
+    font-size: 13px;
+    margin-top: 15px;
+    color: #666;
+}
+
+.contact-seller-text a {
+    color: #0085FF;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.contact-seller-text a:hover {
+    text-decoration: underline;
+}
