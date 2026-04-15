@@ -2,12 +2,19 @@ import ProfitOfWeekChart from "../components/charts/ProfitOfWeekChart";
 import TopMenuPieChart from "../components/charts/TopMenuPieChart";
 import PeakOrderingHoursChart from "../components/charts/PeakOrderingHoursChart";
 import SummaryTable from "../components/summary/SummaryTable";
-import Layout from "../../vendor-tracking/components/Layout";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
 import "../styles/global.css";
 
-export default function Dashboard() {
+export default function Dashboard({ user, onLogout }) {
+    const handleLoginClick = () => {
+        // Vendor pages are protected, so login click shouldn't happen
+        // But keeping the function for Navbar compatibility
+    };
+
     return (
-        <Layout>
+        <>
+            <Navbar onLoginClick={handleLoginClick} user={user} onLogout={onLogout} />
             <main className="vd-page">
                 <div className="vd-container">
                     <h1 className="vd-title">Dashboard</h1>
@@ -35,6 +42,7 @@ export default function Dashboard() {
                     </section>
                 </div>
             </main>
-        </Layout>
+            <Footer />
+        </>
     );
 }

@@ -4,7 +4,8 @@
   border: 1.5px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  display: flex;             /* horizontal: image | body */
+  display: flex;
+  /* horizontal: image | body */
   flex-direction: row;
   transition: box-shadow 0.2s, transform 0.2s;
   min-height: 160px;
@@ -19,8 +20,10 @@
 .menu-card-img-wrap {
   position: relative;
   flex-shrink: 0;
-  width: 160px;               /* fixed square width */
-  align-self: stretch;        /* fill the full card height */
+  width: 160px;
+  /* fixed square width */
+  align-self: stretch;
+  /* fill the full card height */
 }
 
 .menu-card-img {
@@ -97,35 +100,49 @@
 .menu-card-actions {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   align-items: flex-end;
 }
 
 .action-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100px;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.15s, transform 0.15s;
+  background: #fff;
+  transition: all 0.2s ease;
 }
 
-.action-btn:hover { opacity: 0.85; transform: scale(0.98); }
-
 .action-btn.edit {
-  background: #EFF6FF;
   color: #2563EB;
   border: 1px solid #BFDBFE;
 }
 
+.action-btn.edit:hover {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
 .action-btn.delete {
-  background: #EF4444;
-  color: #fff;
+  color: #EF4444;
+  border: 1px solid #FECACA;
+}
+
+.action-btn.delete:hover {
+  background: #FEF2F2;
+  border-color: #EF4444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
 /* Price block */
@@ -133,8 +150,17 @@
   text-align: right;
 }
 
-.menu-card-price-label { font-size: 11px; font-weight: 600; color: var(--muted); }
-.menu-card-price       { font-size: 14px; font-weight: 700; color: #16A34A; }
+.menu-card-price-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.menu-card-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #16A34A;
+}
 
 /* ── Bottom: availability footer ─────────────────────────────── */
 .menu-card-footer {
@@ -155,5 +181,12 @@
   border-radius: var(--radius-pill);
 }
 
-.availability-label.available { background: #DCFCE7; color: #16A34A; }
-.availability-label.soldout   { background: #F3F4F6; color: #6B7280; }
+.availability-label.available {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.availability-label.soldout {
+  background: #F3F4F6;
+  color: #6B7280;
+}
