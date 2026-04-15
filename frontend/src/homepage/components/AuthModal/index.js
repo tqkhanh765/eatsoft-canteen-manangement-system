@@ -8,11 +8,14 @@ import VerifyCodeView from './VerifyCodeView';
 import ResetPasswordView from './ResetPasswordView';
 
 /* ─── Main AuthModal Orchestrator ────────────────────────────── */
-const AuthModal = ({ isOpen, defaultView = 'login', onClose }) => {
+const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) => {
   const [view, setView] = useState(defaultView);
+
+  console.log('[AuthModal] Rendered with isOpen:', isOpen);
 
   // Reset view whenever modal opens
   useEffect(() => {
+    console.log('[AuthModal] isOpen changed to:', isOpen);
     if (isOpen) setView(defaultView);
   }, [isOpen, defaultView]);
 
@@ -90,6 +93,7 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose }) => {
               onClose={onClose}
               onSwitchSignup={() => setView('signup')}
               onForgotPassword={() => setView('forgot')}
+              onLoginSuccess={onLoginSuccess}
             />
           )}
           {view === 'signup' && (

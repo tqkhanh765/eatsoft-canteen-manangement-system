@@ -35,7 +35,7 @@ const VendorNavbar = () => {
           {NAV_LINKS.map(({ id, label }) => (
             <li key={id}>
               <a
-                href="#"
+                href="#!"
                 id={`vendor-nav-${id}`}
                 className={`nav-link ${active === id ? 'active' : ''}`}
                 onClick={(e) => { e.preventDefault(); setActive(id); }}

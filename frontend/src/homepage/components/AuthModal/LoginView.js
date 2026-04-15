@@ -1,20 +1,68 @@
 import React, { useState } from 'react';
 import { PasswordField } from './AuthShared';
+import authService from '../../../services/authService';
 
-const LoginView = ({ onClose, onSwitchSignup, onForgotPassword }) => {
+const LoginView = ({ onClose, onSwitchSignup, onForgotPassword, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: integrate with auth API
-    console.log('Login:', { email, password, remember });
+    console.log('[LoginView] Login form submitted for email:', email);
+    setError('');
+    setIsLoading(true);
+
+    try {
+      console.log('[LoginView] Calling authService.login...');
+      const result = await authService.login(email, password);
+      console.log('[LoginView] authService.login result:', result);
+
+      if (result.success) {
+        console.log('[LoginView] Login successful for user:', result.user?.userName);
+        console.log('[LoginView] User role:', result.user?.role?.roleName);
+
+        // Call the success handler with user data
+        if (onLoginSuccess) {
+          console.log('[LoginView] Calling onLoginSuccess callback');
+          onLoginSuccess(result.user);
+        }
+
+        // If user is vendor, redirect to vendor menu page
+        if (result.user?.role?.roleName === 'Vendor') {
+          console.log('[LoginView] User is vendor, redirecting to /vendor-menu');
+          window.location.href = '/vendor-menu';
+        } else {
+          console.log('[LoginView] User is not vendor, closing modal');
+          onClose();
+        }
+      } else {
+        console.error('[LoginView] Login failed:', result.error);
+        setError(result.error || 'Login failed. Please check your credentials.');
+      }
+    } catch (err) {
+      console.error('[LoginView] Login error caught:', err);
+      console.error('[LoginView] Error response:', err.response?.data);
+      setError(err.response?.data?.error || 'Login failed. Please try again.');
+    } finally {
+      console.log('[LoginView] Login attempt completed');
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="auth-view" id="auth-view-login">
       <h1 className="auth-title">Log in</h1>
+
+      {/* Error message */}
+      {error && (
+        <div className="auth-error" style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '0.9rem' }}>
+          {error}
+        </div>
+      )}
+
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <div className="auth-field">
           <label className="auth-label" htmlFor="login-email">Email</label>
@@ -26,6 +74,7 @@ const LoginView = ({ onClose, onSwitchSignup, onForgotPassword }) => {
             onChange={e => setEmail(e.target.value)}
             autoComplete="email"
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -34,6 +83,7 @@ const LoginView = ({ onClose, onSwitchSignup, onForgotPassword }) => {
           label="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}
+          disabled={isLoading}
         />
 
         <div className="auth-row">
@@ -57,8 +107,14 @@ const LoginView = ({ onClose, onSwitchSignup, onForgotPassword }) => {
           </button>
         </div>
 
-        <button type="submit" className="auth-submit-btn" id="btn-login-submit">
-          Log in
+        <button
+          type="submit"
+          className="auth-submit-btn"
+          id="btn-login-submit"
+          disabled={isLoading}
+          style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer' }}
+        >
+          {isLoading ? 'Logging in...' : 'Log in'}
         </button>
       </form>
 
