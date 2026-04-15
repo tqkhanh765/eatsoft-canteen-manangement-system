@@ -9,7 +9,10 @@ import OrderHistory from './customer/OrderHistory';
 import ProfilePage from './customer/ProfilePage';
 import OrderCart from './customer-order-tab/pages/OrderCart';
 import Dashboard from './vendor-dashboard/pages/Dashboard';
+import Orders from './vendor-dashboard/pages/Orders';
+import { OrderProvider } from './vendor-dashboard/context/OrderContext';
 import FoodStallsPage from './food-stalls/pages/FoodStallsPage';
+import VendorMenu from './vendor-tracking/pages/VendorMenu';
 import authService from './services/authService';
 import './App.css';
 
@@ -209,6 +212,28 @@ function App() {
             element={
               <ProtectedVendorRoute>
                 <Dashboard user={user} onLogout={handleLogout} />
+              </ProtectedVendorRoute>
+            }
+          />
+
+          {/* Order Tracking Page - requires vendor authentication */}
+          <Route
+            path="/vendor-tracking"
+            element={
+              <ProtectedVendorRoute>
+                <VendorMenu user={user} onLogout={handleLogout} />
+              </ProtectedVendorRoute>
+            }
+          />
+
+          {/* All Orders Page - requires vendor authentication */}
+          <Route
+            path="/vendor-orders"
+            element={
+              <ProtectedVendorRoute>
+                <OrderProvider>
+                  <Orders user={user} onLogout={handleLogout} />
+                </OrderProvider>
               </ProtectedVendorRoute>
             }
           />

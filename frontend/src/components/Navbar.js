@@ -31,8 +31,9 @@ const CUSTOMER_LINKS = [
 
 const VENDOR_LINKS = [
   { id: 'tracking', label: 'Order Tracking', path: '/vendor-tracking' },
-  { id: 'dashboard', label: 'My Dashboard', path: '/dashboard' },
   { id: 'menu', label: 'My Menu', path: '/vendor-menu' },
+  { id: 'all-orders', label: 'All Orders', path: '/vendor-orders' },
+  { id: 'dashboard', label: 'My Dashboard', path: '/dashboard' },
 ];
 
 const Navbar = ({ onLoginClick, user, onLogout }) => {
