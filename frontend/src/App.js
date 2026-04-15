@@ -3,7 +3,11 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './homepage/pages/HomePage';
 import AuthModal from './homepage/components/AuthModal';
+import VendorMenuPage from './vendor-menu-management/pages/VendorMenuPage';
 import './App.css';
+
+// Temporary dev page switcher (replace with React Router later)
+const DEV_PAGE = 'vendor'; // Change to 'home' to see the homepage
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -15,6 +19,10 @@ function App() {
   }, []);
 
   const closeAuth = useCallback(() => setAuthOpen(false), []);
+
+  if (DEV_PAGE === 'vendor') {
+    return <VendorMenuPage />;
+  }
 
   return (
     <div className="app">
@@ -31,3 +39,4 @@ function App() {
 }
 
 export default App;
+

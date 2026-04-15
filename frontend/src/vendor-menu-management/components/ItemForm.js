@@ -22,8 +22,9 @@ const ImageIcon = () => (
  *   onSave     {function} – called when the user confirms saving
  *   onCancel   {function} – called when the user confirms cancelling
  *   saveLabel  {string}   – button label: "Publish" or "Save"
+ *   isSaving   {boolean}  – whether save operation is in progress
  */
-const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel }) => {
+const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel, isSaving }) => {
   const fileRef = useRef();
 
   // Dialog state: which dialog is open and what action it will confirm
@@ -136,11 +137,11 @@ const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel }) => {
 
           {/* Action buttons – both open a confirmation dialog first */}
           <div className="form-page-actions">
-            <button className="form-btn-cancel" id="form-cancel-btn" onClick={askCancel}>
+            <button className="form-btn-cancel" id="form-cancel-btn" onClick={askCancel} disabled={isSaving}>
               Cancel
             </button>
-            <button className="form-btn-save" id="form-save-btn" onClick={askSave}>
-              {saveLabel}
+            <button className="form-btn-save" id="form-save-btn" onClick={askSave} disabled={isSaving}>
+              {isSaving ? 'Saving...' : saveLabel}
             </button>
           </div>
         </div>

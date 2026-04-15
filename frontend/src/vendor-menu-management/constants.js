@@ -1,6 +1,22 @@
 // Shared constants used across vendor-menu-management components
-
-export const CATEGORIES = ['Food', 'Drink', 'Snack', 'Dessert'];
+// These match the category names from backend seed data
+export const CATEGORIES = [
+  'Cơm',
+  'Phở/Bún',
+  'Món Nước',
+  'Bánh Mì',
+  'Xiên Que',
+  'Cà Phê',
+  'Trà Sữa',
+  'Sinh Tố',
+  'Nước Ngọt',
+  'Trà Trái Cây',
+  'Đồ Chay',
+  'Tráng Miệng',
+  'Gà Rán',
+  'Pizza/Mỳ Ý',
+  'Đồ Ăn Vặt Hàn Quốc'
+];
 
 export const EMPTY_FORM = { name: '', type: '', price: '', desc: '', image: '' };
 
