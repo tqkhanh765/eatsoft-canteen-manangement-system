@@ -33,6 +33,7 @@ Once `.env` is configured, finish the setup:
 ```bash
 # 5. Build tables and seed fake data (Users, Stores, Orders, etc.)
 npx prisma db push --force-reset
+npx prisma generate
 npx prisma db seed
 
 # 6. Start the server!
