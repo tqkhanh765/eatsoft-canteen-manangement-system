@@ -80,20 +80,27 @@ const StallLogo = ({ style, name, bg }) => {
   return map[style] || <div className="stall-logo"><p>{name}</p></div>;
 };
 
-const StallCard = ({ stall }) => (
+const StallCard = ({ stall, onVisit }) => (
   <div className="stall-card" id={`stall-${stall.id}`}>
     <div className="stall-logo-wrap">
       <StallLogo style={stall.style} name={stall.name} bg={stall.bg} />
     </div>
     <div className="stall-card-footer">
       <p className="stall-name">{stall.name}</p>
-      <button className="stall-btn" id={`stall-visit-${stall.id}`}>Visit</button>
+      <button
+        className="stall-btn"
+        id={`stall-visit-${stall.id}`}
+        type="button"
+        onClick={() => onVisit(stall)}
+      >
+        Visit
+      </button>
     </div>
   </div>
 );
 
 /* ─── HomePage ─────────────────────────────────────────────── */
-const HomePage = () => {
+const HomePage = ({ onVisitStall }) => {
   const [activeFilter, setActiveFilter] = useState('Pizza & Fast food');
 
   return (
@@ -153,7 +160,7 @@ const HomePage = () => {
             <h2 className="section-title">Associative Food Stalls</h2>
           </div>
           <div className="stalls-grid">
-            {STALLS.map(stall => <StallCard key={stall.id} stall={stall} />)}
+            {STALLS.map(stall => <StallCard key={stall.id} stall={stall} onVisit={onVisitStall} />)}
           </div>
         </div>
       </section>
