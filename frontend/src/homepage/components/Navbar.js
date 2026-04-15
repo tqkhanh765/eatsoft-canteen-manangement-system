@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Thêm Link và useNavigate
 import './Navbar.css';
 
 const CartIcon = () => (
@@ -15,36 +16,36 @@ const UserIcon = () => (
   </svg>
 );
 
-const NAV_LINKS = [
-  { id: 'home', label: 'Home' },
-  { id: 'stalls', label: 'Food Stalls' },
-  { id: 'history', label: 'Order History' },
-];
-
 const Navbar = () => {
   const [active, setActive] = useState('home');
+  const navigate = useNavigate(); // Hook để điều hướng bằng code
+
+  const NAV_LINKS = [
+    { id: 'home', label: 'Home', path: '/' },
+    { id: 'stalls', label: 'Food Stalls', path: '/' },
+    { id: 'history', label: 'Order History', path: '/profile' }, // Dẫn về profile (tab history)
+  ];
 
   return (
     <nav className="navbar" id="main-navbar">
       <div className="navbar-container">
-        {/* Logo */}
-        <a href="/" className="navbar-logo" id="navbar-logo">
+        {/* Logo - Dùng Link để về Home mượt mà */}
+        <Link to="/" className="navbar-logo" id="navbar-logo">
           <img src="/eatsoft-logo.png" alt="EatSoft" />
-        </a>
+        </Link>
 
         {/* Nav Links */}
         <ul className="navbar-links" role="navigation" aria-label="Main navigation">
-          {NAV_LINKS.map(({ id, label }) => (
+          {NAV_LINKS.map(({ id, label, path }) => (
             <li key={id}>
-              <a
-                href="#"
+              <Link
+                to={path}
                 id={`nav-${id}`}
                 className={`nav-link ${active === id ? 'active' : ''}`}
-                onClick={(e) => { e.preventDefault(); setActive(id); }}
-                aria-current={active === id ? 'page' : undefined}
+                onClick={() => setActive(id)}
               >
                 {label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -54,9 +55,18 @@ const Navbar = () => {
           <button className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
             <CartIcon />
           </button>
-          <button className="login-btn" id="navbar-login">
+          
+          {/* Nút Login giờ sẽ dẫn vào Profile */}
+          <button 
+            className="login-btn" 
+            id="navbar-login"
+            onClick={() => {
+              setActive('history'); // Set active để UI biết đang ở vùng cá nhân
+              navigate('/profile');
+            }}
+          >
             <span className="login-avatar"><UserIcon /></span>
-            Login/Signup
+            Profile
           </button>
         </div>
       </div>
