@@ -23,32 +23,37 @@ const ProfilePage = () => {
   ];
 
   return (
-    <div className="profile-container">
-      <aside className="sidebar">
-        <div className="user-avatar-section">
-          <div className="avatar-circle">
-            <i className="fas fa-user"></i>
-          </div>
-          <h3>Nguyen Van A</h3>
-          <p>ID: 001</p>
+    <div className={`profile-container ${selectedOrder ? 'full-width' : ''}`}>
+  
+  {!selectedOrder && (
+    <aside className="sidebar">
+      <div className="user-avatar-section">
+        <div className="avatar-circle">
+          <i className="fas fa-user"></i>
         </div>
-        <nav className="sidebar-nav">
-          <button 
-            className={activeTab === 'info' ? 'active' : ''} 
-            onClick={() => {setActiveTab('info'); setSelectedOrder(null);}}
-          >
-            <i className="fas fa-user-circle"></i> PERSONAL INFORMATION
-          </button>
-          <button 
-            className={activeTab === 'history' ? 'active' : ''} 
-            onClick={() => setActiveTab('history')}
-          >
-            <i className="fas fa-history"></i> ORDER HISTORY
-          </button>
-        </nav>
-      </aside>
+        <h3>Nguyen Van A</h3>
+        <p>ID: 001</p>
+      </div>
 
-      <main className="profile-content">
+      <nav className="sidebar-nav">
+        <button 
+          className={activeTab === 'info' ? 'active' : ''} 
+          onClick={() => {setActiveTab('info'); setSelectedOrder(null);}}
+        >
+          PERSONAL INFORMATION
+        </button>
+
+        <button 
+          className={activeTab === 'history' ? 'active' : ''} 
+          onClick={() => setActiveTab('history')}
+        >
+          ORDER HISTORY
+        </button>
+      </nav>
+    </aside>
+  )}
+
+  <main className="profile-content">
         {selectedOrder ? (
           /* ORDER DETAIL */
           <div className="order-detail">
