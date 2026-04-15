@@ -1,0 +1,25 @@
+.checkout-page {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.checkout-container {
+  display: flex;
+  gap: 40px;
+  max-width: 1000px;
+  margin: 30px auto 60px;
+  align-items: flex-start;
+  padding: 0 16px;
+}
+
+.checkout-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-sidebar {
+  width: 370px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
