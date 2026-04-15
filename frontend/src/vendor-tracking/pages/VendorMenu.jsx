@@ -1,14 +1,21 @@
 import VendorNewOrders from "../components/Vendor-NewOrders";
 import VendorActiveOrders from "../components/Vendor-ActiveOrders";
-import Layout from "../components/Layout";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
 import { useOrder } from "../hooks/useOrder";
 import "../styles/global.css";
 
-const VendorMenu = () => {
+const VendorMenu = ({ user, onLogout }) => {
     const { isOpen, toggleStore } = useOrder();
 
+    const handleLoginClick = () => {
+        // Vendor pages are protected, so login click shouldn't happen
+        // But keeping the function for Navbar compatibility
+    };
+
     return (
-        <Layout>
+        <>
+            <Navbar onLoginClick={handleLoginClick} user={user} onLogout={onLogout} />
             <main className="vendor-page">
                 <div className="container">
                     <div className="vendor-grid">
@@ -45,7 +52,8 @@ const VendorMenu = () => {
 
                 </div>
             </main>
-        </Layout>
+            <Footer />
+        </>
     );
 };
 
