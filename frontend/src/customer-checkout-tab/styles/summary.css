@@ -1,0 +1,24 @@
+.summary-section {
+  border-top: 1px solid #e1e8ed;
+  padding-top: 18px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #222;
+}
+
+.summary-row.grand-total {
+  font-size: 14.5px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.discount-value {
+  color: #c0392b;
+}
