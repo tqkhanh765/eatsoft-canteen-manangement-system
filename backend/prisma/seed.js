@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const { Pool } = require('pg');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const dotenv = require('dotenv');
+const bcrypt = require('bcryptjs');
 
 dotenv.config();
 
@@ -60,25 +61,35 @@ async function main() {
   // 2 Admins
   const admins = [];
   for(let i=1; i<=2; i++) {
-    admins.push(await prisma.user.create({ data: { userName: `Quản Trị ${i}`, email: `admin${i}@eatsoft.com`, password: 'hashed_password_123', phone: '090000000' + i, status: 'Active', roleId: roleAdmin.roleId } }));
+    const uniqueHash = await bcrypt.hash('password123', 10);
+    admins.push(await prisma.user.create({ data: { userName: `Quản Trị ${i}`, email: `admin${i}@eatsoft.com`, password: uniqueHash, phone: '090000000' + i, status: 'Active', roleId: roleAdmin.roleId } }));
   }
 
   // 9 Vendors
   const vendors = []; 
   for(let i=1; i<=9; i++) {
-    vendors.push(await prisma.user.create({ data: { userName: `Chủ Quán ${i}`, email: `vendor${i}@eatsoft.com`, password: 'hashed_password_123', phone: '091000000' + i, status: 'Active', roleId: roleVendor.roleId } }));
+    const uniqueHash = await bcrypt.hash('password123', 10);
+    vendors.push(await prisma.user.create({ data: { userName: `Chủ Quán ${i}`, email: `vendor${i}@eatsoft.com`, password: uniqueHash, phone: '091000000' + i, status: 'Active', roleId: roleVendor.roleId } }));
   }
 
   // 3 Managers
   const managers = [];
   for(let i=1; i<=3; i++) {
-    managers.push(await prisma.user.create({ data: { userName: `Bộ Phận Quản Lý ${i}`, email: `manager${i}@eatsoft.com`, password: 'hashed_password_123', phone: '092000000' + i, status: 'Active', roleId: roleManager.roleId } }));
+    const uniqueHash = await bcrypt.hash('password123', 10);
+    managers.push(await prisma.user.create({ data: { userName: `Bộ Phận Quản Lý ${i}`, email: `manager${i}@eatsoft.com`, password: uniqueHash, phone: '092000000' + i, status: 'Active', roleId: roleManager.roleId } }));
   }
 
   // 16 Customers
+  const customerNames = [
+    'Nguyễn Văn An', 'Trần Thị Bảo', 'Lê Hoàng Cường', 'Phạm Quỳnh Dung', 'Hoàng Thái Hưng',
+    'Vũ Phương Linh', 'Đặng Đình Mạnh', 'Bùi Ngọc Mai', 'Đỗ Minh Trí', 'Hồ Thu Thảo',
+    'Ngô Quốc Khánh', 'Dương Hải Đăng', 'Lý Ái Như', 'Đào Minh Quân', 'Đoàn Thanh Trúc',
+    'Trịnh Gia Bảo'
+  ];
   const customers = [];
-  for(let i=1; i<=16; i++) {
-    customers.push(await prisma.user.create({ data: { userName: `Sinh Viên ${i}`, email: `customer${i}@student.hcmiu.edu.vn`, password: 'hashed_password_123', phone: '09300000' + (10+i), status: 'Active', roleId: roleCustomer.roleId } }));
+  for(let i=0; i<16; i++) {
+    const uniqueHash = await bcrypt.hash('password123', 10);
+    customers.push(await prisma.user.create({ data: { userName: customerNames[i], email: `customer${i+1}@student.hcmiu.edu.vn`, password: uniqueHash, phone: '09300000' + (10+i), status: 'Active', roleId: roleCustomer.roleId } }));
   }
 
   // ----------------------------------------
@@ -102,14 +113,34 @@ async function main() {
   // 5. SEED PRODUCTS (~100 products total, 11 per store)
   // ----------------------------------------
   console.log('Seeding Products...');
-  const productAdjectives = ['Đặc Biệt', 'Truyền Thống', 'Xào Cay', 'Phô Mai', 'Trứng Muối', 'Chua Ngọt', 'Cháy Tỏi', 'Thập Cẩm', 'Quay Da Giòn', 'Cà Ri'];
+  const properProducts = {
+    'Cơm': ['Cơm Chiên Dương Châu', 'Cơm Tấm Sườn Bì', 'Cơm Gà Xối Mỡ', 'Cơm Chiên Hải Sản', 'Cơm Ba Rọi Xào Sả Ớt', 'Cơm Thập Cẩm'],
+    'Phở/Bún': ['Phở Bò Tái Nạm', 'Bún Bò Huế', 'Bún Thịt Nướng', 'Bún Chả Hà Nội', 'Phở Gà', 'Bún Mọc'],
+    'Món Nước': ['Hủ Tiếu Nam Vang', 'Mì Quảng', 'Bánh Canh Cua', 'Mì Hoành Thánh', 'Súp Cua', 'Nui Nước Xương'],
+    'Bánh Mì': ['Bánh Mì Ốp La', 'Bánh Mì Chả Lụa', 'Bánh Mì Thịt Nướng', 'Bánh Mì Xíu Mại', 'Bánh Mì Heo Quay', 'Bánh Mì Bò Né'],
+    'Xiên Que': ['Cá Viên Chiên', 'Xúc Xích Chiên', 'Hồ Lô Nướng', 'Bò Viên', 'Phô Mai Que', 'Cá Viên Cà Ri'],
+    'Cà Phê': ['Cà Phê Đen Đá', 'Cà Phê Sữa Đá', 'Bạc Xỉu', 'Cà Phê Muối', 'Capuchino', 'Latte'],
+    'Trà Sữa': ['Trà Sữa Trân Châu', 'Trà Sữa Thái Xanh', 'Trà Sữa Matcha', 'Hồng Trà Sữa', 'Trà Sữa Khoai Môn', 'Trà Sữa Đường Đen'],
+    'Sinh Tố': ['Sinh Tố Bơ', 'Sinh Tố Dâu', 'Sinh Tố Xoài', 'Sinh Tố Mãng Cầu', 'Sinh Tố Dưa Hấu', 'Nước Ép Táo'],
+    'Nước Ngọt': ['Coca Cola', 'Pepsi', 'Sprite', '7Up', 'Mirinda', 'Sting'],
+    'Trà Trái Cây': ['Trà Đào Cam Sả', 'Trà Vải', 'Trà Dâu', 'Trà Tắc', 'Trà Ổi Hồng', 'Lục Trà Chanh'],
+    'Đồ Chay': ['Cơm Chay', 'Bún Xào Chay', 'Đậu Hũ Tứ Xuyên Chay', 'Gỏi Cuốn Chay', 'Canh Chua Chay', 'Mì Căn Xào Sả Ớt'],
+    'Tráng Miệng': ['Bánh Flan', 'Rau Câu Sơn Thủy', 'Sữa Chua Trân Châu', 'Chè Dưỡng Nhan', 'Chè Thái', 'Bánh Mousse'],
+    'Gà Rán': ['Gà Rán Phần M', 'Gà Rán Cay', 'Cánh Gà Sốt Tương', 'Gà Viên Chiên', 'Đùi Gà Rán', 'Gà Sốt Phô Mai'],
+    'Pizza/Mỳ Ý': ['Pizza Hải Sản', 'Pizza Xúc Xích', 'Mỳ Ý Hải Sản', 'Mỳ Ý Bò Băm', 'Pizza Phô Mai', 'Mỳ Ý Carbonara'],
+    'Đồ Ăn Vặt Hàn Quốc': ['Tteokbokki', 'Kimbap', 'Chả Cá Xiên', 'Mì Cay Bò', 'Tteokbokki Phô Mai', 'Mì Trộn Tương Đen']
+  };
+
   const products = [];
   
   for(const store of stores) {
     for(let j=1; j<=11; j++) {
       const cat = randomElement(categories);
-      const adj = randomElement(productAdjectives);
-      const prodName = `${cat.categoryName} ${adj} ${j}`;
+      const categoryProducts = properProducts[cat.categoryName] || [`Món ${cat.categoryName} Đặc Biệt`];
+      
+      // Randomly pick a realistic food name from the matching category
+      // Add 'Đặc Biệt' occasionally to distinguish similar items
+      const prodName = randomElement(categoryProducts) + (j % 4 === 0 ? ' Đặc Biệt' : '');
       const priceVal = randomInt(15, 65) * 1000; // Between 15k and 65k
       
       const p = await prisma.product.create({
