@@ -1,12 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import MenuHeader from "../components/MenuHeader";
 import CategoryTabs from "../components/CategoryTabs";
 import ProductCard from "../components/ProductCard";
 import ProductDetailModal from "../components/ProductDetailModal";
 import { getMenuByStall } from "../services/menuService";
+import { STORES } from "../../food-stalls/data/stores";
 import "../styles/stallMenu.css";
 
-const StallMenuPage = ({ stall, onBack }) => {
+const StallMenuPage = () => {
+  const { stallId } = useParams();
+  const navigate = useNavigate();
+  const stall = STORES.find(store => store.id === parseInt(stallId));
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [offers, setOffers] = useState([]);
@@ -15,6 +20,10 @@ const StallMenuPage = ({ stall, onBack }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -61,9 +70,13 @@ const StallMenuPage = ({ stall, onBack }) => {
 
   const activeSectionTitle = selectedCategory === "All" ? "Burgers" : selectedCategory;
 
+  const handleBack = () => {
+    navigate('/stalls');
+  };
+
   return (
     <div className="stall-menu-page">
-      <MenuHeader stall={stall} stallInfo={stallInfo} stats={stats} onBack={onBack} />
+      <MenuHeader stall={stall} stallInfo={stallInfo} stats={stats} onBack={handleBack} />
 
       <section className="stall-menu-content">
         <div className="stall-menu-toolbar">
