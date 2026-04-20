@@ -17,6 +17,9 @@ import ManagerDashboard from './manager/pages/ManagerDashboard';
 import AnnouncementList from './manager/pages/AnnouncementList';
 import AnnouncementCreate from './manager/pages/AnnouncementCreate';
 import AnnouncementDetail from './manager/pages/AnnouncementDetail';
+import StallManagement from './manager/pages/StallManagement';
+import StallDetail from './manager/pages/StallDetail';
+import StallRequests from './manager/pages/StallRequests';
 import authService from './services/authService';
 import './App.css';
 
@@ -309,6 +312,31 @@ function App() {
             element={
               <ProtectedManagerRoute>
                 <AnnouncementDetail user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+
+          <Route
+            path="/manager-stalls"
+            element={
+              <ProtectedManagerRoute>
+                <StallManagement user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+          <Route
+            path="/manager-stalls/:id"
+            element={
+              <ProtectedManagerRoute>
+                <StallDetail user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+          <Route
+            path="/manager-stalls/requests"
+            element={
+              <ProtectedManagerRoute>
+                <StallRequests user={user} onLogout={handleLogout} />
               </ProtectedManagerRoute>
             }
           />
