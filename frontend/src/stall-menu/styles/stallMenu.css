@@ -744,6 +744,7 @@
   justify-content: space-between;
   gap: 18px;
   margin-top: 12px;
+  flex-wrap: wrap;
 }
 
 .modal-quantity-block {
