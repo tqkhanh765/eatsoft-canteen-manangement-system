@@ -85,11 +85,11 @@ const OrderCart = () => {
             <div className="cart-items-wrapper">
               {items.map((item) => (
                 <CartItem
-                  key={item.id}
+                  key={item.orderItemId}
                   item={item}
                   onQuantityChange={handleQuantityChange}
                   onRemove={handleRemoveItem}
-                  isLoading={actionLoading[item.id]}
+                  isLoading={actionLoading[item.orderItemId]}
                   storeName={item.store_name || order?.store_name}
                 />
               ))}
