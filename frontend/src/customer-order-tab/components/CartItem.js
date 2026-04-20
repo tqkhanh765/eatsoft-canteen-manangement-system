@@ -30,7 +30,7 @@ export const CartItem = ({
           {SVGIcons.shop}
           <span>{storeName || 'Store'}</span>
         </div>
-        <div className="item-name">{item.product_name || `Product #${item.product_id}`}</div>
+        <div className="item-name">{item.product_name || item.product?.name || `Product #${item.product_id || item.productId}`}</div>
       </div>
 
       <div className="item-actions">
@@ -42,7 +42,7 @@ export const CartItem = ({
           canDecrease={item.quantity > 1}
         />
 
-        <div className="item-price">{formatItemPrice(item.unit_price, item.quantity)}</div>
+        <div className="item-price">{formatItemPrice(item.unit_price || item.unitPrice, item.quantity)}</div>
 
         <div className="item-buttons">
           <button className="action-btn edit" aria-label="Edit item">
@@ -50,7 +50,7 @@ export const CartItem = ({
           </button>
           <button
             className="action-btn delete"
-            onClick={() => onRemove(item.id)}
+            onClick={() => onRemove(item.id || item.orderItemId)}
             disabled={isLoading}
             aria-label="Remove item"
           >

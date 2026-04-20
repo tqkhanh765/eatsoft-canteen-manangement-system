@@ -1,4 +1,6 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import StallLogo from './StallLogo';
 import './StallCard.css';
 
 const StarIcon = () => (
@@ -15,10 +17,18 @@ const ClockIcon = () => (
 );
 
 const StallCard = ({ store }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/stalls-menu/${store.id}`);
+  };
+
   return (
-    <div className={`stall-card ${!store.isOpen ? 'closed' : ''}`}>
+    <div className={`stall-card ${!store.isOpen ? 'closed' : ''}`} onClick={handleClick} style={{ cursor: 'pointer' }}>
       <div className="card-image-box">
-        <img src={store.image} alt={store.name} />
+        <div className="stall-logo-wrap">
+          <StallLogo style={store.style} name={store.name} bg={store.bg} />
+        </div>
         {!store.isOpen && <div className="closed-overlay">Currently Closed</div>}
         <div className="time-badge">
           <ClockIcon /> {store.time}

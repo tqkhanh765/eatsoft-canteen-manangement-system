@@ -182,30 +182,41 @@ async function main() {
       const qty = randomInt(1, 3);
       const unitPrice = Number(product.price);
       totalAmount += unitPrice * qty;
-      
+
       orderItemsData.push({
         productId: product.productId,
         quantity: qty,
-        unitPrice: unitPrice,
+        unitPrice: unitPrice
+      });
+    }
+
+    const status = randomInt(1, 10) <= 3 ? 'Pending' : 'Completed';
+
+    const orderData = {
+      userId: randomElement(customers).userId,
+      storeId: randomElement(stores).storeId,
+      totalAmount: totalAmount,
+      status: status,
+      orderItems: {
+        create: orderItemsData
+      }
+    };
+
+    // Only add feedback for completed orders
+    if (status === 'Completed') {
+      orderData.orderItems.create = orderItemsData.map(item => ({
+        ...item,
         feedback: {
           create: {
             rating: randomInt(4, 5), // Keep ratings generally high!
             comment: randomElement(comments)
           }
         }
-      });
+      }));
     }
 
     await prisma.order.create({
-      data: {
-        userId: randomElement(customers).userId,
-        storeId: randomElement(stores).storeId,
-        totalAmount: totalAmount,
-        status: 'Completed',
-        orderItems: {
-          create: orderItemsData
-        }
-      }
+      data: orderData
     });
 
     if (i % 10 === 0) {

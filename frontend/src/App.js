@@ -12,6 +12,7 @@ import Dashboard from './vendor-dashboard/pages/Dashboard';
 import Orders from './vendor-dashboard/pages/Orders';
 import { OrderProvider } from './vendor-dashboard/context/OrderContext';
 import FoodStallsPage from './food-stalls/pages/FoodStallsPage';
+import StallMenuPage from './stall-menu/pages/StallMenuPage';
 import VendorMenu from './vendor-tracking/pages/VendorMenu';
 import ManagerDashboard from './manager/pages/ManagerDashboard';
 import AnnouncementList from './manager/pages/AnnouncementList';
@@ -199,6 +200,16 @@ function App() {
             element={
               <MainLayout onLoginClick={openAuth} user={user} onLogout={handleLogout}>
                 <FoodStallsPage />
+              </MainLayout>
+            }
+          />
+
+          {/* Stall Menu Page - public/semi-public route */}
+          <Route
+            path="/stalls-menu/:stallId"
+            element={
+              <MainLayout onLoginClick={openAuth} user={user} onLogout={handleLogout}>
+                <StallMenuPage />
               </MainLayout>
             }
           />

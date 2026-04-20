@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
 /* ─── Data ─────────────────────────────────────────────────── */
@@ -80,24 +81,30 @@ const StallLogo = ({ style, name, bg }) => {
   return map[style] || <div className="stall-logo"><p>{name}</p></div>;
 };
 
-const StallCard = ({ stall, onVisit }) => (
-  <div className="stall-card" id={`stall-${stall.id}`}>
-    <div className="stall-logo-wrap">
-      <StallLogo style={stall.style} name={stall.name} bg={stall.bg} />
+const StallCard = ({ stall, onVisit }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="stall-card" id={`stall-${stall.id}`}>
+      <div className="stall-logo-wrap">
+        <StallLogo style={stall.style} name={stall.name} bg={stall.bg} />
+      </div>
+      <div className="stall-card-footer">
+        <p className="stall-name">{stall.name}</p>
+        <button
+          className="stall-btn"
+          id={`stall-visit-${stall.id}`}
+          type="button"
+          onClick={() => {
+            navigate(`/stalls-menu/${stall.id}`);
+          }}
+        >
+          Visit
+        </button>
+      </div>
     </div>
-    <div className="stall-card-footer">
-      <p className="stall-name">{stall.name}</p>
-      <button
-        className="stall-btn"
-        id={`stall-visit-${stall.id}`}
-        type="button"
-        onClick={() => onVisit(stall)}
-      >
-        Visit
-      </button>
-    </div>
-  </div>
-);
+  );
+};
 
 /* ─── HomePage ─────────────────────────────────────────────── */
 const HomePage = ({ onVisitStall }) => {
