@@ -65,9 +65,9 @@ async function main() {
     admins.push(await prisma.user.create({ data: { userName: `Quản Trị ${i}`, email: `admin${i}@eatsoft.com`, password: uniqueHash, phone: '090000000' + i, status: 'Active', roleId: roleAdmin.roleId } }));
   }
 
-  // 9 Vendors
+  // 6 Vendors (one for each store)
   const vendors = []; 
-  for(let i=1; i<=9; i++) {
+  for(let i=1; i<=6; i++) {
     const uniqueHash = await bcrypt.hash('password123', 10);
     vendors.push(await prisma.user.create({ data: { userName: `Chủ Quán ${i}`, email: `vendor${i}@eatsoft.com`, password: uniqueHash, phone: '091000000' + i, status: 'Active', roleId: roleVendor.roleId } }));
   }
@@ -93,10 +93,10 @@ async function main() {
   }
 
   // ----------------------------------------
-  // 4. SEED STORES (9 stores)
+  // 4. SEED STORES (6 stores to match frontend mock data)
   // ----------------------------------------
   console.log('Seeding Stores...');
-  const storeNames = ['Cơm Việt', 'B&B', 'Sushi Cười', 'H&D', 'Gạo & Nồi', 'T&D', 'BigU', 'Coffee Story', 'The Zero Coffee'];
+  const storeNames = ['Big U', 'Cơm Việt', 'H&D Food Court', 'Gạo & Nồi', 'Coffee Story', 'The Zero Coffee'];
   const stores = [];
   for(let i=0; i<storeNames.length; i++) {
     stores.push(await prisma.store.create({
@@ -104,7 +104,7 @@ async function main() {
         storeName: storeNames[i],
         description: `Chào mừng đến với cửa hàng ${storeNames[i]} tại Canteen IU.`,
         location: `Khu vực sảnh số ${i+1}`,
-        managerId: vendors[i].userId // Map exact 9 vendors to the 9 stores
+        managerId: vendors[i].userId // Map exact 6 vendors to the 6 stores
       }
     }));
   }
@@ -192,11 +192,20 @@ async function main() {
 
     const status = randomInt(1, 10) <= 3 ? 'Pending' : 'Completed';
 
+    // Generate orderDate within peak hours (8 AM - 2 PM) across multiple days
+    const daysAgo = randomInt(0, 13); // Orders from today up to 13 days ago
+    const hour = randomInt(8, 14);
+    const minute = randomInt(0, 59);
+    const orderDate = new Date();
+    orderDate.setDate(orderDate.getDate() - daysAgo);
+    orderDate.setHours(hour, minute, 0, 0);
+
     const orderData = {
       userId: randomElement(customers).userId,
       storeId: randomElement(stores).storeId,
       totalAmount: totalAmount,
       status: status,
+      orderDate: orderDate,
       orderItems: {
         create: orderItemsData
       }
