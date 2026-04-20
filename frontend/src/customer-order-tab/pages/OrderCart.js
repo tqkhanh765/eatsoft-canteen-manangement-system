@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/layout.css';
 import '../styles/cart-items.css';
 import '../styles/delivery.css';
@@ -18,11 +19,14 @@ import { OrderSummary } from '../components/OrderSummary';
 
 // ── Component ────────────────────────────────────────────────────────────────
 const OrderCart = () => {
+  const navigate = useNavigate();
   // Form state
   const [deliveryOption, setDeliveryOption] = useState(APP_CONSTANTS.DELIVERY_OPTIONS.DELIVERY);
   const [room, setRoom] = useState('');
   const [couponCode, setCouponCode] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Cart state and actions
   const cartState = useCart();
@@ -32,10 +36,12 @@ const OrderCart = () => {
 
   // ── Checkout ─────────────────────────────────────────────────────────────
   const handleCheckout = async () => {
-    const successMessage = await orderActions.handleCheckout(deliveryOption, room, couponCode);
-    if (successMessage) {
-      setSuccessMsg('🎉 ' + successMessage);
+    if (!room.trim()) {
+      setErrorMessage('Please enter your room number');
+      setShowErrorModal(true);
+      return;
     }
+    navigate('/checkout');
   };
 
   // ── Derived totals ───────────────────────────────────────────────────────
@@ -90,7 +96,7 @@ const OrderCart = () => {
                   onQuantityChange={handleQuantityChange}
                   onRemove={handleRemoveItem}
                   isLoading={actionLoading[item.orderItemId]}
-                  storeName={item.store_name || order?.store_name}
+                  storeName={order?.store?.storeName || order?.store_name || 'Store'}
                 />
               ))}
             </div>
@@ -148,6 +154,31 @@ const OrderCart = () => {
         </aside>
 
       </div>
+
+      {showErrorModal && (
+        <div className="modal-overlay" style={{ zIndex: 9999, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowErrorModal(false)}>
+          <div
+            style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', maxWidth: '400px', width: '90%', zIndex: 10000, boxShadow: '0 24px 64px rgba(13, 18, 39, 0.3)' }}
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#111827' }}>Notification</h2>
+            <p style={{ margin: '0 0 24px 0', fontSize: '14px', color: '#374151', lineHeight: '1.5' }}>
+              {errorMessage}
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setShowErrorModal(false)}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#6b7280', color: '#fff', fontSize: '14px', cursor: 'pointer' }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
