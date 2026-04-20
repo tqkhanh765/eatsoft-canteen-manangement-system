@@ -101,4 +101,73 @@ const deleteOrder = async (req, res) => {
   }
 };
 
-module.exports = { getAllOrders, getOrderById, createOrder, updateOrderStatus, deleteOrder };
+// POST /orders/:id/items  (add item to existing order)
+const addItemToOrder = async (req, res) => {
+  try {
+    const { productId, quantity, unitPrice } = req.body;
+    const orderId = Number(req.params.id);
+
+    // Check if order exists and is pending
+    const order = await prisma.order.findUnique({
+      where: { orderId },
+    });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (order.status !== 'Pending') return res.status(400).json({ error: 'Can only add items to pending orders' });
+
+    // Check if product exists
+    const product = await prisma.product.findUnique({
+      where: { productId: Number(productId) },
+    });
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    // Check if product is from the same store
+    if (product.storeId !== order.storeId) {
+      return res.status(400).json({ error: 'Cannot add items from different stores to the same order' });
+    }
+
+    // Check if item already exists in order
+    const existingItem = await prisma.orderItem.findFirst({
+      where: {
+        orderId,
+        productId: Number(productId),
+      },
+    });
+
+    let orderItem;
+    if (existingItem) {
+      // Update quantity if item exists
+      orderItem = await prisma.orderItem.update({
+        where: { orderItemId: existingItem.orderItemId },
+        data: {
+          quantity: existingItem.quantity + Number(quantity),
+          unitPrice: Number(unitPrice),
+        },
+      });
+    } else {
+      // Create new item
+      orderItem = await prisma.orderItem.create({
+        data: {
+          orderId,
+          productId: Number(productId),
+          quantity: Number(quantity),
+          unitPrice: Number(unitPrice),
+        },
+      });
+    }
+
+    // Recalculate total amount
+    const allItems = await prisma.orderItem.findMany({ where: { orderId } });
+    const totalAmount = allItems.reduce((sum, item) => sum + Number(item.unitPrice) * item.quantity, 0);
+
+    await prisma.order.update({
+      where: { orderId },
+      data: { totalAmount },
+    });
+
+    res.status(201).json(orderItem);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getAllOrders, getOrderById, createOrder, updateOrderStatus, deleteOrder, addItemToOrder };

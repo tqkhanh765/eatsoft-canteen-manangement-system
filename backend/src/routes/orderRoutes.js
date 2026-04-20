@@ -7,5 +7,6 @@ router.get('/:id',           ctrl.getOrderById);
 router.post('/',             ctrl.createOrder);
 router.patch('/:id/status',  ctrl.updateOrderStatus);
 router.delete('/:id',        ctrl.deleteOrder);
+router.post('/:id/items',    ctrl.addItemToOrder);
 
 module.exports = router;

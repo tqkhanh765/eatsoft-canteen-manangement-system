@@ -100,3 +100,21 @@ export const deleteOrderItem = async (itemId) => {
   if (!res.ok) throw new Error(`Failed to delete item: ${res.statusText}`);
   return res.json();
 };
+
+/**
+ * Add an item to an existing order.
+ * POST /api/orders/:id/items
+ * Body: { productId, quantity, unitPrice }
+ */
+export const addItemToOrder = async (orderId, { productId, quantity, unitPrice }) => {
+  const res = await fetch(`${API_CONFIG.BASE_URL}/orders/${orderId}/items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId, quantity, unitPrice }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to add item to order');
+  }
+  return res.json();
+};
