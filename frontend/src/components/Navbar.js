@@ -36,13 +36,21 @@ const VENDOR_LINKS = [
   { id: 'dashboard', label: 'My Dashboard', path: '/dashboard' },
 ];
 
+const MANAGER_LINKS = [
+  { id: 'announcement', label: 'Announcement', path: '/manager-announcement' },
+  { id: 'sales', label: 'Sales analytics', path: '/manager-dashboard' },
+  { id: 'feedback', label: 'Feedback', path: '/manager-feedback' },
+  { id: 'stalls', label: 'Stall management', path: '/manager-stalls' },
+];
+
 const Navbar = ({ onLoginClick, user, onLogout }) => {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Determine navigation links based on user role
   const isVendor = user?.role?.roleName === 'Vendor';
-  const navLinks = isVendor ? VENDOR_LINKS : CUSTOMER_LINKS;
+  const isManager = user?.role?.roleName === 'Manager';
+  const navLinks = isManager ? MANAGER_LINKS : isVendor ? VENDOR_LINKS : CUSTOMER_LINKS;
 
   // Get active link based on current path
   const active = navLinks.find(link => location.pathname === link.path)?.id || '';

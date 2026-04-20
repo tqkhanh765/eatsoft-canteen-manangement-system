@@ -13,6 +13,7 @@ import Orders from './vendor-dashboard/pages/Orders';
 import { OrderProvider } from './vendor-dashboard/context/OrderContext';
 import FoodStallsPage from './food-stalls/pages/FoodStallsPage';
 import VendorMenu from './vendor-tracking/pages/VendorMenu';
+import ManagerDashboard from './manager/pages/ManagerDashboard';
 import authService from './services/authService';
 import './App.css';
 
@@ -48,6 +49,41 @@ const ProtectedVendorRoute = ({ children }) => {
   }
 
   console.log('[ProtectedVendorRoute] Authorized, rendering children');
+  return children;
+};
+
+// Protected Route wrapper - redirects to home if not authenticated or not manager
+const ProtectedManagerRoute = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    console.log('[ProtectedManagerRoute] Checking authorization...');
+    const checkAuth = () => {
+      const isAuth = authService.isAuthenticated();
+      const isManager = authService.isManager?.() || user?.role?.roleName === 'Manager';
+      console.log('[ProtectedManagerRoute] isAuth:', isAuth, 'isManager:', isManager);
+
+      const authorized = isAuth && isManager;
+      console.log('[ProtectedManagerRoute] Authorization result:', authorized);
+
+      setIsAuthorized(authorized);
+      setIsLoading(false);
+    };
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    console.log('[ProtectedManagerRoute] Still loading...');
+    return <div className="loading-screen">Loading...</div>;
+  }
+
+  if (!isAuthorized) {
+    console.log('[ProtectedManagerRoute] Not authorized, redirecting to home');
+    return <Navigate to="/" replace />;
+  }
+
+  console.log('[ProtectedManagerRoute] Authorized, rendering children');
   return children;
 };
 
@@ -235,6 +271,16 @@ function App() {
                   <Orders user={user} onLogout={handleLogout} />
                 </OrderProvider>
               </ProtectedVendorRoute>
+            }
+          />
+
+          {/* Manager Dashboard Page - requires manager authentication */}
+          <Route
+            path="/manager-dashboard"
+            element={
+              <ProtectedManagerRoute>
+                <ManagerDashboard user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
             }
           />
 
