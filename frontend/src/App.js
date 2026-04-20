@@ -14,6 +14,9 @@ import { OrderProvider } from './vendor-dashboard/context/OrderContext';
 import FoodStallsPage from './food-stalls/pages/FoodStallsPage';
 import VendorMenu from './vendor-tracking/pages/VendorMenu';
 import ManagerDashboard from './manager/pages/ManagerDashboard';
+import AnnouncementList from './manager/pages/AnnouncementList';
+import AnnouncementCreate from './manager/pages/AnnouncementCreate';
+import AnnouncementDetail from './manager/pages/AnnouncementDetail';
 import authService from './services/authService';
 import './App.css';
 
@@ -61,7 +64,7 @@ const ProtectedManagerRoute = ({ children }) => {
     console.log('[ProtectedManagerRoute] Checking authorization...');
     const checkAuth = () => {
       const isAuth = authService.isAuthenticated();
-      const isManager = authService.isManager?.() || user?.role?.roleName === 'Manager';
+      const isManager = authService.isManager?.() || authService.getUserRole() === 'Manager';
       console.log('[ProtectedManagerRoute] isAuth:', isAuth, 'isManager:', isManager);
 
       const authorized = isAuth && isManager;
@@ -280,6 +283,32 @@ function App() {
             element={
               <ProtectedManagerRoute>
                 <ManagerDashboard user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+
+          {/* Manager Announcement Pages - requires manager authentication */}
+          <Route
+            path="/manager-announcement"
+            element={
+              <ProtectedManagerRoute>
+                <AnnouncementList user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+          <Route
+            path="/manager-announcement/create"
+            element={
+              <ProtectedManagerRoute>
+                <AnnouncementCreate user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+          <Route
+            path="/manager-announcement/:id"
+            element={
+              <ProtectedManagerRoute>
+                <AnnouncementDetail user={user} onLogout={handleLogout} />
               </ProtectedManagerRoute>
             }
           />

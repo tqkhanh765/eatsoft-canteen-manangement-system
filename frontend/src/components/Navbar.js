@@ -37,8 +37,9 @@ const VENDOR_LINKS = [
 ];
 
 const MANAGER_LINKS = [
-  { id: 'announcement', label: 'Announcement', path: '/manager-announcement' },
+  { id: 'dashboard', label: 'Dashboard', path: '/manager-dashboard' },
   { id: 'sales', label: 'Sales analytics', path: '/manager-dashboard' },
+  { id: 'announcement', label: 'Announcement', path: '/manager-announcement' },
   { id: 'feedback', label: 'Feedback', path: '/manager-feedback' },
   { id: 'stalls', label: 'Stall management', path: '/manager-stalls' },
 ];
