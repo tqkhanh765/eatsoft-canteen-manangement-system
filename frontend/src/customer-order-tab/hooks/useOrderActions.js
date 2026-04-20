@@ -18,32 +18,35 @@ export const useOrderActions = (cartState) => {
     const newQty = Math.max(1, item.quantity + delta);
     if (newQty === item.quantity) return;
 
+    const itemId = item.orderItemId || item.id;
+    const unitPrice = Number(item.unit_price || item.unitPrice || item.product?.price || 0);
+
     // Optimistic UI update
     setItems((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, quantity: newQty } : i))
+      prev.map((i) => (i.orderItemId === itemId ? { ...i, quantity: newQty } : i))
     );
-    setActionLoading((prev) => ({ ...prev, [item.id]: true }));
+    setActionLoading((prev) => ({ ...prev, [itemId]: true }));
 
     try {
-      await updateOrderItem(item.id, {
+      await updateOrderItem(itemId, {
         quantity: newQty,
-        unit_price: item.unit_price,
+        unitPrice: unitPrice,
       });
     } catch (err) {
       // Roll back on failure
       setItems((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, quantity: item.quantity } : i))
+        prev.map((i) => (i.orderItemId === itemId ? { ...i, quantity: item.quantity } : i))
       );
       setError(APP_CONSTANTS.ERROR_MESSAGES.UPDATE_QUANTITY + err.message);
     } finally {
-      setActionLoading((prev) => ({ ...prev, [item.id]: false }));
+      setActionLoading((prev) => ({ ...prev, [itemId]: false }));
     }
   }, [setItems, setError]);
 
   // Remove item with optimistic UI
   const handleRemoveItem = useCallback(async (itemId) => {
     const snapshot = items;
-    setItems((prev) => prev.filter((i) => i.id !== itemId));
+    setItems((prev) => prev.filter((i) => i.orderItemId !== itemId && i.id !== itemId));
     setActionLoading((prev) => ({ ...prev, [itemId]: true }));
 
     try {
