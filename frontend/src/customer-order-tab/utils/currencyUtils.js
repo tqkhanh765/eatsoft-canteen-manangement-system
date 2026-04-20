@@ -13,11 +13,14 @@ export const formatCurrency = (amount) => {
 
 /**
  * Calculates the subtotal for an array of items
- * @param {Array} items - Array of items with unit_price and quantity
+ * @param {Array} items - Array of items with unit_price/unitPrice and quantity
  * @returns {number} The subtotal amount
  */
 export const calculateSubtotal = (items) => {
-  return items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+  return items.reduce((sum, item) => {
+    const unitPrice = Number(item.unit_price || item.unitPrice || 0);
+    return sum + (unitPrice * item.quantity);
+  }, 0);
 };
 
 /**
