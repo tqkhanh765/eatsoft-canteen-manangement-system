@@ -14,19 +14,24 @@ model Role {
 }
 
 model User {
-  userId   Int     @id @default(autoincrement())
-  userName String
-  password String
-  email    String  @unique
-  phone    String
-  status   String
+  userId         Int     @id @default(autoincrement())
+  userName       String
+  password       String
+  email          String  @unique
+  phone          String
+  status         String
 
-  roleId   Int
-  role     Role    @relation(fields: [roleId], references: [roleId])
+  // Additional profile fields (nullable)
+  studentId      String? @unique
+  universityName String?
+  country        String?
 
-  stores   Store[]   // manage
-  orders   Order[]   // place
-  announcements Announcement[] // created
+  roleId         Int
+  role           Role    @relation(fields: [roleId], references: [roleId])
+
+  stores         Store[]   // manage
+  orders         Order[]   // place
+  announcements  Announcement[] // created
   vendorAnnouncements AnnouncementVendor[] // received as vendor
 }
 
