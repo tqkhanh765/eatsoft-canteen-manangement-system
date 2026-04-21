@@ -24,10 +24,10 @@ const ManagerDashboard = ({ user, onLogout }) => {
       <main className="manager-dashboard-page">
         <div className="manager-dashboard-container">
           <div className="manager-dashboard-header">
-            <h1 className="manager-dashboard-title">Analysis</h1>
-            <button className="manager-export-btn" onClick={handleExportCSV}>
+            <h1 className="manager-dashboard-title">Data Analytics</h1>
+            {/* <button className="manager-export-btn" onClick={handleExportCSV}>
               Export CSV
-            </button>
+            </button> */}
           </div>
 
           <div className="manager-charts-grid">
