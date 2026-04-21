@@ -98,6 +98,32 @@ const register = async (req, res) => {
       });
     }
 
+    // Check if email already exists
+    const existingEmail = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingEmail) {
+      return res.status(409).json({
+        success: false,
+        error: 'Email already exists',
+      });
+    }
+
+    // Check if phone number already exists (if provided)
+    if (phone) {
+      const existingPhone = await prisma.user.findFirst({
+        where: { phone },
+      });
+
+      if (existingPhone) {
+        return res.status(409).json({
+          success: false,
+          error: 'Phone number already exists',
+        });
+      }
+    }
+
     // Find Customer role
     const customerRole = await prisma.role.findFirst({
       where: { roleName: 'Customer' },
@@ -113,39 +139,29 @@ const register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    // Create user (only filling provided fields, others left null)
     const user = await prisma.user.create({
       data: {
         userName,
         email,
         password: hashedPassword,
-        phone: phone || '',
+        phone: phone || null,
         status: 'Active',
         roleId: customerRole.roleId,
       },
       include: { role: true },
     });
 
-    // Generate token
-    const token = generateToken(user.userId);
-
-    // Return user data without password
+    // Return success message (no token, user must login)
     const { password: _, ...userWithoutPassword } = user;
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful',
-      token,
+      message: 'Account registered successfully',
       user: userWithoutPassword,
     });
   } catch (err) {
     console.error('Register error:', err);
-    if (err.code === 'P2002') {
-      return res.status(409).json({
-        success: false,
-        error: 'Email already exists',
-      });
-    }
     res.status(500).json({
       success: false,
       error: err.message,
