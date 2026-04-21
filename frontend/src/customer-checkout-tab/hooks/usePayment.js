@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { processPayment } from '../services/paymentService';
 import { ERROR_MESSAGES } from '../constants/appConstants';
+import { updateOrderStatus } from '../../customer-order-tab/services/orderService';
 
-export const usePayment = (checkoutState, formState) => {
+export const usePayment = (checkoutState, formState, navigate) => {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
   const handleConfirmPayment = async () => {
     const { agreedToTerms } = formState;
-    const { items, setError, setItems, setOrder } = checkoutState;
+    const { items, setError, setItems, setOrder, order } = checkoutState;
 
     if (!agreedToTerms) {
       setError(ERROR_MESSAGES.TERMS_REQUIRED);
@@ -22,11 +23,25 @@ export const usePayment = (checkoutState, formState) => {
     try {
       const result = await processPayment({
         items,
+        order,
         ...formState,
       });
       setSuccessMsg('🎉 ' + result.message);
+      
+      // Update order status to Completed
+      if (order) {
+        const orderId = order.orderId || order.id;
+        await updateOrderStatus(orderId, 'Completed');
+      }
+      
+      // Clear cart and order
       setItems([]);
       setOrder(null);
+      
+      // Navigate to main page after a short delay
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (err) {
       setError(`${ERROR_MESSAGES.PAYMENT_FAILED}: ${err.message}`);
     } finally {

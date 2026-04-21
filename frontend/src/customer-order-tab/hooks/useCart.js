@@ -27,7 +27,7 @@ export const useCart = () => {
       }
 
       // Fetch all Pending orders for the logged-in user
-      const orders = await fetchOrders({ user_id: currentUser.userId, status: 'Pending' });
+      const orders = await fetchOrders({ userId: currentUser.userId, status: 'Pending' });
 
       if (orders && orders.length > 0) {
         // Use the most recent pending order
@@ -74,7 +74,7 @@ export const useCart = () => {
       }
 
       // Check if there's a pending order for the current user
-      const pendingOrders = await fetchOrders({ user_id: currentUser.userId, status: 'Pending' });
+      const pendingOrders = await fetchOrders({ userId: currentUser.userId, status: 'Pending' });
       let orderId;
 
       if (pendingOrders && pendingOrders.length > 0) {

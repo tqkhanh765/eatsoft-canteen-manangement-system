@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/layout.css';
 import '../styles/alerts.css';
 import '../styles/states.css';
@@ -21,9 +22,10 @@ import ConfirmPaymentButton from '../components/ConfirmPaymentButton';
 
 // ── Component ────────────────────────────────────────────────────────────────
 const Checkout = () => {
+  const navigate = useNavigate();
   const checkoutState = useCheckout();
   const formState = useCheckoutForm();
-  const paymentState = usePayment(checkoutState, formState);
+  const paymentState = usePayment(checkoutState, formState, navigate);
 
   const { order, items, loading, error, setError } = checkoutState;
   const { deliveryOption, room, selectedPayment, setDeliveryOption, setRoom, setSelectedPayment, agreedToTerms, setAgreedToTerms } = formState;
