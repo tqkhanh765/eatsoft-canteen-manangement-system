@@ -159,6 +159,7 @@ const StallMenuPage = () => {
         <ProductDetailModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
+          storeId={stall?.id}
         />
       )}
     </div>

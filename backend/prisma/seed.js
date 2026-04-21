@@ -133,6 +133,149 @@ async function main() {
     'Đồ Ăn Vặt Hàn Quốc': ['Tteokbokki', 'Kimbap', 'Chả Cá Xiên', 'Mì Cay Bò', 'Tteokbokki Phô Mai', 'Mì Trộn Tương Đen']
   };
 
+  // Image mapping - Add your actual image URLs here
+  // Format: 'Product Name': 'URL or local path'
+  // For local images: '/images/filename.jpg'
+  // For external images: 'https://your-cloudinary-url.com/image.jpg'
+  const productImages = {
+    // Cơm (Rice dishes)
+    'Cơm Chiên Dương Châu': '/images/Chinese fried rice.png',
+    'Cơm Tấm Sườn Bì': '/images/broken rice with grilled pork.png',
+    'Cơm Gà Xối Mỡ': '/images/Ginger braised chicken with rice.png',
+    'Cơm Chiên Hải Sản': '/images/Shrimp and crab fried rice.png',
+    'Cơm Ba Rọi Xào Sả Ớt': '/images/Vietnamese mixed rice with stir-fried beef.png',
+    'Cơm Thập Cẩm': '/images/Yangzhou fried rice with shrimp.png',
+    'Cơm Thập Cẩm Đặc Biệt': '/images/Teriyaki chicken and fried rice.png',
+    'Cơm Chiên Dương Châu Đặc Biệt': '/images/Hoi An-style shredded chicken fried rice.png',
+    'Cơm Tấm Sườn Bì Đặc Biệt': '/images/broken rice with honey grilled chicken.png',
+    'Cơm Gà Xối Mỡ Đặc Biệt': '/images/fried rice with chicken and fried egg.png',
+    'Cơm Chiên Hải Sản Đặc Biệt': '/images/Kimchi beef fried rice.png',
+
+    // Phở/Bún (Noodle dishes)
+    'Phở Bò Tái Nạm': '/images/Vietnamese iced coffee.png',
+    'Bún Bò Huế': '/images/Bun Bo Hue.png',
+    'Bún Thịt Nướng': '/images/dry noodles with grilled chicken.png',
+    'Bún Chả Hà Nội': '/images/char siu dry noodles.png',
+    'Phở Gà': '/images/chicken rice with black bean sauce.png',
+    'Bún Mọc': '/images/Wonton noodle soup with char siu.png',
+    'Phở Bò Tái Nạm Đặc Biệt': '/images/Vietnamese iced milk coffee.png',
+    'Bún Bò Huế Đặc Biệt': '/images/crab and snail noodle soup.png',
+    'Bún Thịt Nướng Đặc Biệt': '/images/shredded chicken noodles.png',
+
+    // Món Nước (Soup dishes)
+    'Hủ Tiếu Nam Vang': '/images/Hu Tieu Nam Vang.png',
+    'Mì Quảng': '/images/chicken banh canh.png',
+    'Bánh Canh Cua': '/images/banh canh.png',
+    'Mì Hoành Thánh': '/images/Chicken glass noodle soup bowl.png',
+    'Súp Cua': '/images/Vietnamese chicken stew.png',
+    'Nui Nước Xương': '/images/seafood udon.png',
+    'Hủ Tiếu Nam Vang Đặc Biệt': '/images/Wonton noodle soup.png',
+    'Mì Quảng Đặc Biệt': '/images/crispy chicken cheese noodles.png',
+
+    // Bánh Mì (Banh mi)
+    'Bánh Mì Ốp La': '/images/fried sausage.png',
+    'Bánh Mì Chả Lụa': '/images/Spaghetti with sausage and fried egg.png',
+    'Bánh Mì Thịt Nướng': '/images/grilled chicken salad.png',
+    'Bánh Mì Xíu Mại': '/images/mixed salad.png',
+    'Bánh Mì Heo Quay': '/images/Korean fried chicken with seaweed rice.png',
+    'Bánh Mì Bò Né': '/images/fried chicken with cheese sauce.png',
+
+    // Xiên Que (Skewers)
+    'Cá Viên Chiên': '/images/Korean mixed rice.png',
+    'Xúc Xích Chiên': '/images/fried rice with oyster sauce.png',
+    'Hồ Lô Nướng': '/images/garlic fried rice.png',
+    'Bò Viên': '/images/fried rice with chicken and teriyaki sauce.png',
+    'Phô Mai Que': '/images/Thai-style fried rice with eggs.png',
+    'Cá Viên Cà Ri': '/images/Braised basa fish with rice.png',
+
+    // Cà Phê (Coffee)
+    'Cà Phê Đen Đá': '/images/iced black coffee.png',
+    'Cà Phê Sữa Đá': '/images/Vietnamese iced coffee.png',
+    'Bạc Xỉu': '/images/bac xiu.png',
+    'Cà Phê Muối': '/images/salted cafe.png',
+    'Capuchino': '/images/cappucino.png',
+    'Latte': '/images/espresso.png',
+    'Cà Phê Sữa Đá Đặc Biệt': '/images/Vietnamese iced milk coffee.png',
+    'Cà Phê Muối Đặc Biệt': '/images/salted coffee.png',
+
+    // Trà Sữa (Milk tea)
+    'Trà Sữa Trân Châu': '/images/Iced bubble tea.png',
+    'Trà Sữa Thái Xanh': '/images/mango matcha latte.png',
+    'Trà Sữa Matcha': '/images/Iced matcha latte.png',
+    'Hồng Trà Sữa': '/images/Iced oolong milk tea.png',
+    'Trà Sữa Khoai Môn': '/images/black tea with tapioca pearls.png',
+    'Trà Sữa Đường Đen': '/images/bubble milk tea.png',
+    'Trà Sữa Trân Châu Đặc Biệt': '/images/Iced matcha latte with oat milk.png',
+    'Trà Sữa Matcha Đặc Biệt': '/images/matcha iced blender.png',
+
+    // Sinh Tố (Smoothies)
+    'Sinh Tố Bơ': '/images/avocado smoothie.png',
+    'Sinh Tố Dâu': '/images/strawberry smoothie.png',
+    'Sinh Tố Xoài': '/images/Mango iced tea.png',
+    'Sinh Tố Mãng Cầu': '/images/Sapodilla smoothie.png',
+    'Sinh Tố Dưa Hấu': '/images/strawberry yogurt.png',
+    'Nước Ép Táo': '/images/orange juice.png',
+    'Sinh Tố Mãng Cầu Đặc Biệt': '/images/strawberry sugarcane juice.png',
+    'Sinh Tố Dưa Hấu Đặc Biệt': '/images/orange+carrot juice.png',
+
+    // Nước Ngọt (Soft drinks)
+    'Coca Cola': '/images/cookie blender.png',
+    'Pepsi': '/images/jelly cocoa drink.png',
+    'Sprite': '/images/iced milk cocoa.png',
+    '7Up': '/images/coconut milk coffee ice blended.png',
+    'Mirinda': '/images/hibicus kombuca.png',
+    'Sting': '/images/grapefruit coldbrew.png',
+
+    // Trà Trái Cây (Fruit tea)
+    'Trà Đào Cam Sả': '/images/honey lemon tea.png',
+    'Trà Vải': '/images/peach tea.png',
+    'Trà Dâu': '/images/strawberry smoothie.png',
+    'Trà Tắc': '/images/blueberry tea.png',
+    'Trà Ổi Hồng': '/images/Pomegranate cold brew.png',
+    'Lục Trà Chanh': '/images/Mango iced tea.png',
+    'Trà Đào Cam Sả Đặc Biệt': '/images/matcha ice blended.png',
+
+    // Đồ Chay (Vegetarian)
+    'Cơm Chay': '/images/mixed stir-fried noodles.png',
+    'Bún Xào Chay': '/images/noodles with beef stir fry.png',
+    'Đậu Hũ Tứ Xuyên Chay': '/images/stir-fried beef noodles.png',
+    'Gỏi Cuốn Chay': '/images/udon noodles with tonkatsu.png',
+    'Canh Chua Chay': '/images/katsu curry.png',
+    'Mì Căn Xào Sả Ớt': '/images/Jajangmyeon.png',
+
+    // Tráng Miệng (Desserts)
+    'Bánh Flan': '/images/cookie blender.png',
+    'Rau Câu Sơn Thủy': '/images/jelly cocoa drink.png',
+    'Sữa Chua Trân Châu': '/images/strawberry yogurt.png',
+    'Chè Dưỡng Nhan': '/images/avocado smoothie.png',
+    'Chè Thái': '/images/Sapodilla smoothie.png',
+    'Bánh Mousse': '/images/mango matcha latte.png',
+
+    // Gà Rán (Fried chicken)
+    'Gà Rán Phần M': '/images/Korean fried chicken with seaweed rice.png',
+    'Gà Rán Cay': '/images/fried chicken with cheese sauce.png',
+    'Cánh Gà Sốt Tương': '/images/chicken rice with black bean sauce.png',
+    'Gà Viên Chiên': '/images/Korean mixed rice.png',
+    'Đùi Gà Rán': '/images/Teriyaki chicken and fried rice.png',
+    'Gà Sốt Phô Mai': '/images/crispy chicken cheese noodles.png',
+
+    // Pizza/Mỳ Ý (Pizza/Pasta)
+    'Pizza Hải Sản': '/images/Shrimp and crab fried rice.png',
+    'Pizza Xúc Xích': '/images/Spaghetti with sausage and fried egg.png',
+    'Mỳ Ý Hải Sản': '/images/seafood udon.png',
+    'Mỳ Ý Bò Băm': '/images/Vietnamese mixed rice with stir-fried beef.png',
+    'Pizza Phô Mai': '/images/crispy chicken cheese noodles.png',
+    'Mỳ Ý Carbonara': '/images/udon noodles with tonkatsu.png',
+
+    // Đồ Ăn Vặt Hàn Quốc (Korean snacks)
+    'Tteokbokki': '/images/Jajangmyeon.png',
+    'Kimbap': '/images/Korean mixed rice.png',
+    'Chả Cá Xiên': '/images/Bulgogi.png',
+    'Mì Cay Bò': '/images/Korean fried chicken with seaweed rice.png',
+    'Tteokbokki Phô Mai': '/images/katsu curry.png',
+    'Mì Trộn Tương Đen': '/images/Jajangmyeon.png',
+  };
+
   const products = [];
   
   for(const store of stores) {
@@ -145,6 +288,9 @@ async function main() {
       const prodName = randomElement(categoryProducts) + (j % 4 === 0 ? ' Đặc Biệt' : '');
       const priceVal = randomInt(15, 65) * 1000; // Between 15k and 65k
       
+      // Try to get image from mapping, otherwise use placeholder
+      const imageURL = productImages[prodName] || 'https://placehold.co/200x200/png';
+      
       const p = await prisma.product.create({
         data: {
           storeId: store.storeId,
@@ -152,7 +298,7 @@ async function main() {
           name: prodName,
           price: priceVal,
           isAvailable: true,
-          imageURL: 'https://placehold.co/200x200/png'
+          imageURL: imageURL
         }
       });
       products.push(p);

@@ -1,3 +1,6 @@
+import { API_CONFIG } from '../../customer-order-tab/config/apiConfig';
+import authService from '../../services/authService';
+
 // ── Payment service ───────────────────────────────────────────────────────────────
 export const processPayment = async (paymentData) => {
   // TODO: Replace with real API call when backend is ready
@@ -6,19 +9,41 @@ export const processPayment = async (paymentData) => {
 };
 
 export const fetchCheckoutData = async () => {
-  // TODO: Replace with real API call when backend is ready
-  await new Promise((resolve) => setTimeout(resolve, 500)); // simulate network
+  const currentUser = authService.getCurrentUser();
+  if (!currentUser) {
+    throw new Error('User not authenticated');
+  }
+
+  // Fetch pending order for the current user
+  const res = await fetch(`${API_CONFIG.BASE_URL}/orders?userId=${currentUser.userId}&status=Pending`);
+  if (!res.ok) throw new Error(`Failed to fetch order: ${res.statusText}`);
+  
+  const orders = await res.json();
+  
+  if (!orders || orders.length === 0) {
+    return {
+      order: null,
+      items: [],
+    };
+  }
+
+  const order = orders[0];
+  const items = order.orderItems || order.items || order.order_items || [];
+  
   return {
     order: {
-      id: 1,
-      customer_name: 'Nguyen Van A',
-      customer_phone: '(+84) 901 234 567',
-      store_name: 'Stall A',
+      id: order.orderId || order.id,
+      customer_name: order.customer_name || currentUser.userName,
+      customer_phone: order.customer_phone || currentUser.phone,
+      store_name: order.store?.storeName || order.store_name,
     },
-    items: [
-      { id: 1, product_id: 101, product_name: 'Cơm tấm sườn', store_name: 'Stall A', unit_price: 45000, quantity: 2 },
-      { id: 2, product_id: 102, product_name: 'Trà sữa trân châu', store_name: 'Stall A', unit_price: 35000, quantity: 1 },
-      { id: 3, product_id: 103, product_name: 'Bánh mì thịt nướng', store_name: 'Stall A', unit_price: 25000, quantity: 4 },
-    ],
+    items: items.map(item => ({
+      id: item.orderItemId || item.id,
+      product_id: item.productId || item.product_id,
+      product_name: item.product?.name || item.product_name,
+      store_name: order.store?.storeName || order.store_name,
+      unit_price: item.unitPrice || item.unit_price,
+      quantity: item.quantity,
+    })),
   };
 };

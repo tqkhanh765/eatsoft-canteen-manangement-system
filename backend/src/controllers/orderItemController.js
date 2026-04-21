@@ -54,9 +54,22 @@ const createOrderItem = async (req, res) => {
 const updateOrderItem = async (req, res) => {
   try {
     const { quantity, unitPrice } = req.body;
+
+    // Get current item to preserve unitPrice if not provided
+    const currentItem = await prisma.orderItem.findUnique({
+      where: { orderItemId: Number(req.params.id) },
+    });
+
+    if (!currentItem) {
+      return res.status(404).json({ error: 'Order item not found' });
+    }
+
     const item = await prisma.orderItem.update({
       where: { orderItemId: Number(req.params.id) },
-      data:  { quantity: Number(quantity), unitPrice: Number(unitPrice) },
+      data:  {
+        quantity: Number(quantity),
+        ...(unitPrice !== undefined && { unitPrice: Number(unitPrice) }),
+      },
       include: { product: true },
     });
     await recalcOrderTotal(item.orderId);

@@ -8,6 +8,7 @@ import HomePage from './homepage/pages/HomePage';
 import OrderHistory from './customer/OrderHistory';
 import ProfilePage from './customer/ProfilePage';
 import OrderCart from './customer-order-tab/pages/OrderCart';
+import Checkout from './customer-checkout-tab/pages/Checkout';
 import Dashboard from './vendor-dashboard/pages/Dashboard';
 import Orders from './vendor-dashboard/pages/Orders';
 import { OrderProvider } from './vendor-dashboard/context/OrderContext';
@@ -245,6 +246,18 @@ function App() {
               <ProtectedRoute onLoginClick={openAuth}>
                 <MainLayout onLoginClick={openAuth} user={user} onLogout={handleLogout}>
                   <OrderCart />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Checkout Page - requires authentication */}
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute onLoginClick={openAuth}>
+                <MainLayout onLoginClick={openAuth} user={user} onLogout={handleLogout}>
+                  <Checkout />
                 </MainLayout>
               </ProtectedRoute>
             }
