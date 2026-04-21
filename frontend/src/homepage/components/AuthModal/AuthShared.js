@@ -25,7 +25,7 @@ export const EyeIcon = ({ visible, onClick }) => (
 );
 
 /* ─── Password Field with toggle ─────────────────────────────── */
-export const PasswordField = ({ id, label, value, onChange, placeholder, disabled }) => {
+export const PasswordField = ({ id, label, value, onChange, placeholder, disabled, error }) => {
   const [show, setShow] = useState(false);
   return (
     <div className="auth-field">
@@ -40,9 +40,15 @@ export const PasswordField = ({ id, label, value, onChange, placeholder, disable
           placeholder={placeholder || ''}
           autoComplete="current-password"
           disabled={disabled}
+          style={error ? { borderColor: '#EF4444' } : {}}
         />
         <EyeIcon visible={show} onClick={() => setShow(v => !v)} />
       </div>
+      {error && (
+        <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}>
+          {error}
+        </span>
+      )}
     </div>
   );
 };
