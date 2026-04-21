@@ -80,9 +80,11 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
 
         {/* Actions */}
         <div className="navbar-actions">
-          <Link to="/cart" className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
-            <CartIcon />
-          </Link>
+          {!isManager && (
+            <Link to="/cart" className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
+              <CartIcon />
+            </Link>
+          )}
           {user ? (
             <>
               <button className="bell-btn" id="navbar-bell" aria-label="Notifications">
@@ -99,7 +101,7 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
                 </button>
                 {showUserMenu && (
                   <div className="user-dropdown">
-                    <Link to="/profile" className="dropdown-item">User Profile</Link>
+                    {!isManager && <Link to="/profile" className="dropdown-item">User Profile</Link>}
                     <button className="dropdown-item dropdown-item--danger" onClick={onLogout}>Logout</button>
                   </div>
                 )}
