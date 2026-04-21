@@ -33,6 +33,10 @@ model User {
   orders         Order[]   // place
   announcements  Announcement[] // created
   vendorAnnouncements AnnouncementVendor[] // received as vendor
+
+  // Stall registration relations
+  managerReviews StallRegistration[] @relation("ManagerReviews")
+  adminApprovals StallRegistration[] @relation("AdminApprovals")
 }
 
 model Store {
@@ -134,4 +138,42 @@ model AnnouncementVendor {
   vendor         User         @relation(fields: [vendorId], references: [userId], onDelete: Cascade)
 
   @@id([announcementId, vendorId])
+}
+
+model StallRegistration {
+  id            Int      @id @default(autoincrement())
+
+  fullName      String
+  email         String
+  phoneNumber   String
+  stallName  String
+  description   String?
+  documents     String[]
+  
+  // Workflow tracking
+  status        RegistrationStatus @default(MANAGER_PENDING)
+  
+  // Manager review
+  managerId     Int?
+  manager       User?    @relation("ManagerReviews", fields: [managerId], references: [userId])
+  managerNote   String?
+  reviewedAt    DateTime?
+  
+  // Admin completion
+  adminId       Int?
+  admin         User?    @relation("AdminApprovals", fields: [adminId], references: [userId])
+  createdVendorId Int?   // Reference to created User (vendor) after approval
+  createdStoreId  Int?   // Reference to created Store after approval
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum RegistrationStatus {
+  MANAGER_PENDING
+  MANAGER_APPROVED
+  MANAGER_REJECTED
+  ADMIN_PENDING
+  ADMIN_COMPLETED
+  ADMIN_REJECTED
 }
