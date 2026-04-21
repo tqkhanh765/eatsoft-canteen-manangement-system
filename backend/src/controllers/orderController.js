@@ -101,4 +101,216 @@ const deleteOrder = async (req, res) => {
   }
 };
 
-module.exports = { getAllOrders, getOrderById, createOrder, updateOrderStatus, deleteOrder };
+// GET /orders/stats/peak-hours - Get order count by hour of day
+const getPeakOrderingHours = async (req, res) => {
+  try {
+    const orders = await prisma.order.findMany({
+      select: {
+        orderDate: true,
+      },
+    });
+
+    // Initialize hours 8-14 (8AM to 2PM)
+    const hourlyData = [
+      { time: '8:00 AM', orders: 0, hour: 8 },
+      { time: '9:00 AM', orders: 0, hour: 9 },
+      { time: '10:00 AM', orders: 0, hour: 10 },
+      { time: '11:00 AM', orders: 0, hour: 11 },
+      { time: '12:00 AM', orders: 0, hour: 12 },
+      { time: '13:00 PM', orders: 0, hour: 13 },
+      { time: '14:00 PM', orders: 0, hour: 14 },
+    ];
+
+    // Count orders by hour
+    orders.forEach(order => {
+      const orderHour = new Date(order.orderDate).getHours();
+      const hourData = hourlyData.find(h => h.hour === orderHour);
+      if (hourData) {
+        hourData.orders += 1;
+      }
+    });
+
+    // Remove the hour property before sending response
+    const result = hourlyData.map(({ time, orders }) => ({ time, orders }));
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /orders/stats/peak-day - Get order count by day of week
+const getPeakDay = async (req, res) => {
+  try {
+    const orders = await prisma.order.findMany({
+      select: {
+        orderDate: true,
+      },
+    });
+
+    // Initialize days of week
+    const dayData = [
+      { day: 'Monday', orders: 0 },
+      { day: 'Tuesday', orders: 0 },
+      { day: 'Wednesday', orders: 0 },
+      { day: 'Thursday', orders: 0 },
+      { day: 'Friday', orders: 0 },
+      { day: 'Saturday', orders: 0 },
+      { day: 'Sunday', orders: 0 },
+    ];
+
+    // Count orders by day of week
+    orders.forEach(order => {
+      const orderDay = new Date(order.orderDate).getDay();
+      // getDay() returns 0 for Sunday, 1 for Monday, etc.
+      const dayIndex = orderDay === 0 ? 6 : orderDay - 1; // Convert to 0=Monday, 6=Sunday
+      dayData[dayIndex].orders += 1;
+    });
+
+    res.json(dayData);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /orders/stats/top-ordering - Get total products ordered by store
+const getTopOrderingByStore = async (req, res) => {
+  try {
+    // Get all stores first
+    const allStores = await prisma.store.findMany({
+      select: {
+        storeId: true,
+        storeName: true,
+      },
+    });
+
+    // Get all order items with product and store info
+    const orderItems = await prisma.orderItem.findMany({
+      include: {
+        product: {
+          include: {
+            store: true,
+          },
+        },
+      },
+    });
+
+    // Initialize all stores with 0 quantity
+    const storeQuantities = {};
+    allStores.forEach(store => {
+      storeQuantities[store.storeName] = 0;
+    });
+
+    // Sum quantities by store (via product->store relationship)
+    orderItems.forEach(item => {
+      const storeName = item.product?.store?.storeName;
+      if (storeName && storeQuantities.hasOwnProperty(storeName)) {
+        storeQuantities[storeName] += item.quantity;
+      }
+    });
+
+    // Convert to array and sort by quantity (descending - most to least)
+    const result = Object.entries(storeQuantities)
+      .map(([name, products]) => ({ name, products }))
+      .sort((a, b) => b.products - a.products);
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /orders/stats/performance - Get average rating, daily orders and income by store for a specific date
+const getStorePerformanceByDate = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    // Get all stores
+    const allStores = await prisma.store.findMany({
+      select: {
+        storeId: true,
+        storeName: true,
+      },
+    });
+
+    // Calculate date range for the selected date (start and end of day)
+    const targetDate = date ? new Date(date) : new Date();
+    const startOfDay = new Date(targetDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(targetDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Get orders for the specific date
+    const orders = await prisma.order.findMany({
+      where: {
+        orderDate: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+      include: {
+        store: true,
+      },
+    });
+
+    // Get all feedbacks with store info
+    const feedbacks = await prisma.feedback.findMany({
+      include: {
+        orderItem: {
+          include: {
+            product: {
+              include: {
+                store: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Initialize store performance data
+    const storePerformance = {};
+    allStores.forEach(store => {
+      storePerformance[store.storeName] = {
+        storeName: store.storeName,
+        avgRating: 0,
+        dailyOrders: 0,
+        dailyIncome: 0,
+        ratingCount: 0,
+        ratingSum: 0,
+      };
+    });
+
+    // Calculate average ratings by store
+    feedbacks.forEach(feedback => {
+      const storeName = feedback.orderItem?.product?.store?.storeName;
+      if (storeName && storePerformance.hasOwnProperty(storeName)) {
+        storePerformance[storeName].ratingSum += feedback.rating;
+        storePerformance[storeName].ratingCount += 1;
+      }
+    });
+
+    // Calculate daily orders and income by store
+    orders.forEach(order => {
+      const storeName = order.store?.storeName;
+      if (storeName && storePerformance.hasOwnProperty(storeName)) {
+        storePerformance[storeName].dailyOrders += 1;
+        storePerformance[storeName].dailyIncome += Number(order.totalAmount);
+      }
+    });
+
+    // Calculate average ratings and format result
+    const result = Object.values(storePerformance).map(store => ({
+      storeName: store.storeName,
+      avgRating: store.ratingCount > 0 ? (store.ratingSum / store.ratingCount).toFixed(1) : '0.0',
+      dailyOrders: store.dailyOrders,
+      dailyIncome: store.dailyIncome.toFixed(0),
+    }));
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getAllOrders, getOrderById, createOrder, updateOrderStatus, deleteOrder, getPeakOrderingHours, getPeakDay, getTopOrderingByStore, getStorePerformanceByDate };
