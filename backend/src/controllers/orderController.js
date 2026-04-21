@@ -101,6 +101,75 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+// POST /orders/:id/items  (add item to existing order)
+const addItemToOrder = async (req, res) => {
+  try {
+    const { productId, quantity, unitPrice } = req.body;
+    const orderId = Number(req.params.id);
+
+    // Check if order exists and is pending
+    const order = await prisma.order.findUnique({
+      where: { orderId },
+    });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (order.status !== 'Pending') return res.status(400).json({ error: 'Can only add items to pending orders' });
+
+    // Check if product exists
+    const product = await prisma.product.findUnique({
+      where: { productId: Number(productId) },
+    });
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    // Check if product is from the same store
+    if (product.storeId !== order.storeId) {
+      return res.status(400).json({ error: 'Cannot add items from different stores to the same order' });
+    }
+
+    // Check if item already exists in order
+    const existingItem = await prisma.orderItem.findFirst({
+      where: {
+        orderId,
+        productId: Number(productId),
+      },
+    });
+
+    let orderItem;
+    if (existingItem) {
+      // Update quantity if item exists
+      orderItem = await prisma.orderItem.update({
+        where: { orderItemId: existingItem.orderItemId },
+        data: {
+          quantity: existingItem.quantity + Number(quantity),
+          unitPrice: Number(unitPrice),
+        },
+      });
+    } else {
+      // Create new item
+      orderItem = await prisma.orderItem.create({
+        data: {
+          orderId,
+          productId: Number(productId),
+          quantity: Number(quantity),
+          unitPrice: Number(unitPrice),
+        },
+      });
+    }
+
+    // Recalculate total amount
+    const allItems = await prisma.orderItem.findMany({ where: { orderId } });
+    const totalAmount = allItems.reduce((sum, item) => sum + Number(item.unitPrice) * item.quantity, 0);
+
+    await prisma.order.update({
+      where: { orderId },
+      data: { totalAmount },
+    });
+
+    res.status(201).json(orderItem);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // GET /orders/stats/peak-hours - Get order count by hour of day
 const getPeakOrderingHours = async (req, res) => {
   try {
@@ -116,9 +185,9 @@ const getPeakOrderingHours = async (req, res) => {
       { time: '9:00 AM', orders: 0, hour: 9 },
       { time: '10:00 AM', orders: 0, hour: 10 },
       { time: '11:00 AM', orders: 0, hour: 11 },
-      { time: '12:00 AM', orders: 0, hour: 12 },
-      { time: '13:00 PM', orders: 0, hour: 13 },
-      { time: '14:00 PM', orders: 0, hour: 14 },
+      { time: '12:00 PM', orders: 0, hour: 12 },
+      { time: '1:00 PM', orders: 0, hour: 13 },
+      { time: '2:00 PM', orders: 0, hour: 14 },
     ];
 
     // Count orders by hour
@@ -313,4 +382,4 @@ const getStorePerformanceByDate = async (req, res) => {
   }
 };
 
-module.exports = { getAllOrders, getOrderById, createOrder, updateOrderStatus, deleteOrder, getPeakOrderingHours, getPeakDay, getTopOrderingByStore, getStorePerformanceByDate };
+module.exports = { getAllOrders, getOrderById, createOrder, updateOrderStatus, deleteOrder, addItemToOrder, getPeakOrderingHours, getPeakDay, getTopOrderingByStore, getStorePerformanceByDate };
