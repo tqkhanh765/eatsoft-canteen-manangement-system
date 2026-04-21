@@ -41,7 +41,7 @@ const OrderCart = () => {
       setShowErrorModal(true);
       return;
     }
-    navigate('/checkout');
+    navigate('/checkout', { state: { deliveryOption, room } });
   };
 
   // ── Derived totals ───────────────────────────────────────────────────────

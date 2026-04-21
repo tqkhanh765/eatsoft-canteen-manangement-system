@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/layout.css';
 import '../styles/alerts.css';
 import '../styles/states.css';
@@ -23,6 +23,7 @@ import ConfirmPaymentButton from '../components/ConfirmPaymentButton';
 // ── Component ────────────────────────────────────────────────────────────────
 const Checkout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const checkoutState = useCheckout();
   const formState = useCheckoutForm();
   const paymentState = usePayment(checkoutState, formState, navigate);
@@ -30,6 +31,16 @@ const Checkout = () => {
   const { order, items, loading, error, setError } = checkoutState;
   const { deliveryOption, room, selectedPayment, setDeliveryOption, setRoom, setSelectedPayment, agreedToTerms, setAgreedToTerms } = formState;
   const { checkoutLoading, successMsg, setSuccessMsg, handleConfirmPayment } = paymentState;
+
+  // Read deliveryOption and room from navigate state if available
+  useEffect(() => {
+    if (location.state?.deliveryOption) {
+      setDeliveryOption(location.state.deliveryOption);
+    }
+    if (location.state?.room) {
+      setRoom(location.state.room);
+    }
+  }, [location.state, setDeliveryOption, setRoom]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   if (loading) {
@@ -85,6 +96,7 @@ const Checkout = () => {
             room={room}
             onDeliveryChange={setDeliveryOption}
             onRoomChange={setRoom}
+            readOnly={true}
           />
 
           <OrderSummary
