@@ -18,6 +18,7 @@ async function main() {
   console.log('🌱 Start PostgreSQL database seeding...');
   
   console.log('Clearing old data...');
+  await prisma.announcementVendor.deleteMany();
   await prisma.announcement.deleteMany();
   await prisma.feedback.deleteMany();
   await prisma.orderItem.deleteMany();
@@ -244,38 +245,54 @@ async function main() {
       title: 'Thông báo giờ mở cửa mới',
       content: 'Kể từ ngày 1/5/2025, Canteen IU sẽ mở cửa từ 7:00 AM đến 8:00 PM để phục vụ sinh viên tốt hơn.',
       type: 'all',
-      createdBy: managers[0].userId
+      createdBy: managers[0].userId,
+      vendorIds: [] // No specific vendors for 'all' type
     },
     {
       title: 'Khuyến mãi đặc biệt cuối tuần',
       content: 'Tất cả các cửa hàng trong Canteen giảm 10% cho đơn hàng trên 100.000đ vào thứ 7 và Chủ nhật.',
       type: 'customers',
-      createdBy: managers[1].userId
+      createdBy: managers[1].userId,
+      vendorIds: [] // No specific vendors for 'customers' type
     },
     {
       title: 'Thông báo cho vendors',
       content: 'Vui lòng cập nhật menu và giá cả trước ngày 25 hàng tháng. Liên hệ bộ phận quản lý nếu cần hỗ trợ.',
       type: 'vendors',
-      createdBy: managers[2].userId
+      createdBy: managers[2].userId,
+      vendorIds: vendors.slice(0, 2).map(v => v.userId) // Send to first 2 vendors
     },
     {
       title: 'Cảnh báo an toàn thực phẩm',
       content: 'Mùa hè đến, các cửa hàng lưu ý bảo quản thực phẩm đúng cách để đảm bảo an toàn cho khách hàng.',
       type: 'vendors',
-      createdBy: managers[0].userId
+      createdBy: managers[0].userId,
+      vendorIds: vendors.slice(2, 4).map(v => v.userId) // Send to next 2 vendors
     },
     {
       title: 'Chương trình thử thách ăn uống',
       content: 'Tham gia thử thách ăn uống tại Canteen và nhận voucher 50.000đ! Xem chi tiết tại quầy thông tin.',
       type: 'customers',
-      createdBy: managers[1].userId
+      createdBy: managers[1].userId,
+      vendorIds: [] // No specific vendors for 'customers' type
     }
   ];
 
   for (const ann of announcementData) {
-    await prisma.announcement.create({
-      data: ann
+    const createdAnn = await prisma.announcement.create({
+      data: {
+        title: ann.title,
+        content: ann.content,
+        type: ann.type,
+        createdBy: ann.createdBy,
+        vendors: ann.vendorIds.length > 0 ? {
+          create: ann.vendorIds.map(vendorId => ({
+            vendorId: vendorId
+          }))
+        } : undefined
+      }
     });
+    console.log(`  - Created announcement: "${createdAnn.title}" for ${ann.type}${ann.vendorIds.length > 0 ? ` (${ann.vendorIds.length} vendors)` : ''}`);
   }
 
   console.log('✅ Seed data successfully');

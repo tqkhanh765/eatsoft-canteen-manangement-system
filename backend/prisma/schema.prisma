@@ -27,6 +27,7 @@ model User {
   stores   Store[]   // manage
   orders   Order[]   // place
   announcements Announcement[] // created
+  vendorAnnouncements AnnouncementVendor[] // received as vendor
 }
 
 model Store {
@@ -116,4 +117,16 @@ model Announcement {
 
   createdBy      Int
   creator        User     @relation(fields: [createdBy], references: [userId])
+
+  vendors        AnnouncementVendor[]
+}
+
+model AnnouncementVendor {
+  announcementId Int
+  vendorId       Int
+
+  announcement   Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
+  vendor         User         @relation(fields: [vendorId], references: [userId], onDelete: Cascade)
+
+  @@id([announcementId, vendorId])
 }
