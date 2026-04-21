@@ -10,13 +10,24 @@ import ResetPasswordView from './ResetPasswordView';
 /* ─── Main AuthModal Orchestrator ────────────────────────────── */
 const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) => {
   const [view, setView] = useState(defaultView);
+  
+  // Forgot password flow state
+  const [resetEmail, setResetEmail] = useState('');
+  const [otpToken, setOtpToken] = useState('');
+  const [resetToken, setResetToken] = useState('');
 
   console.log('[AuthModal] Rendered with isOpen:', isOpen);
 
   // Reset view whenever modal opens
   useEffect(() => {
     console.log('[AuthModal] isOpen changed to:', isOpen);
-    if (isOpen) setView(defaultView);
+    if (isOpen) {
+      setView(defaultView);
+      // Reset forgot password state
+      setResetEmail('');
+      setOtpToken('');
+      setResetToken('');
+    }
   }, [isOpen, defaultView]);
 
   // Prevent body scroll when modal open
@@ -29,22 +40,20 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  const handleForgotSubmit = (contact) => {
-    // TODO: API call to send code
-    console.log('Send reset code to:', contact);
+  const handleForgotSubmit = (email, token) => {
+    setResetEmail(email);
+    setOtpToken(token);
     setView('verify');
   };
 
-  const handleVerify = (code) => {
-    // TODO: API call to verify code
-    console.log('Verifying code:', code);
+  const handleVerify = (token) => {
+    setResetToken(token);
     setView('reset');
   };
 
-  const handleReset = (newPass) => {
-    // TODO: API call to reset password
-    console.log('Reset password:', newPass);
-    onClose();
+  const handleResetSuccess = () => {
+    // Go back to login after successful reset
+    setView('login');
   };
 
   if (!isOpen) return null;
@@ -93,10 +102,18 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
             <ForgotPasswordView onSubmit={handleForgotSubmit} />
           )}
           {view === 'verify' && (
-            <VerifyCodeView onVerify={handleVerify} />
+            <VerifyCodeView 
+              email={resetEmail} 
+              otpToken={otpToken} 
+              onVerify={handleVerify} 
+            />
           )}
           {view === 'reset' && (
-            <ResetPasswordView onReset={handleReset} onClose={onClose} />
+            <ResetPasswordView 
+              email={resetEmail} 
+              resetToken={resetToken} 
+              onSuccess={handleResetSuccess} 
+            />
           )}
         </div>
       </div>
