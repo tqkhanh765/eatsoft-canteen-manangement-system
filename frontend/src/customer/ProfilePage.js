@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import PersonalInfo from './PersonalInfo';
 import OrderHistory from './OrderHistory';
 import OrderDetail from './OrderDetail';
+import authService from '../services/authService';
 import './ProfilePage.css';
 
 // SVGs for Sidebar
@@ -32,6 +33,18 @@ const ProfilePage = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('info'); // 'info' or 'history'
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [user, setUser] = useState(null);
+
+  // Fetch current user data
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    setUser(currentUser);
+  }, []);
+
+  // Handle user data update from PersonalInfo
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+  };
 
   // Set active tab based on URL path
   useEffect(() => {
@@ -50,8 +63,8 @@ const ProfilePage = () => {
             <div className="avatar-circle">
               <IconUserAvatar />
             </div>
-            <h3>Nguyen Van A</h3>
-            <p>ID: 001</p>
+            <h3>{user?.userName || 'Loading...'}</h3>
+            <p>ID: {user?.userId || '---'}</p>
           </div>
 
           <nav className="sidebar-nav">
@@ -80,7 +93,7 @@ const ProfilePage = () => {
           <OrderDetail order={selectedOrder} onBack={() => setSelectedOrder(null)} />
         ) : activeTab === 'info' ? (
           /* PERSONAL INFO */
-          <PersonalInfo />
+          <PersonalInfo onUserUpdate={handleUserUpdate} />
         ) : (
           /* ORDER HISTORY */
           <OrderHistory onSelectOrder={setSelectedOrder} />

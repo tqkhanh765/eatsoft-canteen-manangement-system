@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AuthModal.css';
 
 import LoginView from './LoginView';
@@ -10,22 +10,25 @@ import ResetPasswordView from './ResetPasswordView';
 /* ─── Main AuthModal Orchestrator ────────────────────────────── */
 const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) => {
   const [view, setView] = useState(defaultView);
+  
+  // Forgot password flow state
+  const [resetEmail, setResetEmail] = useState('');
+  const [otpToken, setOtpToken] = useState('');
+  const [resetToken, setResetToken] = useState('');
 
   console.log('[AuthModal] Rendered with isOpen:', isOpen);
 
   // Reset view whenever modal opens
   useEffect(() => {
     console.log('[AuthModal] isOpen changed to:', isOpen);
-    if (isOpen) setView(defaultView);
+    if (isOpen) {
+      setView(defaultView);
+      // Reset forgot password state
+      setResetEmail('');
+      setOtpToken('');
+      setResetToken('');
+    }
   }, [isOpen, defaultView]);
-
-  // Close on Escape key
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [isOpen, onClose]);
 
   // Prevent body scroll when modal open
   useEffect(() => {
@@ -37,26 +40,20 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  const handleBackdropClick = useCallback((e) => {
-    if (e.target === e.currentTarget) onClose();
-  }, [onClose]);
-
-  const handleForgotSubmit = (contact) => {
-    // TODO: API call to send code
-    console.log('Send reset code to:', contact);
+  const handleForgotSubmit = (email, token) => {
+    setResetEmail(email);
+    setOtpToken(token);
     setView('verify');
   };
 
-  const handleVerify = (code) => {
-    // TODO: API call to verify code
-    console.log('Verifying code:', code);
+  const handleVerify = (token) => {
+    setResetToken(token);
     setView('reset');
   };
 
-  const handleReset = (newPass) => {
-    // TODO: API call to reset password
-    console.log('Reset password:', newPass);
-    onClose();
+  const handleResetSuccess = () => {
+    // Go back to login after successful reset
+    setView('login');
   };
 
   if (!isOpen) return null;
@@ -68,7 +65,6 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
       role="dialog"
       aria-modal="true"
       aria-label="Authentication"
-      onClick={handleBackdropClick}
     >
       <div
         className={`auth-modal ${view === 'signup' ? 'auth-modal--tall' : ''}`}
@@ -106,10 +102,18 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
             <ForgotPasswordView onSubmit={handleForgotSubmit} />
           )}
           {view === 'verify' && (
-            <VerifyCodeView onVerify={handleVerify} />
+            <VerifyCodeView 
+              email={resetEmail} 
+              otpToken={otpToken} 
+              onVerify={handleVerify} 
+            />
           )}
           {view === 'reset' && (
-            <ResetPasswordView onReset={handleReset} onClose={onClose} />
+            <ResetPasswordView 
+              email={resetEmail} 
+              resetToken={resetToken} 
+              onSuccess={handleResetSuccess} 
+            />
           )}
         </div>
       </div>

@@ -46,7 +46,7 @@
 }
 
 .input-field input {
-  background-color: #E2E2E0;
+  background-color: #ffffff;
   border: 1px solid #C4C4C4;
   border-radius: 5px;
   padding: 12px 15px;
@@ -60,6 +60,10 @@
 
 .input-field input:focus {
   border-color: #0085FF;
+}
+
+.input-field input:read-only {
+  background-color: #E2E2E0;
 }
 
 .edit-btn {
