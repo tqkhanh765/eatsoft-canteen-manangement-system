@@ -26,6 +26,7 @@ model User {
 
   stores   Store[]   // manage
   orders   Order[]   // place
+  announcements Announcement[] // created
 }
 
 model Store {
@@ -103,4 +104,16 @@ model Feedback {
 
   orderItemId    Int      @unique
   orderItem  OrderItem    @relation(fields: [orderItemId], references: [orderItemId])
+}
+
+model Announcement {
+  announcementId Int      @id @default(autoincrement())
+  title          String
+  content        String
+  type           String   // 'customers', 'vendors', 'all'
+  status         String   @default("published") // 'published', 'draft'
+  createdAt      DateTime @default(now())
+
+  createdBy      Int
+  creator        User     @relation(fields: [createdBy], references: [userId])
 }

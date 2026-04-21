@@ -18,6 +18,7 @@ async function main() {
   console.log('🌱 Start PostgreSQL database seeding...');
   
   console.log('Clearing old data...');
+  await prisma.announcement.deleteMany();
   await prisma.feedback.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
@@ -65,9 +66,9 @@ async function main() {
     admins.push(await prisma.user.create({ data: { userName: `Quản Trị ${i}`, email: `admin${i}@eatsoft.com`, password: uniqueHash, phone: '090000000' + i, status: 'Active', roleId: roleAdmin.roleId } }));
   }
 
-  // 9 Vendors
+  // 6 Vendors (one for each store)
   const vendors = []; 
-  for(let i=1; i<=9; i++) {
+  for(let i=1; i<=6; i++) {
     const uniqueHash = await bcrypt.hash('password123', 10);
     vendors.push(await prisma.user.create({ data: { userName: `Chủ Quán ${i}`, email: `vendor${i}@eatsoft.com`, password: uniqueHash, phone: '091000000' + i, status: 'Active', roleId: roleVendor.roleId } }));
   }
@@ -93,10 +94,10 @@ async function main() {
   }
 
   // ----------------------------------------
-  // 4. SEED STORES (9 stores)
+  // 4. SEED STORES (6 stores to match frontend mock data)
   // ----------------------------------------
   console.log('Seeding Stores...');
-  const storeNames = ['Cơm Việt', 'B&B', 'Sushi Cười', 'H&D', 'Gạo & Nồi', 'T&D', 'BigU', 'Coffee Story', 'The Zero Coffee'];
+  const storeNames = ['Big U', 'Cơm Việt', 'H&D Food Court', 'Gạo & Nồi', 'Coffee Story', 'The Zero Coffee'];
   const stores = [];
   for(let i=0; i<storeNames.length; i++) {
     stores.push(await prisma.store.create({
@@ -104,7 +105,7 @@ async function main() {
         storeName: storeNames[i],
         description: `Chào mừng đến với cửa hàng ${storeNames[i]} tại Canteen IU.`,
         location: `Khu vực sảnh số ${i+1}`,
-        managerId: vendors[i].userId // Map exact 9 vendors to the 9 stores
+        managerId: vendors[i].userId // Map exact 6 vendors to the 6 stores
       }
     }));
   }
@@ -192,11 +193,20 @@ async function main() {
 
     const status = randomInt(1, 10) <= 3 ? 'Pending' : 'Completed';
 
+    // Generate orderDate within peak hours (8 AM - 2 PM) across multiple days
+    const daysAgo = randomInt(0, 13); // Orders from today up to 13 days ago
+    const hour = randomInt(8, 14);
+    const minute = randomInt(0, 59);
+    const orderDate = new Date();
+    orderDate.setDate(orderDate.getDate() - daysAgo);
+    orderDate.setHours(hour, minute, 0, 0);
+
     const orderData = {
       userId: randomElement(customers).userId,
       storeId: randomElement(stores).storeId,
       totalAmount: totalAmount,
       status: status,
+      orderDate: orderDate,
       orderItems: {
         create: orderItemsData
       }
@@ -222,6 +232,50 @@ async function main() {
     if (i % 10 === 0) {
       console.log(`... Da tao duoc ${i}/50 don hang (kem theo Feedback)`);
     }
+  }
+
+  // ----------------------------------------
+  // 7. SEED ANNOUNCEMENTS (~5 announcements)
+  // ----------------------------------------
+  console.log('Seeding Announcements...');
+  
+  const announcementData = [
+    {
+      title: 'Thông báo giờ mở cửa mới',
+      content: 'Kể từ ngày 1/5/2025, Canteen IU sẽ mở cửa từ 7:00 AM đến 8:00 PM để phục vụ sinh viên tốt hơn.',
+      type: 'all',
+      createdBy: managers[0].userId
+    },
+    {
+      title: 'Khuyến mãi đặc biệt cuối tuần',
+      content: 'Tất cả các cửa hàng trong Canteen giảm 10% cho đơn hàng trên 100.000đ vào thứ 7 và Chủ nhật.',
+      type: 'customers',
+      createdBy: managers[1].userId
+    },
+    {
+      title: 'Thông báo cho vendors',
+      content: 'Vui lòng cập nhật menu và giá cả trước ngày 25 hàng tháng. Liên hệ bộ phận quản lý nếu cần hỗ trợ.',
+      type: 'vendors',
+      createdBy: managers[2].userId
+    },
+    {
+      title: 'Cảnh báo an toàn thực phẩm',
+      content: 'Mùa hè đến, các cửa hàng lưu ý bảo quản thực phẩm đúng cách để đảm bảo an toàn cho khách hàng.',
+      type: 'vendors',
+      createdBy: managers[0].userId
+    },
+    {
+      title: 'Chương trình thử thách ăn uống',
+      content: 'Tham gia thử thách ăn uống tại Canteen và nhận voucher 50.000đ! Xem chi tiết tại quầy thông tin.',
+      type: 'customers',
+      createdBy: managers[1].userId
+    }
+  ];
+
+  for (const ann of announcementData) {
+    await prisma.announcement.create({
+      data: ann
+    });
   }
 
   console.log('✅ Seed data successfully');
