@@ -185,9 +185,9 @@ const getPeakOrderingHours = async (req, res) => {
       { time: '9:00 AM', orders: 0, hour: 9 },
       { time: '10:00 AM', orders: 0, hour: 10 },
       { time: '11:00 AM', orders: 0, hour: 11 },
-      { time: '12:00 AM', orders: 0, hour: 12 },
-      { time: '13:00 PM', orders: 0, hour: 13 },
-      { time: '14:00 PM', orders: 0, hour: 14 },
+      { time: '12:00 PM', orders: 0, hour: 12 },
+      { time: '1:00 PM', orders: 0, hour: 13 },
+      { time: '2:00 PM', orders: 0, hour: 14 },
     ];
 
     // Count orders by hour

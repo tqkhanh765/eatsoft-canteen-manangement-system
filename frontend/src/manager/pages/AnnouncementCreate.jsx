@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import '../styles/Announcement.css';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
 // SVG Icons
 const CustomersIcon = () => (
@@ -29,9 +31,9 @@ const AllIcon = () => (
 );
 
 const TARGET_USERS = [
-  { id: 'Customers', label: 'Customers', Icon: CustomersIcon },
+  { id: 'All', label: 'All', Icon: AllIcon },
   { id: 'Vendors', label: 'Vendors', Icon: VendorsIcon },
-  { id: 'All', label: 'All', Icon: AllIcon }
+  { id: 'Customers', label: 'Customers', Icon: CustomersIcon }
 ];
 
 const ANNOUNCEMENT_TYPES = [
@@ -58,12 +60,37 @@ const WarningIcon = () => (
 
 const AnnouncementCreate = ({ user, onLogout }) => {
   const navigate = useNavigate();
-  const [targetUser, setTargetUser] = useState('Students');
+  const [targetUser, setTargetUser] = useState('All');
   const [type, setType] = useState('Update');
   const [selectedVendor, setSelectedVendor] = useState('');
+  const [selectedVendors, setSelectedVendors] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [vendors, setVendors] = useState([]);
+  const [loadingVendors, setLoadingVendors] = useState(true);
+
+  useEffect(() => {
+    fetchVendors();
+  }, []);
+
+  const fetchVendors = async () => {
+    try {
+      setLoadingVendors(true);
+      const response = await fetch(`${API_URL}/announcements/vendors`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch vendors');
+      }
+      const data = await response.json();
+      setVendors(data);
+    } catch (err) {
+      console.error('Failed to fetch vendors:', err);
+    } finally {
+      setLoadingVendors(false);
+    }
+  };
 
   const handleLoginClick = () => {};
 
@@ -80,15 +107,66 @@ const AnnouncementCreate = ({ user, onLogout }) => {
     setShowCancelModal(false);
   };
 
-  const handlePublish = () => {
-    console.log('Publishing announcement:', {
-      targetUser,
-      type,
-      selectedVendor: targetUser === 'Vendors' ? selectedVendor : null,
-      title,
-      content
+  const handlePublish = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Validate user is logged in
+      if (!user || !user.userId) {
+        throw new Error('User not authenticated. Please log in again.');
+      }
+      
+      // Map targetUser to backend type
+      const typeMapping = {
+        'All': 'all',
+        'Vendors': 'vendors',
+        'Customers': 'customers'
+      };
+      
+      const announcementData = {
+        title,
+        content,
+        type: typeMapping[targetUser] || 'all',
+        createdBy: user.userId,
+        vendorIds: targetUser === 'Vendors' ? selectedVendors : []
+      };
+      
+      const response = await fetch(`${API_URL}/announcements`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(announcementData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create announcement');
+      }
+      
+      navigate('/manager-announcement');
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const handleVendorToggle = (vendorId) => {
+    setSelectedVendors(prev => {
+      if (prev.includes(vendorId)) {
+        return prev.filter(id => id !== vendorId);
+      } else {
+        return [...prev, vendorId];
+      }
     });
-    navigate('/manager-announcement');
+  };
+
+  const handleSelectAllVendors = () => {
+    if (selectedVendors.length === vendors.length) {
+      setSelectedVendors([]);
+    } else {
+      setSelectedVendors(vendors.map(v => v.userId.toString()));
+    }
   };
 
   return (
@@ -141,17 +219,40 @@ const AnnouncementCreate = ({ user, onLogout }) => {
 
             {targetUser === 'Vendors' && (
               <div className="form-group">
-                <label className="form-label">Select vendor</label>
-                <select
-                  className="form-select"
-                  value={selectedVendor}
-                  onChange={(e) => setSelectedVendor(e.target.value)}
-                >
-                  <option value="">Select a vendor</option>
-                  {MOCK_VENDORS.map((vendor) => (
-                    <option key={vendor} value={vendor}>{vendor}</option>
-                  ))}
-                </select>
+                <label className="form-label">Select Vendors</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedVendors.length === vendors.length && vendors.length > 0}
+                      onChange={handleSelectAllVendors}
+                      disabled={loadingVendors}
+                    />
+                    <span style={{ fontWeight: '600' }}>Select All Vendors ({selectedVendors.length}/{vendors.length} selected)</span>
+                  </label>
+                  {loadingVendors ? (
+                    <div style={{ padding: '20px', textAlign: 'center' }}>Loading vendors...</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}>
+                      {vendors.map(vendor => (
+                        <label key={vendor.userId} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px', borderRadius: '4px', backgroundColor: selectedVendors.includes(vendor.userId.toString()) ? '#E8F5E9' : 'transparent' }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedVendors.includes(vendor.userId.toString())}
+                            onChange={() => handleVendorToggle(vendor.userId.toString())}
+                          />
+                          <span>{vendor.userName} ({vendor.email})</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="form-group" style={{ color: '#EF4444', padding: '10px', backgroundColor: '#FEF2F2', borderRadius: '6px' }}>
+                <p>Error: {error}</p>
               </div>
             )}
 
@@ -181,8 +282,12 @@ const AnnouncementCreate = ({ user, onLogout }) => {
               <button className="cancel-btn" onClick={handleCancel}>
                 Cancel
               </button>
-              <button className="publish-btn" onClick={handlePublish}>
-                Publish
+              <button 
+                className="publish-btn" 
+                onClick={handlePublish}
+                disabled={loading || !title || !content || (targetUser === 'Vendors' && selectedVendors.length === 0)}
+              >
+                {loading ? 'Publishing...' : 'Publish'}
               </button>
             </div>
           </div>
