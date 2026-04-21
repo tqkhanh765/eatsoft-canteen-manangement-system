@@ -18,6 +18,7 @@ const createDishImage = (title, accent) => {
 };
 
 const API_BASE_URL = 'http://localhost:8080/api';
+const BACKEND_URL = 'http://localhost:8080'; // For images without /api prefix
 
 /**
  * Fetch products from the backend for a specific store
@@ -36,6 +37,22 @@ const fetchProductsByStore = async (storeId) => {
 };
 
 /**
+ * Helper to get full image URL
+ * @param {string} imageURL - Image URL from database
+ * @returns {string} Full image URL
+ */
+const getFullImageUrl = (imageURL) => {
+  if (!imageURL) return createDishImage('No Image', '#4f46e5');
+  if (imageURL.startsWith('http')) return imageURL; // Already a full URL
+  if (imageURL.startsWith('/')) {
+    const fullUrl = `${BACKEND_URL}${imageURL}`;
+    console.log('Image URL converted:', imageURL, '->', fullUrl);
+    return fullUrl;
+  }
+  return imageURL;
+};
+
+/**
  * Map database product to UI product format
  * @param {Object} dbProduct - Product from database
  * @returns {Object} Product in UI format
@@ -48,7 +65,7 @@ const mapProductToUI = (dbProduct) => ({
   price: Number(dbProduct.price),
   currency: 'VND',
   isAvailable: dbProduct.isAvailable,
-  image: dbProduct.imageURL || createDishImage(dbProduct.name.substring(0, 10), '#4f46e5'),
+  image: getFullImageUrl(dbProduct.imageURL),
   category: dbProduct.category?.categoryName || 'All',
   soldCount: 0,
   prepTime: 10,
