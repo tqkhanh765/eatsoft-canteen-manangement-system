@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AuthModal.css';
 
 import LoginView from './LoginView';
@@ -19,14 +19,6 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
     if (isOpen) setView(defaultView);
   }, [isOpen, defaultView]);
 
-  // Close on Escape key
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [isOpen, onClose]);
-
   // Prevent body scroll when modal open
   useEffect(() => {
     if (isOpen) {
@@ -36,10 +28,6 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
     }
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
-
-  const handleBackdropClick = useCallback((e) => {
-    if (e.target === e.currentTarget) onClose();
-  }, [onClose]);
 
   const handleForgotSubmit = (contact) => {
     // TODO: API call to send code
@@ -68,7 +56,6 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
       role="dialog"
       aria-modal="true"
       aria-label="Authentication"
-      onClick={handleBackdropClick}
     >
       <div
         className={`auth-modal ${view === 'signup' ? 'auth-modal--tall' : ''}`}
