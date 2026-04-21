@@ -15,6 +15,13 @@ import { OrderProvider } from './vendor-dashboard/context/OrderContext';
 import FoodStallsPage from './food-stalls/pages/FoodStallsPage';
 import StallMenuPage from './stall-menu/pages/StallMenuPage';
 import VendorMenu from './vendor-tracking/pages/VendorMenu';
+import ManagerDashboard from './manager/pages/ManagerDashboard';
+import AnnouncementList from './manager/pages/AnnouncementList';
+import AnnouncementCreate from './manager/pages/AnnouncementCreate';
+import AnnouncementDetail from './manager/pages/AnnouncementDetail';
+import StallManagement from './manager/pages/StallManagement';
+import StallDetail from './manager/pages/StallDetail';
+import StallRequests from './manager/pages/StallRequests';
 import authService from './services/authService';
 import './App.css';
 
@@ -50,6 +57,41 @@ const ProtectedVendorRoute = ({ children }) => {
   }
 
   console.log('[ProtectedVendorRoute] Authorized, rendering children');
+  return children;
+};
+
+// Protected Route wrapper - redirects to home if not authenticated or not manager
+const ProtectedManagerRoute = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    console.log('[ProtectedManagerRoute] Checking authorization...');
+    const checkAuth = () => {
+      const isAuth = authService.isAuthenticated();
+      const isManager = authService.isManager?.() || authService.getUserRole() === 'Manager';
+      console.log('[ProtectedManagerRoute] isAuth:', isAuth, 'isManager:', isManager);
+
+      const authorized = isAuth && isManager;
+      console.log('[ProtectedManagerRoute] Authorization result:', authorized);
+
+      setIsAuthorized(authorized);
+      setIsLoading(false);
+    };
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    console.log('[ProtectedManagerRoute] Still loading...');
+    return <div className="loading-screen">Loading...</div>;
+  }
+
+  if (!isAuthorized) {
+    console.log('[ProtectedManagerRoute] Not authorized, redirecting to home');
+    return <Navigate to="/" replace />;
+  }
+
+  console.log('[ProtectedManagerRoute] Authorized, rendering children');
   return children;
 };
 
@@ -259,6 +301,67 @@ function App() {
                   <Orders user={user} onLogout={handleLogout} />
                 </OrderProvider>
               </ProtectedVendorRoute>
+            }
+          />
+
+          {/* Manager Dashboard Page - requires manager authentication */}
+          <Route
+            path="/manager-dashboard"
+            element={
+              <ProtectedManagerRoute>
+                <ManagerDashboard user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+
+          {/* Manager Announcement Pages - requires manager authentication */}
+          <Route
+            path="/manager-announcement"
+            element={
+              <ProtectedManagerRoute>
+                <AnnouncementList user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+          <Route
+            path="/manager-announcement/create"
+            element={
+              <ProtectedManagerRoute>
+                <AnnouncementCreate user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+          <Route
+            path="/manager-announcement/:id"
+            element={
+              <ProtectedManagerRoute>
+                <AnnouncementDetail user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+
+          <Route
+            path="/manager-stalls"
+            element={
+              <ProtectedManagerRoute>
+                <StallManagement user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+          <Route
+            path="/manager-stalls/:id"
+            element={
+              <ProtectedManagerRoute>
+                <StallDetail user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
+            }
+          />
+          <Route
+            path="/manager-stalls/requests"
+            element={
+              <ProtectedManagerRoute>
+                <StallRequests user={user} onLogout={handleLogout} />
+              </ProtectedManagerRoute>
             }
           />
 

@@ -26,6 +26,8 @@ model User {
 
   stores   Store[]   // manage
   orders   Order[]   // place
+  announcements Announcement[] // created
+  vendorAnnouncements AnnouncementVendor[] // received as vendor
 }
 
 model Store {
@@ -103,4 +105,28 @@ model Feedback {
 
   orderItemId    Int      @unique
   orderItem  OrderItem    @relation(fields: [orderItemId], references: [orderItemId])
+}
+
+model Announcement {
+  announcementId Int      @id @default(autoincrement())
+  title          String
+  content        String
+  type           String   // 'customers', 'vendors', 'all'
+  status         String   @default("published") // 'published', 'draft'
+  createdAt      DateTime @default(now())
+
+  createdBy      Int
+  creator        User     @relation(fields: [createdBy], references: [userId])
+
+  vendors        AnnouncementVendor[]
+}
+
+model AnnouncementVendor {
+  announcementId Int
+  vendorId       Int
+
+  announcement   Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
+  vendor         User         @relation(fields: [vendorId], references: [userId], onDelete: Cascade)
+
+  @@id([announcementId, vendorId])
 }
