@@ -100,4 +100,54 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { getAllProducts, getProductById, createProduct, updateProduct, markSoldOut, deleteProduct };
+// GET /products/popular 
+const getPopularProducts = async (req, res) => {
+  try {
+    console.log('Fetching popular products...');
+    // Get all order items with product info
+    const orderItems = await prisma.orderItem.findMany({
+      include: {
+        product: {
+          include: {
+            store: true,
+            category: true,
+          },
+        },
+      },
+    });
+    console.log('Found order items:', orderItems.length);
+
+    // Aggregate quantities by product
+    const productQuantities = {};
+    orderItems.forEach(item => {
+      const productId = item.productId;
+      if (!productQuantities[productId]) {
+        productQuantities[productId] = {
+          product: item.product,
+          totalQuantity: 0,
+          orderCount: 0,
+        };
+      }
+      productQuantities[productId].totalQuantity += item.quantity;
+      productQuantities[productId].orderCount += 1;
+    });
+
+    // Convert to array and sort by total quantity (descending)
+    const popularProducts = Object.values(productQuantities)
+      .sort((a, b) => b.totalQuantity - a.totalQuantity)
+      .slice(0, 6) // Get top 6
+      .map(item => ({
+        ...item.product,
+        totalQuantity: item.totalQuantity,
+        orderCount: item.orderCount,
+      }));
+
+    console.log('Returning popular products:', popularProducts.length);
+    res.json(popularProducts);
+  } catch (err) {
+    console.error('Error in getPopularProducts:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getAllProducts, getProductById, createProduct, updateProduct, markSoldOut, deleteProduct, getPopularProducts };
