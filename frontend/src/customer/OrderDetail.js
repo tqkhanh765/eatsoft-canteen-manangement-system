@@ -1,6 +1,29 @@
 import React from 'react';
 import './OrderDetail.css';
 
+// Helper to format price
+const formatPrice = (price) => {
+  return `${Number(price).toLocaleString('vi-VN')}VND`;
+};
+
+// Helper to format date
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${hours}:${minutes}, ${day}-${month}-${year}`;
+};
+
+// Helper to map status
+const mapStatus = (status) => {
+  if (status === 'Pending') return 'In progress';
+  if (status === 'Completed') return 'Completed';
+  return status;
+};
+
 // SVG Icons
 const IconChevronLeft = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -51,18 +74,23 @@ const IconShop = () => (
 
 
 const OrderDetail = ({ order, onBack }) => {
+  if (!order) return <div className="order-detail"><p>No order data</p></div>;
+
+  const orderItems = order.orderItems || [];
+  const orderStoreName = order.store?.storeName || 'Unknown';
+
   return (
     <div className="order-detail">
       <div className="order-header-title">
         <button className="back-btn" onClick={onBack}>
           <IconChevronLeft />
         </button>
-        <h1>Order #{order?.id || "001"}</h1>
+        <h1>Order #{order.orderId || "001"}</h1>
       </div>
       
       <div className="detail-grid">
         <div className="left-column">
-          <p className="ready-time">Order will be ready in about 5 minutes</p>
+          <p className="ready-time">Order status: {mapStatus(order.status)}</p>
           
           <div className="order-stepper">
             <div className="step-item completed">
@@ -77,13 +105,13 @@ const OrderDetail = ({ order, onBack }) => {
             </div>
             <div className="step-divider" />
 
-            <div className="step-item active">
+            <div className={`step-item ${order.status === 'Completed' ? 'completed' : 'active'}`}>
               <div className="step-icon"><IconPreparing /></div>
               <div className="step-label">Preparing dishes</div>
             </div>
             <div className="step-divider dashed" />
 
-            <div className="step-item pending">
+            <div className={`step-item ${order.status === 'Completed' ? 'completed' : 'pending'}`}>
               <div className="step-icon"><IconCompleted /></div>
               <div className="step-label">Order completed</div>
             </div>
@@ -92,20 +120,22 @@ const OrderDetail = ({ order, onBack }) => {
           <div className="items-section">
             <h3>Items ordered</h3>
             <div className="items-list-container">
-              {[1, 2, 3].map((_, i) => (
-                <div key={i} className="order-item-card">
-                  <div className="item-info">
-                    <div className="store-name"><IconShop /> Big U</div>
-                    <p className="food-name">Cơm gà xé Hội An</p>
-                    <div className="food-options">
-                      <span>Không ớt</span>
-                      <span>ít cơm</span>
+              {orderItems.map((item, index) => {
+                const itemStoreName = item.product?.store?.storeName || 'Unknown';
+                return (
+                  <div key={index} className="order-item-card">
+                    <div className="item-info">
+                      <div className="store-name"><IconShop /> {itemStoreName}</div>
+                      <p className="food-name">{item.product?.name || 'Unknown'}</p>
+                      <div className="food-options">
+                        <span>Qty: {item.quantity}</span>
+                      </div>
                     </div>
+                    <div className="item-qty">{item.quantity}</div>
+                    <div className="item-price">{formatPrice(item.unitPrice)}</div>
                   </div>
-                  <div className="item-qty">2</div>
-                  <div className="item-price">70.000VND</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -117,47 +147,23 @@ const OrderDetail = ({ order, onBack }) => {
             <div className="checkout-info-container">
               <div className="info-table">
                 <div className="info-row-detail">
-                  <span className="label">Location:</span>
-                  <span className="value">IU Campus, Quarter 6, Linh Trung Ward</span>
+                  <span className="label">Order Date:</span>
+                  <span className="value">{formatDate(order.orderDate)}</span>
                 </div>
                 <div className="info-row-detail">
-                  <span className="label">Room:</span>
-                  <span className="value">A1.409</span>
-                </div>
-                <div className="info-row-detail">
-                  <span className="label">Name:</span>
-                  <span className="value">Nguyen Van A</span>
-                </div>
-                <div className="info-row-detail">
-                  <span className="label">Phone:</span>
-                  <span className="value">(+84) 901 234 567</span>
-                </div>
-                <div className="info-row-detail">
-                  <span className="label">Pickup options:</span>
-                  <span className="value">Delivery</span>
-                </div>
-                <div className="info-row-detail">
-                  <span className="label">Payment method:</span>
-                  <span className="value">Momo</span>
+                  <span className="label">Store:</span>
+                  <span className="value">{orderStoreName}</span>
                 </div>
                 
                 <hr className="detail-divider" />
                 
                 <div className="info-row-detail">
                   <span className="label">Sub Total:</span>
-                  <span className="value">350.000VND</span>
-                </div>
-                <div className="info-row-detail">
-                  <span className="label">Discount:</span>
-                  <span className="value">-20.000VND</span>
-                </div>
-                <div className="info-row-detail">
-                  <span className="label">Delivery fee:</span>
-                  <span className="value">10.000VND</span>
+                  <span className="value">{formatPrice(order.totalAmount)}</span>
                 </div>
                 <div className="info-row-detail grand-total">
-                  <span className="label">Grand total:</span>
-                  <span className="value">340.000VND</span>
+                  <span className="label">Total:</span>
+                  <span className="value">{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
             </div>

@@ -321,12 +321,16 @@ async function main() {
   ];
 
   for(let i=1; i<=50; i++) {
+    // Pick a random store for this order first
+    const orderStore = randomElement(stores);
+    const storeProducts = products.filter(p => p.storeId === orderStore.storeId);
+    
     const orderItemsData = [];
     let totalAmount = 0;
     
-    // We create exactly 6 items per order
+    // We create exactly 6 items per order, all from the same store
     for(let k=0; k<6; k++) {
-      const product = randomElement(products);
+      const product = randomElement(storeProducts);
       const qty = randomInt(1, 3);
       const unitPrice = Number(product.price);
       totalAmount += unitPrice * qty;
@@ -350,7 +354,7 @@ async function main() {
 
     const orderData = {
       userId: randomElement(customers).userId,
-      storeId: randomElement(stores).storeId,
+      storeId: orderStore.storeId,
       totalAmount: totalAmount,
       status: status,
       orderDate: orderDate,

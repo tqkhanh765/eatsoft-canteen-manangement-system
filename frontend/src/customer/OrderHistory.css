@@ -58,6 +58,12 @@
   flex-direction: column;
 }
 
+.item-main {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+}
+
 .item-dish {
   flex: 2;
   display: flex;
@@ -115,6 +121,27 @@
 .status-tag {
   color: #BCB22A;
   font-weight: 600;
+}
+
+.status-tag.completed {
+  color: #22C55E; /* Green for completed */
+}
+
+.status-tag.pending {
+  color: #BCB22A; /* Yellow for in progress/pending */
+}
+
+.no-orders {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+.error {
+  color: #EF4444;
+  padding: 20px;
+  text-align: center;
 }
 
 .view-btn {

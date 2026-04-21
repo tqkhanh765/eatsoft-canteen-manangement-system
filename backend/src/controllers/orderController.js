@@ -16,9 +16,10 @@ const getAllOrders = async (req, res) => {
       include: {
         user:       { omit: { password: true } },
         store:      true,
-        orderItems: { include: { product: true } },
+        orderItems: { include: { product: { include: { store: true } } } },
       },
     });
+    console.log('getAllOrders - Sample order items:', orders[0]?.orderItems?.[0]);
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -33,12 +34,14 @@ const getOrderById = async (req, res) => {
       include: {
         user:       { omit: { password: true } },
         store:      true,
-        orderItems: { include: { product: true } },
+        orderItems: { include: { product: { include: { store: true } } } },
       },
     });
     if (!order) return res.status(404).json({ error: 'Order not found' });
+    console.log('Order found:', order); // Added debug logging
     res.json(order);
   } catch (err) {
+    console.error('Error getting order by id:', err); // Added debug logging
     res.status(500).json({ error: err.message });
   }
 };
