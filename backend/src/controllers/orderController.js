@@ -90,6 +90,7 @@ const createOrder = async (req, res) => {
             productId: Number(i.productId),
             quantity:  i.quantity,
             unitPrice: i.unitPrice,
+            note:      i.note || null,
           })),
         },
       },
@@ -133,7 +134,7 @@ const deleteOrder = async (req, res) => {
 // POST /orders/:id/items  (add item to existing order)
 const addItemToOrder = async (req, res) => {
   try {
-    const { productId, quantity, unitPrice } = req.body;
+    const { productId, quantity, unitPrice, note } = req.body;
     const orderId = Number(req.params.id);
 
     // Check if order exists and is pending
@@ -170,6 +171,7 @@ const addItemToOrder = async (req, res) => {
         data: {
           quantity: existingItem.quantity + Number(quantity),
           unitPrice: Number(unitPrice),
+          note: note || existingItem.note,
         },
       });
     } else {
@@ -180,6 +182,7 @@ const addItemToOrder = async (req, res) => {
           productId: Number(productId),
           quantity: Number(quantity),
           unitPrice: Number(unitPrice),
+          note: note || null,
         },
       });
     }

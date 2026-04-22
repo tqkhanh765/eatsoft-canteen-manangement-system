@@ -20,7 +20,7 @@ const ProductDetailModal = ({ product, onClose, storeId }) => {
 
   const handleAddToCart = async () => {
     try {
-      await addItem(product, quantity, storeId);
+      await addItem(product, quantity, storeId, note);
       onClose();
     } catch (error) {
       console.error("Failed to add to cart:", error);

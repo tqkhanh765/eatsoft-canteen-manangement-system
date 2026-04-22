@@ -104,13 +104,13 @@ export const deleteOrderItem = async (itemId) => {
 /**
  * Add an item to an existing order.
  * POST /api/orders/:id/items
- * Body: { productId, quantity, unitPrice }
+ * Body: { productId, quantity, unitPrice, note }
  */
-export const addItemToOrder = async (orderId, { productId, quantity, unitPrice }) => {
+export const addItemToOrder = async (orderId, { productId, quantity, unitPrice, note }) => {
   const res = await fetch(`${API_CONFIG.BASE_URL}/orders/${orderId}/items`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ productId, quantity, unitPrice }),
+    body: JSON.stringify({ productId, quantity, unitPrice, note }),
   });
   if (!res.ok) {
     const err = await res.json();
