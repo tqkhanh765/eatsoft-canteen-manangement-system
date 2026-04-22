@@ -55,6 +55,89 @@ const sendOTPEmail = async (toEmail, otp) => {
 };
 
 /**
+ * Send 2FA verification email specifically for Admin login.
+ * Uses a distinct security-themed template so it cannot be confused
+ * with the generic password-reset OTP email.
+ */
+const sendAdmin2FAEmail = async (toEmail, otp) => {
+  try {
+    const transporter = createTransporter();
+
+    const mailOptions = {
+      from: `"IU EatSoft Security" <${process.env.EMAIL_USER}>`,
+      to: toEmail,
+      subject: '🔐 Admin Login Verification – IU EatSoft',
+      html: `
+        <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0;">
+
+          <!-- Header banner -->
+          <div style="background:linear-gradient(135deg,#1E3A8A 0%,#2563EB 100%);padding:36px 40px;text-align:center;">
+            <div style="display:inline-block;background:rgba(255,255,255,0.15);border-radius:50%;width:64px;height:64px;line-height:64px;font-size:32px;margin-bottom:16px;">🛡️</div>
+            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.01em;">
+              Admin Login Verification
+            </h1>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);font-size:14px;">
+              IU EatSoft · Administrator Portal
+            </p>
+          </div>
+
+          <!-- Body -->
+          <div style="padding:36px 40px;">
+            <p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.6;">
+              A sign-in attempt to the <strong>Admin Portal</strong> was detected for this account.
+              Use the verification code below to complete your login.
+            </p>
+
+            <!-- OTP box -->
+            <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:28px;text-align:center;margin:24px 0;">
+              <p style="margin:0 0 10px;font-size:12px;font-weight:700;color:#1E40AF;text-transform:uppercase;letter-spacing:0.1em;">
+                Your One-Time Verification Code
+              </p>
+              <div style="font-size:42px;font-weight:800;letter-spacing:14px;color:#1D4ED8;font-family:'Courier New',monospace;margin:4px 0;">
+                ${otp}
+              </div>
+              <p style="margin:12px 0 0;font-size:13px;color:#3B82F6;">
+                ⏱ Expires in <strong>10 minutes</strong>
+              </p>
+            </div>
+
+            <!-- Security notice -->
+            <div style="background:#FFF7ED;border-left:4px solid #F97316;border-radius:6px;padding:14px 18px;margin:20px 0;">
+              <p style="margin:0;font-size:13px;color:#92400E;line-height:1.6;">
+                <strong>⚠ Security Notice:</strong> If you did not attempt to log in to the Admin Portal,
+                your credentials may be compromised. Please change your password immediately and contact
+                the system administrator.
+              </p>
+            </div>
+
+            <p style="font-size:13px;color:#6B7280;line-height:1.6;margin:0;">
+              This code is single-use and valid for one login session only.<br>
+              <strong>Never share this code with anyone — EatSoft staff will never ask for it.</strong>
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background:#F8FAFC;border-top:1px solid #E2E8F0;padding:20px 40px;text-align:center;">
+            <p style="margin:0;font-size:12px;color:#94A3B8;">
+              © IU EatSoft Canteen Management System &nbsp;·&nbsp; Administrator Security Alert<br>
+              This is an automated security email. Please do not reply.
+            </p>
+          </div>
+        </div>
+      `,
+      text: `ADMIN LOGIN VERIFICATION – IU EatSoft\n\nYour one-time verification code: ${otp}\n\nThis code expires in 10 minutes and can only be used once.\n\nIf you did not attempt to log in to the Admin Portal, please change your password immediately.`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Email] Admin 2FA OTP sent to ${toEmail}: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('[Email] Failed to send Admin 2FA OTP:', error);
+    throw error;
+  }
+};
+
+/**
  * Get status display text and color
  */
 const getStatusInfo = (status) => {
@@ -146,4 +229,4 @@ const sendRegistrationStatusEmail = async (toEmail, stallName, status, note = ''
   }
 };
 
-module.exports = { sendOTPEmail, sendRegistrationStatusEmail };
+module.exports = { sendOTPEmail, sendAdmin2FAEmail, sendRegistrationStatusEmail };

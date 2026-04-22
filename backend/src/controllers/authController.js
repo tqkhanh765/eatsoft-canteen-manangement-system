@@ -1,7 +1,7 @@
 const prisma = require('../lib/prisma');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { sendOTPEmail } = require('../services/emailService');
+const { sendOTPEmail, sendAdmin2FAEmail } = require('../services/emailService');
 
 /**
  * Generate JWT Token
@@ -69,7 +69,7 @@ const login = async (req, res) => {
       });
 
       try {
-        await sendOTPEmail(email, otp);
+        await sendAdmin2FAEmail(email, otp);
       } catch (emailErr) {
         console.error('[Admin 2FA] Failed to send OTP:', emailErr);
       }
