@@ -34,8 +34,10 @@ const formatPrice = (price) => {
 
 // Helper to map status
 const mapStatus = (status) => {
-  if (status === 'Pending') return 'In progress';
-  if (status === 'Completed') return 'Completed';
+  if (status === 'PENDING') return 'In progress';
+  if (status === 'ACCEPTED') return 'Accepted';
+  if (status === 'COOKING') return 'Cooking';
+  if (status === 'COMPLETED') return 'Completed';
   return status;
 };
 
@@ -61,13 +63,13 @@ const OrderHistory = ({ onSelectOrder }) => {
 
         console.log('Current user ID:', currentUser.userId);
         
-        // Fetch orders for current user with Pending or Completed status
+        // Fetch orders for current user
         const allOrders = await fetchOrders({ userId: currentUser.userId });
         console.log('Fetched orders:', allOrders);
         
-        // Filter only Pending, Cooking, and Completed orders
+        // Filter only Accepted, Cooking, and Completed orders (not PENDING cart orders)
         const filteredOrders = allOrders.filter(order =>
-          order.status === 'Pending' || order.status === 'Cooking' || order.status === 'Completed'
+          order.status === 'ACCEPTED' || order.status === 'COOKING' || order.status === 'COMPLETED'
         );
         console.log('Filtered orders:', filteredOrders);
 
@@ -94,6 +96,9 @@ const OrderHistory = ({ onSelectOrder }) => {
     };
 
     loadOrders();
+    // Refresh orders every 10 seconds to show new orders
+    const interval = setInterval(loadOrders, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <div className="order-history"><h1>Order History</h1><p>Loading...</p></div>;

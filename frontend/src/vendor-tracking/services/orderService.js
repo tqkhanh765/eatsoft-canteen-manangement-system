@@ -6,12 +6,10 @@ import API from './API';
 // Map backend order status to vendor UI status
 const mapStatusToVendor = (status) => {
   const statusMap = {
-    'Pending': 'new',
-    'Cooking': 'active',
-    'Ready': 'done',
-    'Delivering': 'delivering',
-    'Completed': 'completed',
-    'Cancelled': 'cancelled'
+    'PENDING': 'new',
+    'ACCEPTED': 'new',
+    'COOKING': 'active',
+    'COMPLETED': 'completed'
   };
   return statusMap[status] || 'new';
 };
@@ -20,7 +18,7 @@ const mapStatusToVendor = (status) => {
 const mapOrderToVendor = (order) => ({
   id: order.orderId,
   status: mapStatusToVendor(order.status),
-  stage: order.status === 'Cooking' ? 'cooking' : order.status === 'Ready' ? 'done' : null,
+  stage: order.status === 'COOKING' ? 'cooking' : order.status === 'COMPLETED' ? 'done' : null,
   customerName: order.user?.userName || 'Unknown',
   total: Number(order.totalAmount),
   currency: "VND",
@@ -35,9 +33,9 @@ export const getOrders = async (storeId) => {
   try {
     const url = storeId ? `/orders?storeId=${storeId}` : '/orders';
     const response = await API.get(url);
-    // Filter orders that are not Pending (cart) or Cancelled
+    // Filter orders that are not PENDING (cart) or Cancelled
     const activeOrders = response.data.filter(order =>
-      order.status !== 'Pending' && order.status !== 'Cancelled'
+      order.status !== 'PENDING' && order.status !== 'Cancelled'
     );
     return activeOrders.map(mapOrderToVendor);
   } catch (error) {
@@ -50,10 +48,10 @@ export const updateOrder = async (orderId, action) => {
   try {
     // Map vendor UI action to backend status
     const statusMap = {
-      'active': 'Cooking',
-      'done': 'Ready',
-      'delivering': 'Delivering',
-      'completed': 'Completed'
+      'active': 'COOKING',
+      'done': 'COMPLETED',
+      'delivering': 'COMPLETED',
+      'completed': 'COMPLETED'
     };
     const status = statusMap[action] || action;
 

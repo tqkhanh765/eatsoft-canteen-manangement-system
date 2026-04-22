@@ -15,10 +15,13 @@ const mapOrderToDashboard = (order) => ({
 export const getOrders = async (storeId) => {
     try {
         const response = await API.get('/orders');
-        // Filter orders that belong to this store using storeId from order entity
+        // Filter orders that belong to this store and are not PENDING (cart orders)
         const storeOrders = storeId 
-            ? response.data.filter(order => order.storeId === storeId || order.store?.storeId === storeId)
-            : response.data;
+            ? response.data.filter(order => 
+                (order.storeId === storeId || order.store?.storeId === storeId) &&
+                order.status !== 'PENDING'
+              )
+            : response.data.filter(order => order.status !== 'PENDING');
         return storeOrders.map(mapOrderToDashboard);
     } catch (error) {
         console.error('Failed to fetch vendor dashboard orders:', error);

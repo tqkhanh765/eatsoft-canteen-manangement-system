@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 
-const VALID_STATUSES = ['Pending', 'Cooking', 'Ready', 'Delivering', 'Completed', 'Cancelled'];
+const VALID_STATUSES = ['PENDING', 'ACCEPTED', 'COOKING', 'COMPLETED'];
 
 // GET /orders  (supports ?userId=&storeId=&status= filters)
 const getAllOrders = async (req, res) => {
@@ -10,11 +10,24 @@ const getAllOrders = async (req, res) => {
       where: {
         ...(userId  && { userId:  Number(userId)  }),
         ...(storeId && { storeId: Number(storeId) }),
-        ...(status  && { status }),
+        ...(status  && { status: status.toUpperCase() }),
       },
       orderBy: { orderDate: 'desc' },
       include: {
-        user:       { omit: { password: true } },
+        user: {
+          select: {
+            userId: true,
+            userName: true,
+            email: true,
+            phone: true,
+            status: true,
+            studentId: true,
+            universityName: true,
+            country: true,
+            roleId: true,
+            role: true
+          }
+        },
         store:      true,
         orderItems: { include: { product: { include: { store: true } } } },
       },
@@ -32,7 +45,20 @@ const getOrderById = async (req, res) => {
     const order = await prisma.order.findUnique({
       where:   { orderId: Number(req.params.id) },
       include: {
-        user:       { omit: { password: true } },
+        user: {
+          select: {
+            userId: true,
+            userName: true,
+            email: true,
+            phone: true,
+            status: true,
+            studentId: true,
+            universityName: true,
+            country: true,
+            roleId: true,
+            role: true
+          }
+        },
         store:      true,
         orderItems: { include: { product: { include: { store: true } } } },
       },
@@ -57,7 +83,7 @@ const createOrder = async (req, res) => {
       data: {
         userId:      Number(userId),
         storeId:     Number(storeId),
-        status:      status ?? 'Pending',
+        status:      (status ?? 'Pending').toUpperCase(),
         totalAmount,
         orderItems: {
           create: items.map(i => ({
@@ -115,7 +141,7 @@ const addItemToOrder = async (req, res) => {
       where: { orderId },
     });
     if (!order) return res.status(404).json({ error: 'Order not found' });
-    if (order.status !== 'Pending') return res.status(400).json({ error: 'Can only add items to pending orders' });
+    if (order.status !== 'PENDING') return res.status(400).json({ error: 'Can only add items to pending orders' });
 
     // Check if product exists
     const product = await prisma.product.findUnique({
