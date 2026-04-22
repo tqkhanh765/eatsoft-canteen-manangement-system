@@ -24,6 +24,7 @@ app.use('/api/order-items', require('./src/routes/orderItemRoutes'));
 app.use('/api/feedbacks',   require('./src/routes/feedbackRoutes'));
 app.use('/api/announcements', require('./src/routes/announcementRoutes'));
 app.use('/api/stall-registrations', require('./src/routes/stallRegistrationRoutes'));
+app.use('/api/upload',      require('./src/routes/uploadRoutes'));
 
 // ── Health check ──────────────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

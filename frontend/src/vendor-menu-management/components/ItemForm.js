@@ -26,15 +26,36 @@ const ImageIcon = () => (
  */
 const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel, isSaving }) => {
   const fileRef = useRef();
+  const [uploading, setUploading] = useState(false);
 
   // Dialog state: which dialog is open and what action it will confirm
   const [dialog, setDialog] = useState(null); // null | 'cancel' | 'save'
 
-  /* ── File upload ── */
-  const handleFileChange = (e) => {
+  /* ── File upload to Cloudinary ── */
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    onChange('image', URL.createObjectURL(file));
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('http://localhost:8080/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload image');
+
+      const data = await response.json();
+      onChange('image', data.url);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   /* ── Dialog helpers ── */
@@ -64,9 +85,14 @@ const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel, isSaving
           <div
             className="photo-upload-area"
             id="photo-upload-area"
-            onClick={() => fileRef.current.click()}
+            onClick={() => !uploading && fileRef.current.click()}
+            style={{ cursor: uploading ? 'not-allowed' : 'pointer' }}
           >
-            {form.image ? (
+            {uploading ? (
+              <div className="photo-placeholder">
+                <span>Uploading...</span>
+              </div>
+            ) : form.image ? (
               <img src={form.image} alt="Preview" className="photo-preview" />
             ) : (
               <div className="photo-placeholder">
@@ -80,6 +106,7 @@ const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel, isSaving
               accept="image/*"
               style={{ display: 'none' }}
               onChange={handleFileChange}
+              disabled={uploading}
             />
           </div>
 

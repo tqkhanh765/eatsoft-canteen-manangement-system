@@ -8,7 +8,7 @@ import { getMenuByStall } from "../services/menuService";
 import { STORES } from "../../food-stalls/data/stores";
 import "../styles/stallMenu.css";
 
-const StallMenuPage = () => {
+const StallMenuPage = ({ onLoginClick }) => {
   const { stallId } = useParams();
   const navigate = useNavigate();
   const stall = STORES.find(store => store.id === parseInt(stallId));
@@ -160,6 +160,7 @@ const StallMenuPage = () => {
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
           storeId={stall?.id}
+          onLoginClick={onLoginClick}
         />
       )}
     </div>

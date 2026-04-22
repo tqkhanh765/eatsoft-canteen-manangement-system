@@ -1,7 +1,16 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../../customer-order-tab/hooks/useCart";
 
-const ProductDetailModal = ({ product, onClose, storeId }) => {
+const formatSoldCount = (count) => {
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1).replace('.0', '') + 'k';
+  }
+  return count.toString();
+};
+
+const ProductDetailModal = ({ product, onClose, storeId, onLoginClick }) => {
+  const navigate = useNavigate();
   const { addItem, clearCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState("");
@@ -20,10 +29,34 @@ const ProductDetailModal = ({ product, onClose, storeId }) => {
 
   const handleAddToCart = async () => {
     try {
-      await addItem(product, quantity, storeId);
+      await addItem(product, quantity, storeId, note);
       onClose();
     } catch (error) {
       console.error("Failed to add to cart:", error);
+      if (error.message === "User not logged in") {
+        onLoginClick('login');
+        return;
+      }
+      if (error.message.includes("another stall") || error.message.includes("empty")) {
+        setModalMessage(error.message);
+        setShowConfirmModal(true);
+      } else {
+        alert("Failed to add to cart. Please try again.");
+      }
+    }
+  };
+
+  const handleOrderNow = async () => {
+    try {
+      await addItem(product, quantity, storeId, note);
+      onClose();
+      navigate('/cart');
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+      if (error.message === "User not logged in") {
+        onLoginClick('login');
+        return;
+      }
       if (error.message.includes("another stall") || error.message.includes("empty")) {
         setModalMessage(error.message);
         setShowConfirmModal(true);
@@ -52,7 +85,7 @@ const ProductDetailModal = ({ product, onClose, storeId }) => {
               <h2 id="product-modal-title">{product.name}</h2>
               <div className="modal-price-row">
                 <strong className="modal-main-price">{priceLabel}</strong>
-                <span className="modal-sold-count">Sold: {product.soldCount || 20}</span>
+                <span className="modal-sold-count">Sold: {formatSoldCount(product.soldCount || 0)}</span>
               </div>
               <p>{product.description}</p>
             </div>
@@ -92,7 +125,12 @@ const ProductDetailModal = ({ product, onClose, storeId }) => {
               <strong className="modal-total-price">{totalLabel}</strong>
 
               <div className="modal-action-buttons">
-                <button className="order-now-btn" type="button" disabled={product.isAvailable === false}>
+                <button
+                  className="order-now-btn"
+                  onClick={handleOrderNow}
+                  type="button"
+                  disabled={product.isAvailable === false}
+                >
                   Order now
                 </button>
                 <button

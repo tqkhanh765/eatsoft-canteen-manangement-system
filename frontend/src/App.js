@@ -32,6 +32,42 @@ import AdminAnalytics from './admin-dashboard/pages/AdminAnalytics';
 import authService from './services/authService';
 import './App.css';
 
+// Protected Route wrapper for customers only - excludes vendors and managers
+const ProtectedCustomerRoute = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    console.log('[ProtectedCustomerRoute] Checking authorization...');
+    const checkAuth = () => {
+      const isAuth = authService.isAuthenticated();
+      const isVendor = authService.isVendor();
+      const isManager = authService.isManager?.() || authService.getUserRole() === 'Manager';
+      console.log('[ProtectedCustomerRoute] isAuth:', isAuth, 'isVendor:', isVendor, 'isManager:', isManager);
+
+      const authorized = isAuth && !isVendor && !isManager;
+      console.log('[ProtectedCustomerRoute] Authorization result:', authorized);
+
+      setIsAuthorized(authorized);
+      setIsLoading(false);
+    };
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    console.log('[ProtectedCustomerRoute] Still loading...');
+    return <div className="loading-screen">Loading...</div>;
+  }
+
+  if (!isAuthorized) {
+    console.log('[ProtectedCustomerRoute] Not authorized, redirecting to home');
+    return <Navigate to="/" replace />;
+  }
+
+  console.log('[ProtectedCustomerRoute] Authorized, rendering children');
+  return children;
+};
+
 // Protected Route wrapper - redirects to home if not authenticated or not vendor
 const ProtectedVendorRoute = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -251,7 +287,7 @@ function App() {
             path="/stalls-menu/:stallId"
             element={
               <MainLayout onLoginClick={openAuth} user={user} onLogout={handleLogout}>
-                <StallMenuPage />
+                <StallMenuPage onLoginClick={openAuth} />
               </MainLayout>
             }
           />
@@ -280,27 +316,27 @@ function App() {
             }
           />
 
-          {/* Cart Page - requires authentication */}
+          {/* Cart Page - requires authentication and customer role */}
           <Route
             path="/cart"
             element={
-              <ProtectedRoute onLoginClick={openAuth}>
+              <ProtectedCustomerRoute>
                 <MainLayout onLoginClick={openAuth} user={user} onLogout={handleLogout}>
                   <OrderCart />
                 </MainLayout>
-              </ProtectedRoute>
+              </ProtectedCustomerRoute>
             }
           />
 
-          {/* Checkout Page - requires authentication */}
+          {/* Checkout Page - requires authentication and customer role */}
           <Route
             path="/checkout"
             element={
-              <ProtectedRoute onLoginClick={openAuth}>
+              <ProtectedCustomerRoute>
                 <MainLayout onLoginClick={openAuth} user={user} onLogout={handleLogout}>
                   <Checkout />
                 </MainLayout>
-              </ProtectedRoute>
+              </ProtectedCustomerRoute>
             }
           />
 

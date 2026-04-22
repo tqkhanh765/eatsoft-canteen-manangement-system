@@ -32,13 +32,14 @@ const getOrderItemById = async (req, res) => {
 // POST /order-items
 const createOrderItem = async (req, res) => {
   try {
-    const { orderId, productId, quantity, unitPrice } = req.body;
+    const { orderId, productId, quantity, unitPrice, note } = req.body;
     const item = await prisma.orderItem.create({
       data: {
         orderId:   Number(orderId),
         productId: Number(productId),
         quantity:  Number(quantity),
         unitPrice: Number(unitPrice),
+        note:      note || null,
       },
       include: { product: true },
     });
@@ -53,7 +54,7 @@ const createOrderItem = async (req, res) => {
 // PUT /order-items/:id
 const updateOrderItem = async (req, res) => {
   try {
-    const { quantity, unitPrice } = req.body;
+    const { quantity, unitPrice, note } = req.body;
 
     // Get current item to preserve unitPrice if not provided
     const currentItem = await prisma.orderItem.findUnique({
@@ -69,6 +70,7 @@ const updateOrderItem = async (req, res) => {
       data:  {
         quantity: Number(quantity),
         ...(unitPrice !== undefined && { unitPrice: Number(unitPrice) }),
+        ...(note !== undefined && { note }),
       },
       include: { product: true },
     });

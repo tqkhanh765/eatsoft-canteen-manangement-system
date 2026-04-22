@@ -342,7 +342,7 @@ async function main() {
       });
     }
 
-    const status = randomInt(1, 10) <= 3 ? 'PENDING' : 'COMPLETED';
+    const status = 'COMPLETED';
 
     // Generate orderDate within peak hours (8 AM - 2 PM) across multiple days
     const daysAgo = randomInt(0, 13); // Orders from today up to 13 days ago
@@ -384,6 +384,29 @@ async function main() {
       console.log(`... Da tao duoc ${i}/50 don hang (kem theo Feedback)`);
     }
   }
+
+  // Calculate soldCount for each product from order items
+  console.log('Calculating soldCount for products...');
+  const orderItems = await prisma.orderItem.findMany();
+  const productSoldCounts = {};
+
+  orderItems.forEach(item => {
+    const productId = item.productId;
+    if (productSoldCounts[productId]) {
+      productSoldCounts[productId] += item.quantity;
+    } else {
+      productSoldCounts[productId] = item.quantity;
+    }
+  });
+
+  // Update each product with its soldCount
+  for (const [productId, soldCount] of Object.entries(productSoldCounts)) {
+    await prisma.product.update({
+      where: { productId: Number(productId) },
+      data: { soldCount }
+    });
+  }
+  console.log('✅ SoldCount calculated and updated for all products');
 
   // ----------------------------------------
   // 7. SEED ANNOUNCEMENTS (~5 announcements)

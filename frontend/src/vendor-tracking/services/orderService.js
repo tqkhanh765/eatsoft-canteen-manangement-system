@@ -7,6 +7,7 @@ import API from './API';
 const mapStatusToVendor = (status) => {
   const statusMap = {
     'PENDING': 'new',
+    'ACCEPTED': 'new',
     'COOKING': 'active',
     'COMPLETED': 'completed'
   };
@@ -32,9 +33,9 @@ export const getOrders = async (storeId) => {
   try {
     const url = storeId ? `/orders?storeId=${storeId}` : '/orders';
     const response = await API.get(url);
-    // Filter orders that are not PENDING (cart)
+    // Filter orders that are not PENDING (cart) or Cancelled
     const activeOrders = response.data.filter(order =>
-      order.status !== 'PENDING'
+      order.status !== 'PENDING' && order.status !== 'Cancelled'
     );
     return activeOrders.map(mapOrderToVendor);
   } catch (error) {
@@ -49,6 +50,7 @@ export const updateOrder = async (orderId, action) => {
     const statusMap = {
       'active': 'COOKING',
       'done': 'COMPLETED',
+      'delivering': 'COMPLETED',
       'completed': 'COMPLETED'
     };
     const status = statusMap[action] || action;

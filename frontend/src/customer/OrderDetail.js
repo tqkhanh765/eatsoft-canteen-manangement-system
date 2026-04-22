@@ -20,7 +20,9 @@ const formatDate = (dateString) => {
 // Helper to map status
 const mapStatus = (status) => {
   if (status === 'PENDING') return 'In progress';
-  if (status === 'COMPLETED') return 'COMPLETED';
+  if (status === 'ACCEPTED') return 'Accepted';
+  if (status === 'COOKING') return 'Cooking';
+  if (status === 'COMPLETED') return 'Completed';
   return status;
 };
 

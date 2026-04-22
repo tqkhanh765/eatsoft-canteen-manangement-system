@@ -66,7 +66,7 @@ export const useCart = () => {
   }, []);
 
   // Add item to cart
-  const addItem = useCallback(async (product, quantity = 1, storeId) => {
+  const addItem = useCallback(async (product, quantity = 1, storeId, note = '') => {
     try {
       const currentUser = authService.getCurrentUser();
       if (!currentUser) {
@@ -86,12 +86,12 @@ export const useCart = () => {
           // Check if the existing order is from a different store
           const orderStoreId = pendingOrder.storeId || pendingOrder.store?.storeId;
           const orderItems = pendingOrder.orderItems || pendingOrder.items || pendingOrder.order_items || [];
-          
+
           // If order is empty, delete it and create new one for the new store
           if (orderItems.length === 0) {
             const { deleteOrder } = await import('../services/orderService');
             await deleteOrder(orderId);
-            
+
             const newOrder = await createOrder({
               userId: currentUser.userId,
               storeId: storeId,
@@ -99,7 +99,8 @@ export const useCart = () => {
               items: [{
                 productId: product.productId || product.id,
                 quantity,
-                unitPrice: product.price
+                unitPrice: product.price,
+                note
               }]
             });
             orderId = newOrder.orderId || newOrder.id;
@@ -111,7 +112,8 @@ export const useCart = () => {
             await addItemToOrder(orderId, {
               productId: product.productId || product.id,
               quantity,
-              unitPrice: product.price
+              unitPrice: product.price,
+              note
             });
           }
         }
@@ -124,7 +126,8 @@ export const useCart = () => {
           items: [{
             productId: product.productId || product.id,
             quantity,
-            unitPrice: product.price
+            unitPrice: product.price,
+            note
           }]
         });
         orderId = newOrder.orderId || newOrder.id;

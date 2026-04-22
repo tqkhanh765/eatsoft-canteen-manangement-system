@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 
-const VALID_STATUSES = ['PENDING', 'COOKING', 'COMPLETED'];
+const VALID_STATUSES = ['PENDING', 'ACCEPTED', 'COOKING', 'COMPLETED'];
 
 // GET /orders  (supports ?userId=&storeId=&status= filters)
 const getAllOrders = async (req, res) => {
@@ -10,11 +10,24 @@ const getAllOrders = async (req, res) => {
       where: {
         ...(userId  && { userId:  Number(userId)  }),
         ...(storeId && { storeId: Number(storeId) }),
-        ...(status  && { status }),
+        ...(status  && { status: status.toUpperCase() }),
       },
       orderBy: { orderDate: 'desc' },
       include: {
-        user:       { omit: { password: true } },
+        user: {
+          select: {
+            userId: true,
+            userName: true,
+            email: true,
+            phone: true,
+            status: true,
+            studentId: true,
+            universityName: true,
+            country: true,
+            roleId: true,
+            role: true
+          }
+        },
         store:      true,
         orderItems: { include: { product: { include: { store: true } } } },
       },
@@ -32,7 +45,20 @@ const getOrderById = async (req, res) => {
     const order = await prisma.order.findUnique({
       where:   { orderId: Number(req.params.id) },
       include: {
-        user:       { omit: { password: true } },
+        user: {
+          select: {
+            userId: true,
+            userName: true,
+            email: true,
+            phone: true,
+            status: true,
+            studentId: true,
+            universityName: true,
+            country: true,
+            roleId: true,
+            role: true
+          }
+        },
         store:      true,
         orderItems: { include: { product: { include: { store: true } } } },
       },
@@ -64,11 +90,21 @@ const createOrder = async (req, res) => {
             productId: Number(i.productId),
             quantity:  i.quantity,
             unitPrice: i.unitPrice,
+            note:      i.note || null,
           })),
         },
       },
       include: { orderItems: { include: { product: true } } },
     });
+
+    // Increment soldCount for each product
+    for (const item of items) {
+      await prisma.product.update({
+        where: { productId: Number(item.productId) },
+        data: { soldCount: { increment: item.quantity } }
+      });
+    }
+
     res.status(201).json(order);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -107,7 +143,7 @@ const deleteOrder = async (req, res) => {
 // POST /orders/:id/items  (add item to existing order)
 const addItemToOrder = async (req, res) => {
   try {
-    const { productId, quantity, unitPrice } = req.body;
+    const { productId, quantity, unitPrice, note } = req.body;
     const orderId = Number(req.params.id);
 
     // Check if order exists and is pending
@@ -144,6 +180,7 @@ const addItemToOrder = async (req, res) => {
         data: {
           quantity: existingItem.quantity + Number(quantity),
           unitPrice: Number(unitPrice),
+          note: note || existingItem.note,
         },
       });
     } else {
@@ -154,6 +191,7 @@ const addItemToOrder = async (req, res) => {
           productId: Number(productId),
           quantity: Number(quantity),
           unitPrice: Number(unitPrice),
+          note: note || null,
         },
       });
     }

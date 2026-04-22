@@ -28,10 +28,10 @@ export const usePayment = (checkoutState, formState, navigate) => {
       });
       setSuccessMsg('🎉 ' + result.message);
 
-      // Update order status to COOKING 
+      // Update order status to ACCEPTED (for vendor to see in new orders)
       if (order) {
         const orderId = order.orderId || order.id;
-        await updateOrderStatus(orderId, 'COOKING');
+        await updateOrderStatus(orderId, 'ACCEPTED');
       }
       
       // Clear cart and order

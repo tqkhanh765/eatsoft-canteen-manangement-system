@@ -67,7 +67,7 @@ const mapProductToUI = (dbProduct) => ({
   isAvailable: dbProduct.isAvailable,
   image: getFullImageUrl(dbProduct.imageURL),
   category: dbProduct.category?.categoryName || 'All',
-  soldCount: 0,
+  soldCount: dbProduct.soldCount || 0,
   prepTime: 10,
   isFeatured: false,
 });
