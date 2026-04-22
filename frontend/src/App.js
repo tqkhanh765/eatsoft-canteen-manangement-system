@@ -23,6 +23,12 @@ import AnnouncementDetail from './manager/pages/AnnouncementDetail';
 import StallManagement from './manager/pages/StallManagement';
 import StallDetail from './manager/pages/StallDetail';
 import StallRequests from './manager/pages/StallRequests';
+import AdminDashboard from './admin-dashboard/pages/AdminDashboard';
+import AdminRegistrations from './admin-dashboard/pages/AdminRegistrations';
+import AdminUsers from './admin-dashboard/pages/AdminUsers';
+import AdminStores from './admin-dashboard/pages/AdminStores';
+import AdminAnnouncements from './admin-dashboard/pages/AdminAnnouncements';
+import AdminAnalytics from './admin-dashboard/pages/AdminAnalytics';
 import authService from './services/authService';
 import './App.css';
 
@@ -96,6 +102,26 @@ const ProtectedManagerRoute = ({ children }) => {
   return children;
 };
 
+// Protected Route wrapper - redirects to home if not authenticated or not admin
+const ProtectedAdminRoute = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const isAuth = authService.isAuthenticated();
+      const isAdmin = authService.getUserRole?.() === 'Admin';
+      setIsAuthorized(isAuth && isAdmin);
+      setIsLoading(false);
+    };
+    checkAuth();
+  }, []);
+
+  if (isLoading) return <div className="loading-screen">Loading...</div>;
+  if (!isAuthorized) return <Navigate to="/" replace />;
+  return children;
+};
+
 // Main Layout with Navbar and Footer for public pages
 const MainLayout = ({ onLoginClick, user, onLogout, children }) => (
   <>
@@ -165,6 +191,15 @@ function App() {
   }, []);
 
   const closeAuth = useCallback(() => setAuthOpen(false), []);
+
+  // Open stall registration form (close auth modal first)
+  const openStallRegistration = useCallback(() => {
+    console.log('[App] Opening stall registration form');
+    setAuthOpen(false); // Close auth modal
+    setStallRegOpen(true); // Open stall registration
+  }, []);
+
+  const closeStallRegistration = useCallback(() => setStallRegOpen(false), []);
 
   // Handle successful login
   const handleLoginSuccess = useCallback((userData) => {
@@ -370,6 +405,27 @@ function App() {
               </ProtectedManagerRoute>
             }
           />
+
+          {/* Admin Routes */}
+          <Route path="/admin/dashboard"
+            element={<ProtectedAdminRoute><AdminDashboard user={user} onLogout={handleLogout} /></ProtectedAdminRoute>}
+          />
+          <Route path="/admin/registrations"
+            element={<ProtectedAdminRoute><AdminRegistrations user={user} onLogout={handleLogout} /></ProtectedAdminRoute>}
+          />
+          <Route path="/admin/users"
+            element={<ProtectedAdminRoute><AdminUsers user={user} onLogout={handleLogout} /></ProtectedAdminRoute>}
+          />
+          <Route path="/admin/stores"
+            element={<ProtectedAdminRoute><AdminStores user={user} onLogout={handleLogout} /></ProtectedAdminRoute>}
+          />
+          <Route path="/admin/announcements"
+            element={<ProtectedAdminRoute><AdminAnnouncements user={user} onLogout={handleLogout} /></ProtectedAdminRoute>}
+          />
+          <Route path="/admin/analytics"
+            element={<ProtectedAdminRoute><AdminAnalytics user={user} onLogout={handleLogout} /></ProtectedAdminRoute>}
+          />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
           {/* Redirect all other routes to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
