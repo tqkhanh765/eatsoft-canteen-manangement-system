@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PasswordField } from './AuthShared';
 import authService from '../../../services/authService';
 
-const LoginView = ({ onClose, onSwitchSignup, onForgotPassword, onLoginSuccess }) => {
+const LoginView = ({ onClose, onSwitchSignup, onForgotPassword, onLoginSuccess, onRegisterStall }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
@@ -127,6 +127,18 @@ const LoginView = ({ onClose, onSwitchSignup, onForgotPassword, onLoginSuccess }
           onClick={onSwitchSignup}
         >
           Register now
+        </button>
+      </p>
+
+      <p className="auth-switch partner-link">
+        Want to be our partner?{' '}
+        <button
+          type="button"
+          className="auth-link auth-link-bold stall-register-link"
+          id="btn-register-stall"
+          onClick={onRegisterStall}
+        >
+          Register your stall here
         </button>
       </p>
     </div>

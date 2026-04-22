@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AuthModal from './homepage/components/AuthModal';
+import StallRegistrationForm from './components/StallRegistrationForm';
 import VendorMenuPage from './vendor-menu-management/pages/VendorMenuPage';
 import HomePage from './homepage/pages/HomePage';
 import OrderHistory from './customer/OrderHistory';
@@ -142,6 +143,7 @@ function App() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authView, setAuthView] = useState('login');
   const [user, setUser] = useState(null);
+  const [stallRegOpen, setStallRegOpen] = useState(false);
 
   // Check for logged-in user on mount
   useEffect(() => {
@@ -169,6 +171,10 @@ function App() {
     console.log('[App] Login success handler called with user:', userData?.userName);
     setUser(userData);
     closeAuth();
+    // Redirect admin to admin portal
+    if (userData?.role?.roleName === 'Admin') {
+      window.location.href = '/admin/dashboard';
+    }
     console.log('[App] User state updated and auth modal closed');
   }, [closeAuth]);
 
@@ -375,6 +381,16 @@ function App() {
           defaultView={authView}
           onClose={closeAuth}
           onLoginSuccess={handleLoginSuccess}
+          onRegisterStall={openStallRegistration}
+        />
+
+        {/* Stall Registration Modal */}
+        <StallRegistrationForm
+          isOpen={stallRegOpen}
+          onClose={closeStallRegistration}
+          onSuccess={() => {
+            console.log('[App] Stall registration submitted successfully');
+          }}
         />
       </div>
     </Router>

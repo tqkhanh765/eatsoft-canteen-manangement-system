@@ -275,3 +275,18 @@
   color: #6B7280;
   margin-top: 18px;
 }
+
+/* Partner stall registration link */
+.auth-switch.partner-link {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.stall-register-link {
+  color: #10b981 !important;
+}
+
+.stall-register-link:hover {
+  color: #059669 !important;
+}

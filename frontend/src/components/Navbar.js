@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
 const CartIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -45,14 +47,49 @@ const MANAGER_LINKS = [
 const Navbar = ({ onLoginClick, user, onLogout }) => {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [pendingRegistrations, setPendingRegistrations] = useState([]);
+  const notifRef = useRef(null);
 
-  // Determine navigation links based on user role
   const isVendor = user?.role?.roleName === 'Vendor';
   const isManager = user?.role?.roleName === 'Manager';
   const navLinks = isManager ? MANAGER_LINKS : isVendor ? VENDOR_LINKS : CUSTOMER_LINKS;
-
-  // Get active link based on current path
   const active = navLinks.find(link => location.pathname === link.path)?.id || '';
+
+  // Fetch pending registrations for manager
+  useEffect(() => {
+    if (!isManager) return;
+    const fetchPending = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/stall-registrations?status=MANAGER_PENDING`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setPendingRegistrations(data.registrations || []);
+      } catch {
+        // silent
+      }
+    };
+    fetchPending();
+    // Poll every 30 seconds
+    const interval = setInterval(fetchPending, 30000);
+    return () => clearInterval(interval);
+  }, [isManager]);
+
+  // Close notification dropdown when clicking outside
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const pendingCount = pendingRegistrations.length;
 
   return (
     <nav className="navbar" id="main-navbar">
@@ -87,9 +124,53 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
           )}
           {user ? (
             <>
-              <button className="bell-btn" id="navbar-bell" aria-label="Notifications">
-                <BellIcon />
-              </button>
+              {/* Bell with notification dropdown */}
+              <div className="bell-wrapper" ref={notifRef}>
+                <button
+                  className="bell-btn"
+                  id="navbar-bell"
+                  aria-label="Notifications"
+                  onClick={() => setShowNotifications(prev => !prev)}
+                >
+                  <BellIcon />
+                  {isManager && pendingCount > 0 && (
+                    <span className="bell-badge">{pendingCount}</span>
+                  )}
+                </button>
+
+                {showNotifications && isManager && (
+                  <div className="notif-dropdown">
+                    <div className="notif-header">Notifications</div>
+                    <div className="notif-list">
+                      {pendingCount === 0 ? (
+                        <div className="notif-empty">No new notifications</div>
+                      ) : (
+                        pendingRegistrations.map(reg => (
+                          <Link
+                            key={reg.id}
+                            to="/manager-stalls/requests"
+                            className="notif-item"
+                            onClick={() => setShowNotifications(false)}
+                          >
+                            <span className="notif-dot" />
+                            <span className="notif-text">
+                              New stall registration by <strong>{reg.email}</strong> is waiting for approval
+                            </span>
+                          </Link>
+                        ))
+                      )}
+                    </div>
+                    <Link
+                      to="/manager-stalls/requests"
+                      className="notif-footer"
+                      onClick={() => setShowNotifications(false)}
+                    >
+                      View all requests
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               <div className="user-menu-wrapper">
                 <button
                   className="login-btn user-menu-btn"

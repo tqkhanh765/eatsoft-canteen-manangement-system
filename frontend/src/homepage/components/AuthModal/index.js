@@ -8,7 +8,7 @@ import VerifyCodeView from './VerifyCodeView';
 import ResetPasswordView from './ResetPasswordView';
 
 /* ─── Main AuthModal Orchestrator ────────────────────────────── */
-const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) => {
+const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess, onRegisterStall }) => {
   const [view, setView] = useState(defaultView);
   
   // Forgot password flow state
@@ -90,6 +90,7 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess }) =
               onSwitchSignup={() => setView('signup')}
               onForgotPassword={() => setView('forgot')}
               onLoginSuccess={onLoginSuccess}
+              onRegisterStall={onRegisterStall}
             />
           )}
           {view === 'signup' && (
