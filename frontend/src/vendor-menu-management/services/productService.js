@@ -1,5 +1,15 @@
 import api from './api';
 
+const BACKEND_URL = 'http://localhost:8080';
+
+const getFullImageUrl = (imageURL) => {
+  if (!imageURL) return '';
+  if (imageURL.startsWith('http://') || imageURL.startsWith('https://')) {
+    return imageURL;
+  }
+  return `${BACKEND_URL}${imageURL}`;
+};
+
 /**
  * Map backend product data to frontend format
  * Backend: { productId, name, description, price, imageURL, isAvailable, storeId, category }
@@ -10,7 +20,7 @@ const mapProductToFrontend = (product) => ({
   name: product.name,
   desc: product.description || '',
   price: Number(product.price),
-  image: product.imageURL || 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=600&h=300&fit=crop',
+  image: getFullImageUrl(product.imageURL) || 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=600&h=300&fit=crop',
   available: product.isAvailable,
   type: product.category?.categoryName || 'Food',
   storeId: product.storeId,

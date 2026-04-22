@@ -1,10 +1,10 @@
-import { OrderProvider } from "./context/OrderContext";
-import VendorMenu from "./pages/VendorMenu";
+import { OrderProvider } from "../context/OrderContext";
+import VendorMenu from "../pages/VendorMenu";
 
-function App() {
+function App({ user }) {
     return (
-        <OrderProvider>
-            <VendorMenu />
+        <OrderProvider user={user}>
+            <VendorMenu user={user} />
         </OrderProvider>
     );
 }
