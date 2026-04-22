@@ -1,17 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import { getTopMenuItems } from "../../services/DashboardService";
 
-const data = [
-    { name: "Food 1", value: 12, color: "#2563eb" },
-    { name: "Food 2", value: 10, color: "#ef4444" },
-    { name: "Food 3", value: 8, color: "#f59e0b" },
-    { name: "Food 4", value: 7, color: "#9ca3af" },
-    { name: "Food 5", value: 9, color: "#fca5a5" },
-    { name: "Food 6", value: 6, color: "#22c55e" },
-    { name: "Food 7", value: 11, color: "#a855f7" },
-];
+const colors = ["#2563eb", "#ef4444", "#f59e0b", "#9ca3af", "#fca5a5", "#22c55e", "#a855f7"];
 
-export default function TopMenuPieChart() {
+export default function TopMenuPieChart({ storeId }) {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadData();
+    }, [storeId]);
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const topItems = await getTopMenuItems(storeId, 7);
+            const chartData = topItems.map((item, index) => ({
+                name: item.name,
+                value: item.quantity,
+                color: colors[index % colors.length]
+            }));
+            setData(chartData);
+        } catch (error) {
+            console.error("Failed to load top menu data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center" }}>Loading...</div>;
+    }
+
     return (
         <div style={{ width: "100%", height: 240 }}>
             <ResponsiveContainer>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     BarChart,
     Bar,
@@ -8,17 +8,39 @@ import {
     ResponsiveContainer,
     Cell,
 } from "recharts";
+import { getWeeklyProfit } from "../../services/DashboardService";
 
-const data = [
-    { day: "Monday", value: 3348, color: "#facc15" },
-    { day: "Tuesday", value: 3860, color: "#fbbf24" },
-    { day: "Wednesday", value: 5437, color: "#f97316" },
-    { day: "Thursday", value: 4160, color: "#fbbf24" },
-    { day: "Friday", value: 6254, color: "#ef4444" },
-    { day: "Saturday", value: 1264, color: "#22c55e" },
-];
+const colors = ["#facc15", "#fbbf24", "#f97316", "#fbbf24", "#ef4444", "#22c55e", "#3b82f6"];
 
-export default function ProfitOfWeekChart() {
+export default function ProfitOfWeekChart({ storeId }) {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadData();
+    }, [storeId]);
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const profitData = await getWeeklyProfit(storeId);
+            const chartData = profitData.map((item, index) => ({
+                day: item.date,
+                value: item.profit,
+                color: colors[index % colors.length]
+            }));
+            setData(chartData);
+        } catch (error) {
+            console.error("Failed to load profit data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <div style={{ height: 260, display: "flex", alignItems: "center", justifyContent: "center" }}>Loading...</div>;
+    }
+
     return (
         <div style={{ width: "100%", height: 260 }}>
             <ResponsiveContainer>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     BarChart,
     Bar,
@@ -8,19 +8,38 @@ import {
     Tooltip,
     Cell,
 } from "recharts";
+import { getPeakOrderingHours } from "../../services/DashboardService";
 
-const data = [
-    { time: "8:00 AM", value: 132 },
-    { time: "9:00 AM", value: 380 },
-    { time: "10:00 AM", value: 612 },
-    { time: "11:00 AM", value: 1704 },
-    { time: "12:00 PM", value: 984 },
-    { time: "1:00 PM", value: 271 },
-];
+const colors = ["#fde68a", "#fcd34d", "#fbbf24", "#f59e0b", "#fbbf24", "#fde68a", "#f97316"];
 
-const colors = ["#fde68a", "#fcd34d", "#fbbf24", "#f59e0b", "#fbbf24", "#fde68a"];
+export default function PeakOrderingHoursChart({ storeId }) {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-export default function PeakOrderingHoursChart() {
+    useEffect(() => {
+        loadData();
+    }, [storeId]);
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const peakHours = await getPeakOrderingHours(storeId);
+            const chartData = peakHours.map((item, index) => ({
+                time: item.hour,
+                value: item.count
+            }));
+            setData(chartData);
+        } catch (error) {
+            console.error("Failed to load peak ordering hours:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center" }}>Loading...</div>;
+    }
+
     return (
         <div style={{ width: "100%", height: 240 }}>
             <ResponsiveContainer>

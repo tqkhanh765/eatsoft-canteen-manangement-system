@@ -12,6 +12,8 @@ export default function Dashboard({ user, onLogout }) {
         // But keeping the function for Navbar compatibility
     };
 
+    const storeId = user?.stores?.[0]?.storeId;
+
     return (
         <>
             <Navbar onLoginClick={handleLoginClick} user={user} onLogout={onLogout} />
@@ -21,24 +23,24 @@ export default function Dashboard({ user, onLogout }) {
 
                     <section className="vd-card vd-card--wide">
                         <h2 className="vd-card-title">Profit of week</h2>
-                        <ProfitOfWeekChart />
+                        <ProfitOfWeekChart storeId={storeId} />
                     </section>
 
                     <section className="vd-grid-2">
                         <div className="vd-card">
                             <h2 className="vd-card-title vd-card-title--center">TOP MENU</h2>
-                            <TopMenuPieChart />
+                            <TopMenuPieChart storeId={storeId} />
                         </div>
 
                         <div className="vd-card">
                             <h2 className="vd-card-title vd-card-title--center">PEAK ORDERING HOURS</h2>
-                            <PeakOrderingHoursChart />
+                            <PeakOrderingHoursChart storeId={storeId} />
                         </div>
                     </section>
 
                     <section className="vd-summary">
                         <h2 className="vd-card-title vd-card-title--center">SUMMARIZE PERFORMANCE BY MENU</h2>
-                        <SummaryTable storeId={user?.stores?.[0]?.storeId} />
+                        <SummaryTable storeId={storeId} />
                     </section>
                 </div>
             </main>
