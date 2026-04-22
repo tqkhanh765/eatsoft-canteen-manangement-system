@@ -14,7 +14,7 @@ import Orders from './vendor-dashboard/pages/Orders';
 import { OrderProvider } from './vendor-dashboard/context/OrderContext';
 import FoodStallsPage from './food-stalls/pages/FoodStallsPage';
 import StallMenuPage from './stall-menu/pages/StallMenuPage';
-import VendorMenu from './vendor-tracking/pages/VendorMenu';
+import VendorTrackingApp from './vendor-tracking/config/API';
 import ManagerDashboard from './manager/pages/ManagerDashboard';
 import AnnouncementList from './manager/pages/AnnouncementList';
 import AnnouncementCreate from './manager/pages/AnnouncementCreate';
@@ -287,7 +287,7 @@ function App() {
             path="/vendor-tracking"
             element={
               <ProtectedVendorRoute>
-                <VendorMenu user={user} onLogout={handleLogout} />
+                <VendorTrackingApp user={user} />
               </ProtectedVendorRoute>
             }
           />
