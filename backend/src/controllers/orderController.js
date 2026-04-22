@@ -96,6 +96,15 @@ const createOrder = async (req, res) => {
       },
       include: { orderItems: { include: { product: true } } },
     });
+
+    // Increment soldCount for each product
+    for (const item of items) {
+      await prisma.product.update({
+        where: { productId: Number(item.productId) },
+        data: { soldCount: { increment: item.quantity } }
+      });
+    }
+
     res.status(201).json(order);
   } catch (err) {
     res.status(500).json({ error: err.message });

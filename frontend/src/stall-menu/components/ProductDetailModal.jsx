@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { useCart } from "../../customer-order-tab/hooks/useCart";
 
+const formatSoldCount = (count) => {
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1).replace('.0', '') + 'k';
+  }
+  return count.toString();
+};
+
 const ProductDetailModal = ({ product, onClose, storeId }) => {
   const { addItem, clearCart } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -52,7 +59,7 @@ const ProductDetailModal = ({ product, onClose, storeId }) => {
               <h2 id="product-modal-title">{product.name}</h2>
               <div className="modal-price-row">
                 <strong className="modal-main-price">{priceLabel}</strong>
-                <span className="modal-sold-count">Sold: {product.soldCount || 20}</span>
+                <span className="modal-sold-count">Sold: {formatSoldCount(product.soldCount || 0)}</span>
               </div>
               <p>{product.description}</p>
             </div>

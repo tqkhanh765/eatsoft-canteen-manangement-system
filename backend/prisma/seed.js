@@ -385,6 +385,29 @@ async function main() {
     }
   }
 
+  // Calculate soldCount for each product from order items
+  console.log('Calculating soldCount for products...');
+  const orderItems = await prisma.orderItem.findMany();
+  const productSoldCounts = {};
+
+  orderItems.forEach(item => {
+    const productId = item.productId;
+    if (productSoldCounts[productId]) {
+      productSoldCounts[productId] += item.quantity;
+    } else {
+      productSoldCounts[productId] = item.quantity;
+    }
+  });
+
+  // Update each product with its soldCount
+  for (const [productId, soldCount] of Object.entries(productSoldCounts)) {
+    await prisma.product.update({
+      where: { productId: Number(productId) },
+      data: { soldCount }
+    });
+  }
+  console.log('✅ SoldCount calculated and updated for all products');
+
   // ----------------------------------------
   // 7. SEED ANNOUNCEMENTS (~5 announcements)
   // ----------------------------------------

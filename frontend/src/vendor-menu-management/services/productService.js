@@ -25,6 +25,7 @@ const mapProductToFrontend = (product) => ({
   type: product.category?.categoryName || 'Food',
   storeId: product.storeId,
   categoryId: product.categoryId,
+  soldCount: product.soldCount || 0,
 });
 
 /**
