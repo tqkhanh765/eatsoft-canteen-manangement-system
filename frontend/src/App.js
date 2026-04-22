@@ -297,7 +297,7 @@ function App() {
             path="/vendor-orders"
             element={
               <ProtectedVendorRoute>
-                <OrderProvider>
+                <OrderProvider user={user}>
                   <Orders user={user} onLogout={handleLogout} />
                 </OrderProvider>
               </ProtectedVendorRoute>

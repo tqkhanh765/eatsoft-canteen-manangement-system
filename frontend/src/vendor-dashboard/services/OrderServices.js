@@ -14,9 +14,12 @@ const mapOrderToDashboard = (order) => ({
 
 export const getOrders = async (storeId) => {
     try {
-        const url = storeId ? `/orders?storeId=${storeId}` : '/orders';
-        const response = await API.get(url);
-        return response.data.map(mapOrderToDashboard);
+        const response = await API.get('/orders');
+        // Filter orders that belong to this store using storeId from order entity
+        const storeOrders = storeId 
+            ? response.data.filter(order => order.storeId === storeId || order.store?.storeId === storeId)
+            : response.data;
+        return storeOrders.map(mapOrderToDashboard);
     } catch (error) {
         console.error('Failed to fetch vendor dashboard orders:', error);
         return [];

@@ -38,7 +38,7 @@ export default function Dashboard({ user, onLogout }) {
 
                     <section className="vd-summary">
                         <h2 className="vd-card-title vd-card-title--center">SUMMARIZE PERFORMANCE BY MENU</h2>
-                        <SummaryTable />
+                        <SummaryTable storeId={user?.stores?.[0]?.storeId} />
                     </section>
                 </div>
             </main>
