@@ -1,4 +1,5 @@
 import API from '../../vendor-tracking/services/API';
+import productService from '../../vendor-menu-management/services/productService';
 
 /**
  * Get weekly profit data
@@ -59,17 +60,20 @@ export const getTopMenuItems = async (storeId, limit = 7) => {
     
     // Aggregate quantities by product
     const productQuantities = {};
+    const productNames = {};
     
     orders.forEach(order => {
       if (order.orderItems) {
         order.orderItems.forEach(item => {
-          const productName = item.product?.name || 'Unknown';
+          const productId = item.productId;
+          const productName = item.product?.name || `Product ${productId}`;
           const quantity = item.quantity || 0;
           
-          if (productQuantities[productName]) {
-            productQuantities[productName] += quantity;
+          if (productQuantities[productId]) {
+            productQuantities[productId] += quantity;
           } else {
-            productQuantities[productName] = quantity;
+            productQuantities[productId] = quantity;
+            productNames[productId] = productName;
           }
         });
       }
@@ -77,7 +81,7 @@ export const getTopMenuItems = async (storeId, limit = 7) => {
     
     // Convert to array and sort by quantity
     const sortedItems = Object.entries(productQuantities)
-      .map(([name, quantity]) => ({ name, quantity }))
+      .map(([id, quantity]) => ({ name: productNames[id], quantity }))
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, limit);
     
@@ -100,30 +104,39 @@ export const getPeakOrderingHours = async (storeId) => {
       ? response.data.filter(order => order.storeId === storeId || order.store?.storeId === storeId)
       : response.data;
     
-    // Count orders by hour (8 AM - 5 PM)
-    const hourCounts = {};
+    // Count orders by time period (8 AM - 2 PM)
+    const periodCounts = {};
     
     orders.forEach(order => {
       const orderDate = new Date(order.orderDate);
       const hour = orderDate.getHours();
       
-      // Only count hours between 8 AM and 5 PM
-      if (hour >= 8 && hour <= 17) {
-        const hourStr = `${hour}:00`;
-        if (hourCounts[hourStr]) {
-          hourCounts[hourStr]++;
+      // Only count hours between 8 AM and 2 PM
+      if (hour >= 8 && hour <= 14) {
+        // Determine which period this hour belongs to
+        const periodStart = hour;
+        const periodEnd = hour + 1;
+        const periodLabel = `${periodStart}:00-${periodEnd}:00`;
+        
+        if (periodCounts[periodLabel]) {
+          periodCounts[periodLabel]++;
         } else {
-          hourCounts[hourStr] = 1;
+          periodCounts[periodLabel] = 1;
         }
       }
     });
     
-    // Convert to array and sort
-    const sortedHours = Object.entries(hourCounts)
-      .map(([hour, count]) => ({ hour, count }))
-      .sort((a, b) => b.count - a.count);
+    // Convert to array in chronological order (8-9, 9-10, ..., 1-2)
+    const periods = [];
+    for (let h = 8; h <= 13; h++) {
+      const periodLabel = `${h}:00-${h + 1}:00`;
+      periods.push({
+        hour: periodLabel,
+        count: periodCounts[periodLabel] || 0
+      });
+    }
     
-    return sortedHours;
+    return periods;
   } catch (error) {
     console.error('Failed to fetch peak ordering hours:', error);
     return [];
@@ -142,40 +155,52 @@ export const getMenuPerformance = async (storeId) => {
       ? response.data.filter(order => order.storeId === storeId || order.store?.storeId === storeId)
       : response.data;
     
+    // Filter completed orders only
+    const completedOrders = orders.filter(order => order.status === 'Completed');
+    
+    // Fetch products to get availability status
+    const products = await productService.getProductsByStore(storeId);
+    const productAvailability = {};
+    products.forEach(p => {
+      productAvailability[p.id] = p.available;
+    });
+    
     // Aggregate metrics by product
     const productMetrics = {};
     
-    orders.forEach(order => {
+    completedOrders.forEach(order => {
       if (order.orderItems) {
         order.orderItems.forEach(item => {
-          const productName = item.product?.name || 'Unknown';
+          const productId = item.productId;
+          const productName = item.product?.name || `Product ${productId}`;
           const quantity = item.quantity || 0;
           const unitPrice = Number(item.unitPrice) || 0;
           const revenue = quantity * unitPrice;
           
-          if (!productMetrics[productName]) {
-            productMetrics[productName] = {
+          if (!productMetrics[productId]) {
+            productMetrics[productId] = {
+              id: productId,
               name: productName,
               revenue: 0,
-              orderCount: 0,
-              totalQuantity: 0
+              totalQuantity: 0,
+              uniqueOrders: new Set()
             };
           }
           
-          productMetrics[productName].revenue += revenue;
-          productMetrics[productName].totalQuantity += quantity;
-          productMetrics[productName].orderCount += 1;
+          productMetrics[productId].revenue += revenue;
+          productMetrics[productId].totalQuantity += quantity;
+          productMetrics[productId].uniqueOrders.add(order.orderId || order.id);
         });
       }
     });
     
-    // Calculate average and convert to array
+    // Convert to array and calculate average
     const performanceData = Object.values(productMetrics).map(item => ({
       name: item.name,
       revenue: item.revenue,
-      orderCount: item.orderCount,
-      avgOrders: item.orderCount > 0 ? Math.round(item.totalQuantity / item.orderCount) : 0,
-      status: 'Available' // This could be based on product availability
+      orderCount: item.uniqueOrders.size,
+      totalQuantity: item.totalQuantity,
+      status: productAvailability[item.id] ? 'Available' : 'Sold Out'
     }));
     
     // Sort by revenue
