@@ -1,85 +1,66 @@
 // services/orderService.js
-// Mock data shaped to match the vendor dashboard UI.
+// Fetch real orders from backend for vendor tracking
 
-let mockOrders = [
-    {
-        id: 81,
-        status: "new",
-        table: 2,
-        total: 70000,
-        currency: "VND",
-        items: [
-            { name: "Cơm gà xối mỡ", qty: 1 },
-            { name: "Canh bí", qty: 1 }
-        ],
-        createdAt: Date.now() - 1000 * 60 * 2
-    },
-    {
-        id: 83,
-        status: "new",
-        table: 2,
-        total: 70000,
-        currency: "VND",
-        items: [{ name: "Cơm gà xối mỡ", qty: 1 }],
-        createdAt: Date.now() - 1000 * 60 * 5
-    },
-    {
-        id: 84,
-        status: "new",
-        table: 2,
-        total: 70000,
-        currency: "VND",
-        items: [{ name: "Cơm gà xối mỡ", qty: 1 }],
-        createdAt: Date.now() - 1000 * 60 * 6
-    },
-    {
-        id: 86,
-        status: "active",
-        stage: "cooking",
-        table: 2,
-        total: 70000,
-        currency: "VND",
-        items: [{ name: "Cơm gà xối mỡ", qty: 1 }],
-        createdAt: Date.now() - 1000 * 60 * 10
-    },
-    {
-        id: 85,
-        status: "active",
-        stage: "done",
-        table: 2,
-        total: 70000,
-        currency: "VND",
-        items: [{ name: "Cơm gà xối mỡ", qty: 1 }],
-        createdAt: Date.now() - 1000 * 60 * 18
-    }
-];
+import API from './API';
 
-export const getOrders = async () => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(mockOrders);
-        }, 300); // giả loading
-    });
+// Map backend order status to vendor UI status
+const mapStatusToVendor = (status) => {
+  const statusMap = {
+    'Pending': 'new',
+    'Cooking': 'active',
+    'Ready': 'done',
+    'Delivering': 'delivering',
+    'Completed': 'completed',
+    'Cancelled': 'cancelled'
+  };
+  return statusMap[status] || 'new';
 };
 
-export const updateOrder = async (id, action) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            mockOrders = mockOrders.map(o =>
-                o.id === id
-                    ? {
-                        ...o,
-                        status: action,
-                        stage:
-                            action === "active"
-                                ? (o.stage ?? "cooking")
-                                : action === "done"
-                                    ? "done"
-                                    : o.stage
-                    }
-                    : o
-            );
-            resolve({ success: true });
-        }, 200);
-    });
+// Map backend order to vendor UI format
+const mapOrderToVendor = (order) => ({
+  id: order.orderId,
+  status: mapStatusToVendor(order.status),
+  stage: order.status === 'Cooking' ? 'cooking' : order.status === 'Ready' ? 'done' : null,
+  table: order.userId, // Using userId as table identifier for now
+  total: Number(order.totalAmount),
+  currency: "VND",
+  items: order.orderItems?.map(item => ({
+    name: item.product?.name || 'Unknown',
+    qty: item.quantity
+  })) || [],
+  createdAt: new Date(order.orderDate).getTime()
+});
+
+export const getOrders = async (storeId) => {
+  try {
+    const url = storeId ? `/orders?storeId=${storeId}` : '/orders';
+    const response = await API.get(url);
+    // Filter orders that are not Pending (cart) or Cancelled
+    const activeOrders = response.data.filter(order =>
+      order.status !== 'Pending' && order.status !== 'Cancelled'
+    );
+    return activeOrders.map(mapOrderToVendor);
+  } catch (error) {
+    console.error('Failed to fetch vendor orders:', error);
+    return [];
+  }
+};
+
+export const updateOrder = async (orderId, action) => {
+  try {
+    // Map vendor UI action to backend status
+    const statusMap = {
+      'active': 'Cooking',
+      'done': 'Ready',
+      'delivering': 'Delivering',
+      'completed': 'Completed'
+    };
+    const status = statusMap[action] || action;
+
+    await API.patch(`/orders/${orderId}/status`, { status });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update order:', error);
+    return { success: false };
+  }
 };

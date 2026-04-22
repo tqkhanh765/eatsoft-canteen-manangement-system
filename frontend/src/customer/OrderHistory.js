@@ -65,9 +65,9 @@ const OrderHistory = ({ onSelectOrder }) => {
         const allOrders = await fetchOrders({ userId: currentUser.userId });
         console.log('Fetched orders:', allOrders);
         
-        // Filter only Pending and Completed orders
-        const filteredOrders = allOrders.filter(order => 
-          order.status === 'Pending' || order.status === 'Completed'
+        // Filter only Pending, Cooking, and Completed orders
+        const filteredOrders = allOrders.filter(order =>
+          order.status === 'Pending' || order.status === 'Cooking' || order.status === 'Completed'
         );
         console.log('Filtered orders:', filteredOrders);
 
