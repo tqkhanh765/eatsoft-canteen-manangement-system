@@ -34,7 +34,7 @@ export default function SummaryTable({ storeId }) {
                     <th>Menu</th>
                     <th>Revenue</th>
                     <th>Order</th>
-                    <th>Avg Orders</th>
+                    <th>Total Quantity</th>
                     <th>Status</th>
                 </tr>
                 </thead>
@@ -42,10 +42,10 @@ export default function SummaryTable({ storeId }) {
                 {data.map((r) => (
                     <tr key={r.name}>
                         <td>{r.name}</td>
-                        <td>{formatPrice(r.revenue)}</td>
-                        <td>{r.orderCount.toLocaleString("vi-VN")}</td>
-                        <td>{r.avgOrders.toLocaleString("vi-VN")}</td>
-                        <td className={`vd-status ${r.status.toLowerCase()}`}>{r.status}</td>
+                        <td>{formatPrice(r.revenue || 0)}</td>
+                        <td>{(r.orderCount || 0).toLocaleString("vi-VN")}</td>
+                        <td>{(r.totalQuantity || 0).toLocaleString("vi-VN")}</td>
+                        <td className={`vd-status ${(r.status || 'Available').toLowerCase()}`}>{r.status || 'Available'}</td>
                     </tr>
                 ))}
                 </tbody>
