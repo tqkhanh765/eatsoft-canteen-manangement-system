@@ -246,7 +246,7 @@ function App() {
             path="/stalls-menu/:stallId"
             element={
               <MainLayout onLoginClick={openAuth} user={user} onLogout={handleLogout}>
-                <StallMenuPage />
+                <StallMenuPage onLoginClick={openAuth} />
               </MainLayout>
             }
           />
