@@ -34,8 +34,8 @@ export default function VendorOrder({ order, onAction }) {
             </div>
 
             <div className="order-mid">
-                <div className="order-table">Total:</div>
-                <div className="order-table-value">{order?.table ?? "-"}</div>
+                <div className="order-table">Customer:</div>
+                <div className="order-table-value">{order?.customerName ?? "-"}</div>
             </div>
 
             <div className="order-right">
@@ -61,8 +61,20 @@ export default function VendorOrder({ order, onAction }) {
                         </button>
                     </div>
                 ) : (
-                    <div className={`pill ${order?.stage === "done" ? "pill-done" : "pill-cooking"}`}>
-                        {getStageLabel(order)}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div className={`pill ${order?.stage === "done" ? "pill-done" : "pill-cooking"}`}>
+                            {getStageLabel(order)}
+                        </div>
+                        {order?.stage === "cooking" && (
+                            <button
+                                type="button"
+                                className="icon-btn icon-complete"
+                                aria-label="Complete order"
+                                onClick={() => onAction?.(order.id, "completed")}
+                            >
+                                ✓
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

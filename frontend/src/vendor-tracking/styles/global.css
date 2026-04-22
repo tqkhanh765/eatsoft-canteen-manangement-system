@@ -52,7 +52,7 @@ body {
 /* ===== ORDER ROW (matches screenshot layout) ===== */
 .order-row {
     display: grid;
-    grid-template-columns: 1fr 90px 170px;
+    grid-template-columns: 1.5fr 70px 170px;
     gap: 12px;
     align-items: center;
     padding: 10px 12px;
@@ -95,6 +95,7 @@ body {
 
 .order-mid {
     text-align: center;
+    margin-left: -30px;
 }
 
 .order-table {
@@ -148,6 +149,12 @@ body {
 
 .icon-reject {
     color: #ef4444;
+}
+
+.icon-complete {
+    color: #16a34a;
+    border: 1px solid #16a34a;
+    background: #ecfdf5;
 }
 
 .pill {

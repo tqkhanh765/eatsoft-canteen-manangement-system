@@ -21,7 +21,7 @@ const mapOrderToVendor = (order) => ({
   id: order.orderId,
   status: mapStatusToVendor(order.status),
   stage: order.status === 'Cooking' ? 'cooking' : order.status === 'Ready' ? 'done' : null,
-  table: order.userId, // Using userId as table identifier for now
+  customerName: order.user?.userName || 'Unknown',
   total: Number(order.totalAmount),
   currency: "VND",
   items: order.orderItems?.map(item => ({
