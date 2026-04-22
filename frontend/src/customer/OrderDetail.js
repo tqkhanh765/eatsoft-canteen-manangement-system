@@ -19,8 +19,8 @@ const formatDate = (dateString) => {
 
 // Helper to map status
 const mapStatus = (status) => {
-  if (status === 'Pending') return 'In progress';
-  if (status === 'Completed') return 'Completed';
+  if (status === 'PENDING') return 'In progress';
+  if (status === 'COMPLETED') return 'COMPLETED';
   return status;
 };
 
@@ -105,13 +105,13 @@ const OrderDetail = ({ order, onBack }) => {
             </div>
             <div className="step-divider" />
 
-            <div className={`step-item ${order.status === 'Completed' ? 'completed' : 'active'}`}>
+            <div className={`step-item ${order.status === 'COMPLETED' ? 'completed' : 'active'}`}>
               <div className="step-icon"><IconPreparing /></div>
               <div className="step-label">Preparing dishes</div>
             </div>
             <div className="step-divider dashed" />
 
-            <div className={`step-item ${order.status === 'Completed' ? 'completed' : 'pending'}`}>
+            <div className={`step-item ${order.status === 'COMPLETED' ? 'completed' : 'pending'}`}>
               <div className="step-icon"><IconCompleted /></div>
               <div className="step-label">Order completed</div>
             </div>

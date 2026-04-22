@@ -28,10 +28,10 @@ export const usePayment = (checkoutState, formState, navigate) => {
       });
       setSuccessMsg('🎉 ' + result.message);
 
-      // Update order status to Cooking 
+      // Update order status to COOKING 
       if (order) {
         const orderId = order.orderId || order.id;
-        await updateOrderStatus(orderId, 'Cooking');
+        await updateOrderStatus(orderId, 'COOKING');
       }
       
       // Clear cart and order

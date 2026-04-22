@@ -3,7 +3,7 @@ import API from '../../vendor-tracking/services/API';
 // Map backend order to vendor dashboard format
 const mapOrderToDashboard = (order) => ({
     id: `#${order.orderId}`,
-    status: order.status?.toLowerCase() || 'pending',
+    status: order.status?.toLowerCase() || 'PENDING',
     price: Number(order.totalAmount),
     date: new Date(order.orderDate).toLocaleDateString('vi-VN', { weekday: 'short' }),
     items: order.orderItems?.map(item => ({

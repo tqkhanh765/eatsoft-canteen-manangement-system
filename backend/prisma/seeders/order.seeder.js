@@ -29,7 +29,7 @@ async function seedOrders(prisma, stores, customers, products) {
     }
 
     const isCompleted = faker.number.int({ min: 1, max: 10 }) <= 9;
-    const status = isCompleted ? 'Completed' : faker.helpers.arrayElement(['Pending', 'Cooking', 'Ready']);
+    const status = isCompleted ? 'COMPLETED' : faker.helpers.arrayElement(['PENDING', 'COOKING']);
     const orderDate = faker.date.recent({ days: 60 });
 
     const order = await prisma.order.create({
@@ -46,7 +46,7 @@ async function seedOrders(prisma, stores, customers, products) {
       include: { OrderItems: true },
     });
 
-    if (status === 'Completed') {
+    if (status === 'COMPLETED') {
       for (const item of order.OrderItems) {
         await prisma.feedback.create({
           data: {

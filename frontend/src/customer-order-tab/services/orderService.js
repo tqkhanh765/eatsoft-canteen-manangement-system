@@ -44,7 +44,7 @@ export const createOrder = async (orderPayload) => {
 /**
  * Update only the status of an order.
  * PATCH /api/orders/:id/status
- * Body: { status }  — one of: Pending, Cooking, Ready, Delivering, Completed, Cancelled
+ * Body: { status }  — one of: PENDING, COOKING, COMPLETED
  */
 export const updateOrderStatus = async (orderId, status) => {
   const res = await fetch(`${API_CONFIG.BASE_URL}/orders/${orderId}/status`, {

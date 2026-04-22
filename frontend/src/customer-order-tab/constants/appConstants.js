@@ -9,12 +9,9 @@ export const APP_CONSTANTS = {
   
   // Order Status
   ORDER_STATUS: {
-    PENDING: 'Pending',
-    COOKING: 'Cooking',
-    READY: 'Ready',
-    DELIVERING: 'Delivering',
-    COMPLETED: 'Completed',
-    CANCELLED: 'Cancelled'
+    PENDING: 'PENDING',
+    COOKING: 'COOKING',
+    COMPLETED: 'COMPLETED'
   },
   
   // Delivery Options

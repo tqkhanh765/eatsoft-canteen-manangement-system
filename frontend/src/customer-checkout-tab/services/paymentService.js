@@ -15,7 +15,7 @@ export const fetchCheckoutData = async () => {
   }
 
   // Fetch pending order for the current user
-  const res = await fetch(`${API_CONFIG.BASE_URL}/orders?userId=${currentUser.userId}&status=Pending`);
+  const res = await fetch(`${API_CONFIG.BASE_URL}/orders?userId=${currentUser.userId}&status=PENDING`);
   if (!res.ok) throw new Error(`Failed to fetch order: ${res.statusText}`);
   
   const orders = await res.json();

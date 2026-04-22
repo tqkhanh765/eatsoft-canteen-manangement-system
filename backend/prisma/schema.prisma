@@ -80,7 +80,7 @@ model Category {
 model Order {
   orderId     Int       @id @default(autoincrement())
   orderDate   DateTime  @default(now())
-  status      String
+  status      OrderStatus @default(PENDING)
   totalAmount Decimal
 
   userId      Int
@@ -174,4 +174,10 @@ enum RegistrationStatus {
   MANAGER_APPROVED
   MANAGER_REJECTED
   ADMIN_COMPLETED
+}
+
+enum OrderStatus {
+  PENDING
+  COOKING
+  COMPLETED
 }

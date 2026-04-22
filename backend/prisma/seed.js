@@ -342,7 +342,7 @@ async function main() {
       });
     }
 
-    const status = randomInt(1, 10) <= 3 ? 'Pending' : 'Completed';
+    const status = randomInt(1, 10) <= 3 ? 'PENDING' : 'COMPLETED';
 
     // Generate orderDate within peak hours (8 AM - 2 PM) across multiple days
     const daysAgo = randomInt(0, 13); // Orders from today up to 13 days ago
@@ -364,7 +364,7 @@ async function main() {
     };
 
     // Only add feedback for completed orders
-    if (status === 'Completed') {
+    if (status === 'COMPLETED') {
       orderData.orderItems.create = orderItemsData.map(item => ({
         ...item,
         feedback: {

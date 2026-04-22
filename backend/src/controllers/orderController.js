@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 
-const VALID_STATUSES = ['Pending', 'Cooking', 'Ready', 'Delivering', 'Completed', 'Cancelled'];
+const VALID_STATUSES = ['PENDING', 'COOKING', 'COMPLETED'];
 
 // GET /orders  (supports ?userId=&storeId=&status= filters)
 const getAllOrders = async (req, res) => {
@@ -57,7 +57,7 @@ const createOrder = async (req, res) => {
       data: {
         userId:      Number(userId),
         storeId:     Number(storeId),
-        status:      status ?? 'Pending',
+        status:      status ?? 'PENDING',
         totalAmount,
         orderItems: {
           create: items.map(i => ({
@@ -115,7 +115,7 @@ const addItemToOrder = async (req, res) => {
       where: { orderId },
     });
     if (!order) return res.status(404).json({ error: 'Order not found' });
-    if (order.status !== 'Pending') return res.status(400).json({ error: 'Can only add items to pending orders' });
+    if (order.status !== 'PENDING') return res.status(400).json({ error: 'Can only add items to pending orders' });
 
     // Check if product exists
     const product = await prisma.product.findUnique({

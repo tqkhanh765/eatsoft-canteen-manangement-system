@@ -14,7 +14,7 @@ export const getWeeklyProfit = async (storeId) => {
       : response.data;
     
     // Filter completed orders only
-    const completedOrders = orders.filter(order => order.status === 'Completed');
+    const completedOrders = orders.filter(order => order.status === 'COMPLETED');
     
     // Calculate profit for each of the past 7 days
     const days = [];
@@ -156,7 +156,7 @@ export const getMenuPerformance = async (storeId) => {
       : response.data;
     
     // Filter completed orders only
-    const completedOrders = orders.filter(order => order.status === 'Completed');
+    const completedOrders = orders.filter(order => order.status === 'COMPLETED');
     
     // Fetch products to get availability status
     const products = await productService.getProductsByStore(storeId);

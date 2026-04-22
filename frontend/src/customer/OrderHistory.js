@@ -34,8 +34,8 @@ const formatPrice = (price) => {
 
 // Helper to map status
 const mapStatus = (status) => {
-  if (status === 'Pending') return 'In progress';
-  if (status === 'Completed') return 'Completed';
+  if (status === 'PENDING') return 'In progress';
+  if (status === 'COMPLETED') return 'COMPLETED';
   return status;
 };
 
@@ -67,7 +67,7 @@ const OrderHistory = ({ onSelectOrder }) => {
         
         // Filter only Pending, Cooking, and Completed orders
         const filteredOrders = allOrders.filter(order =>
-          order.status === 'Pending' || order.status === 'Cooking' || order.status === 'Completed'
+          order.status === 'PENDING' || order.status === 'COOKING' || order.status === 'COMPLETED'
         );
         console.log('Filtered orders:', filteredOrders);
 

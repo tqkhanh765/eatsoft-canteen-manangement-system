@@ -50,14 +50,6 @@ export default function VendorOrder({ order, onAction }) {
                         >
                             ✓
                         </button>
-                        <button
-                            type="button"
-                            className="icon-btn icon-reject"
-                            aria-label="Reject order"
-                            onClick={() => onAction?.(order.id, "cancelled")}
-                        >
-                            ✕
-                        </button>
                     </div>
                 ) : (
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
