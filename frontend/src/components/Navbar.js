@@ -80,7 +80,7 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
 
         {/* Actions */}
         <div className="navbar-actions">
-          {!isManager && (
+          {!isVendor && !isManager && (
             <Link to="/cart" className="cart-btn" id="navbar-cart" aria-label="Shopping cart">
               <CartIcon />
             </Link>
