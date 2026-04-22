@@ -30,9 +30,13 @@ const login = async (req, res) => {
       });
     }
 
+    // Find user by email (include password for comparison and stores for vendors)
     const user = await prisma.user.findUnique({
       where: { email },
-      include: { role: true },
+      include: { 
+        role: true,
+        stores: true
+      },
     });
 
     if (!user) {

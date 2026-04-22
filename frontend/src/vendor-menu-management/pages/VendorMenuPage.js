@@ -14,10 +14,8 @@ const PlusIcon = () => (
   </svg>
 );
 
-// Store ID - in a real app, this would come from auth context or route params
-const STORE_ID = 1;
-
 const VendorMenuPage = ({ user, onLogout }) => {
+  const storeId = user?.stores?.[0]?.storeId;
   const [items, setItems]           = useState([]);
   const [view, setView]             = useState('list'); // 'list' | 'add' | 'edit'
   const [editTarget, setEditTarget] = useState(null);
@@ -36,13 +34,14 @@ const VendorMenuPage = ({ user, onLogout }) => {
   // ── Fetch products on mount
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [storeId]);
 
   const fetchProducts = async () => {
+    if (!storeId) return;
     setLoading(true);
     setError(null);
     try {
-      const products = await productService.getProductsByStore(STORE_ID);
+      const products = await productService.getProductsByStore(storeId);
       setItems(products);
     } catch (err) {
       console.error('Failed to fetch products:', err);
@@ -74,10 +73,10 @@ const VendorMenuPage = ({ user, onLogout }) => {
 
   // ── Add Item
   const handlePublish = async () => {
-    if (!form.name || !form.price) return;
+    if (!form.name || !form.price || !storeId) return;
     setSaving(true);
     try {
-      const newProduct = await productService.createProduct(form, STORE_ID, form.categoryId);
+      const newProduct = await productService.createProduct(form, storeId, form.categoryId);
       setItems(prev => [...prev, newProduct]);
       goList();
     } catch (err) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { SVGIcons } from '../constants/icons';
 import { DEFAULT_LOCATION, DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_PHONE } from '../constants/appConstants';
 
-const DeliveryInfoCard = ({ order, deliveryOption, room, onDeliveryChange, onRoomChange }) => {
+const DeliveryInfoCard = ({ order, deliveryOption, room, onDeliveryChange, onRoomChange, readOnly = false }) => {
   return (
     <div className="delivery-info-card">
       <div className="info-row">
@@ -18,6 +18,7 @@ const DeliveryInfoCard = ({ order, deliveryOption, room, onDeliveryChange, onRoo
           placeholder="Enter your room"
           value={room}
           onChange={(e) => onRoomChange(e.target.value)}
+          readOnly={readOnly}
         />
       </div>
       <div className="info-row">
@@ -36,7 +37,8 @@ const DeliveryInfoCard = ({ order, deliveryOption, room, onDeliveryChange, onRoo
           <button
             id="pickup-delivery-btn"
             className={`pickup-btn${deliveryOption === 'delivery' ? ' active' : ''}`}
-            onClick={() => onDeliveryChange('delivery')}
+            onClick={() => !readOnly && onDeliveryChange('delivery')}
+            disabled={readOnly}
           >
             <div className="pickup-icon">{SVGIcons.delivery}</div>
             <div className="pickup-title">Delivery</div>
@@ -45,7 +47,8 @@ const DeliveryInfoCard = ({ order, deliveryOption, room, onDeliveryChange, onRoo
           <button
             id="pickup-stall-btn"
             className={`pickup-btn${deliveryOption === 'pickup' ? ' active' : ''}`}
-            onClick={() => onDeliveryChange('pickup')}
+            onClick={() => !readOnly && onDeliveryChange('pickup')}
+            disabled={readOnly}
           >
             <div className="pickup-icon">{SVGIcons.stall}</div>
             <div className="pickup-title">Pickup at stalls</div>

@@ -1,17 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { formatPrice } from "../../utils/format";
+import { getMenuPerformance } from "../../services/DashboardService";
 
-const rows = [
-    { menu: "Cơm gà xối mỡ", revenue: 120000, order: 30000, avg: 22000, status: "Open" },
-    { menu: "Phở bò", revenue: 110000, order: 28000, avg: 22000, status: "Open" },
-    { menu: "Bún chả", revenue: 90000, order: 20000, avg: 22000, status: "Close" },
-    { menu: "Trà sữa", revenue: 80000, order: 20000, avg: 22000, status: "Open" },
-    { menu: "Cà phê sữa", revenue: 100000, order: 16000, avg: 22000, status: "Close" },
-    { menu: "Bánh mì", revenue: 85000, order: 18000, avg: 22000, status: "Close" },
-    { menu: "Nước suối", revenue: 70000, order: 15000, avg: 22000, status: "Open" },
-];
+export default function SummaryTable({ storeId }) {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-export default function SummaryTable() {
+    useEffect(() => {
+        loadData();
+    }, [storeId]);
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const performanceData = await getMenuPerformance(storeId);
+            setData(performanceData);
+        } catch (error) {
+            console.error("Failed to load menu performance:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <div className="vd-card" style={{ paddingTop: 12 }}>Loading...</div>;
+    }
+
     return (
         <div className="vd-card" style={{ paddingTop: 12 }}>
             <table className="vd-table">
@@ -25,12 +39,12 @@ export default function SummaryTable() {
                 </tr>
                 </thead>
                 <tbody>
-                {rows.map((r) => (
-                    <tr key={r.menu}>
-                        <td>{r.menu}</td>
+                {data.map((r) => (
+                    <tr key={r.name}>
+                        <td>{r.name}</td>
                         <td>{formatPrice(r.revenue)}</td>
-                        <td>{r.order.toLocaleString("vi-VN")}</td>
-                        <td>{r.avg.toLocaleString("vi-VN")}</td>
+                        <td>{r.orderCount.toLocaleString("vi-VN")}</td>
+                        <td>{r.avgOrders.toLocaleString("vi-VN")}</td>
                         <td className={`vd-status ${r.status.toLowerCase()}`}>{r.status}</td>
                     </tr>
                 ))}

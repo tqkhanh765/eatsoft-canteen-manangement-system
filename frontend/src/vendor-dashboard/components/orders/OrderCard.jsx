@@ -16,8 +16,6 @@ export default function OrderCard({ order }) {
         ? order.items.map(item => `${item.name} x${item.qty}`).join(', ')
         : 'No items';
 
-    const itemCount = order.items ? order.items.reduce((sum, item) => sum + (item.qty || 0), 0) : 0;
-
     return (
         <div className="history-item">
             <div className="item-detail">
@@ -27,10 +25,6 @@ export default function OrderCard({ order }) {
 
             <div className="item-dish">
                 <p className="item-summary"><IconShop /> {itemsString}</p>
-            </div>
-
-            <div className="item-quantity">
-                {itemCount}
             </div>
 
             <div className="item-price">

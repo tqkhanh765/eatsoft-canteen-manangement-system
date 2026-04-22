@@ -1,8 +1,27 @@
-export const getOrders = async () => {
-    return [
-        { id: "#101", status: "pending", price: 50, date: "Mon", items: [{ name: "Cơm gà xé", qty: 2 }, { name: "Nước suối", qty: 1 }] },
-        { id: "#102", status: "preparing", price: 80, date: "Tue", items: [{ name: "Phở bò", qty: 1 }, { name: "Trà sữa", qty: 2 }] },
-        { id: "#103", status: "completed", price: 120, date: "Wed", items: [{ name: "Bún chả", qty: 2 }, { name: "Nước ép cam", qty: 1 }] },
-        { id: "#104", status: "completed", price: 200, date: "Thu", items: [{ name: "Cơm tấm", qty: 3 }, { name: "Pepsi", qty: 2 }] },
-    ];
+import API from '../../vendor-tracking/services/API';
+
+// Map backend order to vendor dashboard format
+const mapOrderToDashboard = (order) => ({
+    id: `#${order.orderId}`,
+    status: order.status?.toLowerCase() || 'pending',
+    price: Number(order.totalAmount),
+    date: new Date(order.orderDate).toLocaleDateString('vi-VN', { weekday: 'short' }),
+    items: order.orderItems?.map(item => ({
+        name: item.product?.name || 'Unknown',
+        qty: item.quantity
+    })) || []
+});
+
+export const getOrders = async (storeId) => {
+    try {
+        const response = await API.get('/orders');
+        // Filter orders that belong to this store using storeId from order entity
+        const storeOrders = storeId 
+            ? response.data.filter(order => order.storeId === storeId || order.store?.storeId === storeId)
+            : response.data;
+        return storeOrders.map(mapOrderToDashboard);
+    } catch (error) {
+        console.error('Failed to fetch vendor dashboard orders:', error);
+        return [];
+    }
 };
