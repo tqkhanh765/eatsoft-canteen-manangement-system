@@ -6,15 +6,20 @@ import SignupView from './SignupView';
 import ForgotPasswordView from './ForgotPasswordView';
 import VerifyCodeView from './VerifyCodeView';
 import ResetPasswordView from './ResetPasswordView';
+import Admin2FAView from './Admin2FAView';
 
 /* ─── Main AuthModal Orchestrator ────────────────────────────── */
 const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess, onRegisterStall }) => {
   const [view, setView] = useState(defaultView);
-  
+
   // Forgot password flow state
   const [resetEmail, setResetEmail] = useState('');
   const [otpToken, setOtpToken] = useState('');
   const [resetToken, setResetToken] = useState('');
+
+  // Admin 2FA flow state
+  const [admin2FAEmail, setAdmin2FAEmail] = useState('');
+  const [admin2FAToken, setAdmin2FAToken] = useState('');
 
   console.log('[AuthModal] Rendered with isOpen:', isOpen);
 
@@ -23,10 +28,11 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess, onR
     console.log('[AuthModal] isOpen changed to:', isOpen);
     if (isOpen) {
       setView(defaultView);
-      // Reset forgot password state
       setResetEmail('');
       setOtpToken('');
       setResetToken('');
+      setAdmin2FAEmail('');
+      setAdmin2FAToken('');
     }
   }, [isOpen, defaultView]);
 
@@ -40,6 +46,7 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess, onR
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
+  // ── Forgot password handlers ───────────────────────────────────
   const handleForgotSubmit = (email, token) => {
     setResetEmail(email);
     setOtpToken(token);
@@ -52,8 +59,21 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess, onR
   };
 
   const handleResetSuccess = () => {
-    // Go back to login after successful reset
     setView('login');
+  };
+
+  // ── Admin 2FA handler ─────────────────────────────────────────
+  // Called by LoginView when backend returns requires2FA: true
+  const handleAdmin2FARequired = (email, otpTok) => {
+    setAdmin2FAEmail(email);
+    setAdmin2FAToken(otpTok);
+    setView('admin-2fa');
+  };
+
+  // Called by Admin2FAView when OTP verified successfully
+  const handleAdmin2FASuccess = (user) => {
+    if (onLoginSuccess) onLoginSuccess(user);
+    window.location.href = '/admin/dashboard';
   };
 
   if (!isOpen) return null;
@@ -91,6 +111,7 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess, onR
               onForgotPassword={() => setView('forgot')}
               onLoginSuccess={onLoginSuccess}
               onRegisterStall={onRegisterStall}
+              onAdmin2FARequired={handleAdmin2FARequired}
             />
           )}
           {view === 'signup' && (
@@ -103,17 +124,25 @@ const AuthModal = ({ isOpen, defaultView = 'login', onClose, onLoginSuccess, onR
             <ForgotPasswordView onSubmit={handleForgotSubmit} />
           )}
           {view === 'verify' && (
-            <VerifyCodeView 
-              email={resetEmail} 
-              otpToken={otpToken} 
-              onVerify={handleVerify} 
+            <VerifyCodeView
+              email={resetEmail}
+              otpToken={otpToken}
+              onVerify={handleVerify}
             />
           )}
           {view === 'reset' && (
-            <ResetPasswordView 
-              email={resetEmail} 
-              resetToken={resetToken} 
-              onSuccess={handleResetSuccess} 
+            <ResetPasswordView
+              email={resetEmail}
+              resetToken={resetToken}
+              onSuccess={handleResetSuccess}
+            />
+          )}
+          {view === 'admin-2fa' && (
+            <Admin2FAView
+              email={admin2FAEmail}
+              otpToken={admin2FAToken}
+              onSuccess={handleAdmin2FASuccess}
+              onBack={() => setView('login')}
             />
           )}
         </div>

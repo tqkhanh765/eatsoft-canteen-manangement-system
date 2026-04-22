@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PasswordField } from './AuthShared';
 import authService from '../../../services/authService';
 
-const LoginView = ({ onClose, onSwitchSignup, onForgotPassword, onLoginSuccess, onRegisterStall }) => {
+const LoginView = ({ onClose, onSwitchSignup, onForgotPassword, onLoginSuccess, onRegisterStall, onAdmin2FARequired }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
@@ -21,16 +21,22 @@ const LoginView = ({ onClose, onSwitchSignup, onForgotPassword, onLoginSuccess, 
       console.log('[LoginView] authService.login result:', result);
 
       if (result.success) {
+        // ── Admin 2FA intercept ─────────────────────────────────
+        if (result.requires2FA) {
+          console.log('[LoginView] Admin 2FA required, switching view');
+          if (onAdmin2FARequired) onAdmin2FARequired(result.email, result.otpToken);
+          return;
+        }
+        // ──────────────────────────────────────────────────────
+
         console.log('[LoginView] Login successful for user:', result.user?.userName);
         console.log('[LoginView] User role:', result.user?.role?.roleName);
 
-        // Call the success handler with user data
         if (onLoginSuccess) {
           console.log('[LoginView] Calling onLoginSuccess callback');
           onLoginSuccess(result.user);
         }
 
-        // If user is vendor, redirect to vendor menu page
         if (result.user?.role?.roleName === 'Vendor') {
           console.log('[LoginView] User is vendor, redirecting to /vendor-menu');
           window.location.href = '/vendor-menu';

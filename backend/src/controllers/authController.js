@@ -14,13 +14,15 @@ const generateToken = (userId) => {
 
 /**
  * POST /api/auth/login
- * Login with email and password
+ * Login with email and password.
+ * For Admin accounts: credentials are verified but a JWT is NOT issued yet —
+ * instead an OTP is sent to the admin's email and a short-lived otpToken is
+ * returned for the 2FA step.
  */
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -28,20 +30,15 @@ const login = async (req, res) => {
       });
     }
 
-    // Find user by email (include password for comparison)
     const user = await prisma.user.findUnique({
       where: { email },
       include: { role: true },
     });
 
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid credentials',
-      });
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
-    // Check if account is active
     if (user.status !== 'Active') {
       return res.status(401).json({
         success: false,
@@ -49,23 +46,41 @@ const login = async (req, res) => {
       });
     }
 
-    // Verify password
-    // Note: In production, passwords should be hashed with bcrypt
-    // For the seeded data, passwords are stored as plain text 'hashed_password_123'
-    // This is a temporary comparison for the seeded data
     const isMatch = user.password === password || await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid credentials',
-      });
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
-    // Generate token
-    const token = generateToken(user.userId);
+    // ── Admin 2FA gate ──────────────────────────────────────────────────────
+    if (user.role?.roleName === 'Admin') {
+      const otp      = generateOTP();
+      const otpToken = generateRandomToken();
 
-    // Return user data without password
+      // Store OTP keyed by email (re-uses existing otpStorage)
+      otpStorage.set(`admin_2fa_${email}`, {
+        otp,
+        otpToken,
+        userId: user.userId,
+        expires: new Date(Date.now() + 10 * 60 * 1000), // 10 min
+      });
+
+      try {
+        await sendOTPEmail(email, otp);
+      } catch (emailErr) {
+        console.error('[Admin 2FA] Failed to send OTP:', emailErr);
+      }
+
+      return res.json({
+        success: true,
+        requires2FA: true,
+        message: 'OTP sent to your admin email. Please verify to continue.',
+        otpToken,        // returned to frontend for the verification step
+        email,           // convenience for the frontend form
+      });
+    }
+    // ── End Admin 2FA gate ──────────────────────────────────────────────────
+
+    const token = generateToken(user.userId);
     const { password: _, ...userWithoutPassword } = user;
 
     res.json({
@@ -76,12 +91,10 @@ const login = async (req, res) => {
     });
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
+
 
 /**
  * POST /api/auth/register
@@ -531,4 +544,78 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getMe, updateMe, forgotPassword, verifyOTP, resetPassword };
+/**
+ * POST /api/auth/admin-2fa
+ * Second step of admin login: verify OTP and return real JWT.
+ */
+const admin2faVerify = async (req, res) => {
+  try {
+    const { email, otp, otpToken } = req.body;
+
+    if (!email || !otp || !otpToken) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide email, OTP, and token',
+      });
+    }
+
+    const key = `admin_2fa_${email}`;
+    const stored = otpStorage.get(key);
+
+    if (!stored) {
+      return res.status(400).json({
+        success: false,
+        error: 'OTP expired or not found. Please log in again.',
+      });
+    }
+
+    if (new Date() > stored.expires) {
+      otpStorage.delete(key);
+      return res.status(400).json({
+        success: false,
+        error: 'OTP expired. Please log in again.',
+      });
+    }
+
+    if (stored.otpToken !== otpToken) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request. Please try again.',
+      });
+    }
+
+    if (stored.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        error: 'Incorrect OTP. Check your email and try again.',
+      });
+    }
+
+    // OTP valid — clear it and issue JWT
+    otpStorage.delete(key);
+
+    const user = await prisma.user.findUnique({
+      where: { userId: stored.userId },
+      include: { role: true },
+      omit: { password: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    const token = generateToken(user.userId);
+
+    res.json({
+      success: true,
+      message: 'Admin login successful',
+      token,
+      user,
+    });
+  } catch (err) {
+    console.error('[Admin 2FA] Verify error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+module.exports = { login, register, getMe, updateMe, forgotPassword, verifyOTP, resetPassword, admin2faVerify };
