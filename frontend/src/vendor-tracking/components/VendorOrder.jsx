@@ -16,7 +16,6 @@ export default function VendorOrder({ order, onAction }) {
     const itemsLine =
         Array.isArray(order?.items) && order.items.length > 0
             ? order.items
-                .slice(0, 2)
                 .map((i) => `${i.name}${i.qty ? ` (${i.qty})` : ""}`)
                 .join(", ")
             : order?.name ?? "Order items";

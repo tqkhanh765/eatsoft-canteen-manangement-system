@@ -51,18 +51,19 @@ body {
 
 /* ===== ORDER ROW (matches screenshot layout) ===== */
 .order-row {
-    display: grid;
-    grid-template-columns: 1.5fr 70px 170px;
-    gap: 12px;
-    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
     background: #f9fafb;
     margin-bottom: 10px;
+    gap: 16px;
 }
 
 .order-left {
+    flex: 1;
     min-width: 0;
 }
 
@@ -88,14 +89,11 @@ body {
 .order-items {
     font-size: 12px;
     color: #2563eb;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-all;
 }
 
 .order-mid {
-    text-align: center;
-    margin-left: -30px;
+    text-align: left;
 }
 
 .order-table {
