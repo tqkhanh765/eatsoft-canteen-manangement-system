@@ -300,8 +300,9 @@ const getStorePerformanceByDate = async (req, res) => {
     // Get all stores
     const allStores = await prisma.store.findMany({
       select: {
-        storeId: true,
+        storeId:   true,
         storeName: true,
+        isOpen:    true,
       },
     });
 
@@ -344,12 +345,13 @@ const getStorePerformanceByDate = async (req, res) => {
     const storePerformance = {};
     allStores.forEach(store => {
       storePerformance[store.storeName] = {
-        storeName: store.storeName,
-        avgRating: 0,
-        dailyOrders: 0,
-        dailyIncome: 0,
-        ratingCount: 0,
-        ratingSum: 0,
+        storeName:    store.storeName,
+        isOpen:       store.isOpen,
+        avgRating:    0,
+        dailyOrders:  0,
+        dailyIncome:  0,
+        ratingCount:  0,
+        ratingSum:    0,
       };
     });
 
@@ -373,8 +375,9 @@ const getStorePerformanceByDate = async (req, res) => {
 
     // Calculate average ratings and format result
     const result = Object.values(storePerformance).map(store => ({
-      storeName: store.storeName,
-      avgRating: store.ratingCount > 0 ? (store.ratingSum / store.ratingCount).toFixed(1) : '0.0',
+      storeName:   store.storeName,
+      isOpen:      store.isOpen,
+      avgRating:   store.ratingCount > 0 ? (store.ratingSum / store.ratingCount).toFixed(1) : '0.0',
       dailyOrders: store.dailyOrders,
       dailyIncome: store.dailyIncome.toFixed(0),
     }));

@@ -121,7 +121,8 @@
   color: #2e7d32;
 }
 
-.status-badge.close {
+.status-badge.close,
+.status-badge.closed {
   background-color: #ffebee;
   color: #c62828;
 }

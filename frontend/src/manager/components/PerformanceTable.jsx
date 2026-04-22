@@ -110,8 +110,8 @@ const PerformanceTable = () => {
               <td>{row.dailyOrders}</td>
               <td>{row.dailyIncome}</td>
               <td>
-                <span className="status-badge open">
-                  OPEN
+                <span className={`status-badge ${row.isOpen ? 'open' : 'closed'}`}>
+                  {row.isOpen ? 'OPEN' : 'CLOSED'}
                 </span>
               </td>
             </tr>
