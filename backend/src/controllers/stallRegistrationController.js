@@ -22,7 +22,7 @@ const submitRegistration = async (req, res) => {
       where: {
         email,
         status: {
-          in: ['MANAGER_PENDING', 'MANAGER_APPROVED', 'ADMIN_PENDING', 'ADMIN_COMPLETED'],
+          in: ['MANAGER_PENDING', 'MANAGER_APPROVED', 'ADMIN_COMPLETED'],
         },
       },
     });

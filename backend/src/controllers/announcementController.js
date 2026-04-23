@@ -142,6 +142,60 @@ const deleteAnnouncement = async (req, res) => {
   }
 };
 
+// GET /announcements/my - Get announcements for the current user based on their role
+const getMyAnnouncements = async (req, res) => {
+  try {
+    const { userId, role } = req.user;
+    const roleName = role.roleName;
+
+    let whereClause = {};
+
+    if (roleName === 'Customer') {
+      whereClause = {
+        type: { in: ['customers', 'all'] },
+        status: 'published'
+      };
+    } else if (roleName === 'Vendor') {
+      whereClause = {
+        OR: [
+          { type: 'all' },
+          {
+            type: 'vendors',
+            OR: [
+              { vendors: { none: {} } }, // For all vendors
+              { vendors: { some: { vendorId: userId } } } // Specific vendor
+            ]
+          }
+        ],
+        status: 'published'
+      };
+    } else if (roleName === 'Manager' || roleName === 'Admin') {
+      // Managers and Admins see everything?
+      whereClause = {};
+    } else {
+      return res.json([]);
+    }
+
+    const announcements = await prisma.announcement.findMany({
+      where: whereClause,
+      include: {
+        creator: {
+          select: {
+            userName: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    res.json(announcements);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // GET /announcements/vendors - Get all vendors
 const getVendors = async (req, res) => {
   try {
@@ -169,6 +223,7 @@ const getVendors = async (req, res) => {
 module.exports = {
   getAllAnnouncements,
   getAnnouncementById,
+  getMyAnnouncements,
   createAnnouncement,
   updateAnnouncement,
   deleteAnnouncement,

@@ -49,6 +49,7 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [pendingRegistrations, setPendingRegistrations] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const notifRef = useRef(null);
 
   const isVendor = user?.role?.roleName === 'Vendor';
@@ -56,27 +57,41 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
   const navLinks = isManager ? MANAGER_LINKS : isVendor ? VENDOR_LINKS : CUSTOMER_LINKS;
   const active = navLinks.find(link => location.pathname === link.path)?.id || '';
 
-  // Fetch pending registrations for manager
+  // Fetch notifications (Registrations for manager, Announcements for everyone)
   useEffect(() => {
-    if (!isManager) return;
-    const fetchPending = async () => {
+    if (!user) return;
+
+    const fetchAllNotifications = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${API_URL}/stall-registrations?status=MANAGER_PENDING`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        setPendingRegistrations(data.registrations || []);
-      } catch {
-        // silent
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        // 1. Fetch Announcements (for everyone EXCEPT Manager/Admin who post them)
+        if (!isManager) {
+          const annRes = await fetch(`${API_URL}/announcements/my`, { headers });
+          if (annRes.ok) {
+            const annData = await annRes.json();
+            setAnnouncements(annData);
+          }
+        }
+
+        // 2. Fetch Pending Registrations (only for Manager)
+        if (isManager) {
+          const regRes = await fetch(`${API_URL}/stall-registrations?status=MANAGER_PENDING`, { headers });
+          if (regRes.ok) {
+            const regData = await regRes.json();
+            setPendingRegistrations(regData.registrations || []);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch notifications:', err);
       }
     };
-    fetchPending();
-    // Poll every 30 seconds
-    const interval = setInterval(fetchPending, 30000);
+
+    fetchAllNotifications();
+    const interval = setInterval(fetchAllNotifications, 30000);
     return () => clearInterval(interval);
-  }, [isManager]);
+  }, [user, isManager]);
 
   // Close notification dropdown when clicking outside
   useEffect(() => {
@@ -89,7 +104,7 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const pendingCount = pendingRegistrations.length;
+  const totalNotifCount = pendingRegistrations.length + announcements.length;
 
   return (
     <nav className="navbar" id="main-navbar">
@@ -133,40 +148,59 @@ const Navbar = ({ onLoginClick, user, onLogout }) => {
                   onClick={() => setShowNotifications(prev => !prev)}
                 >
                   <BellIcon />
-                  {isManager && pendingCount > 0 && (
-                    <span className="bell-badge">{pendingCount}</span>
+                  {totalNotifCount > 0 && (
+                    <span className="bell-badge">{totalNotifCount}</span>
                   )}
                 </button>
 
-                {showNotifications && isManager && (
+                {showNotifications && (
                   <div className="notif-dropdown">
                     <div className="notif-header">Notifications</div>
                     <div className="notif-list">
-                      {pendingCount === 0 ? (
+                      {totalNotifCount === 0 ? (
                         <div className="notif-empty">No new notifications</div>
                       ) : (
-                        pendingRegistrations.map(reg => (
-                          <Link
-                            key={reg.id}
-                            to="/manager-stalls/requests"
-                            className="notif-item"
-                            onClick={() => setShowNotifications(false)}
-                          >
-                            <span className="notif-dot" />
-                            <span className="notif-text">
-                              New stall registration by <strong>{reg.email}</strong> is waiting for approval
-                            </span>
-                          </Link>
-                        ))
+                        <>
+                          {/* Announcement Notifications (Not for Manager) */}
+                          {!isManager && announcements.map(ann => (
+                            <div key={`ann-${ann.announcementId}`} className="notif-item notif-item--ann">
+                              <span className="notif-dot notif-dot--blue" />
+                              <div className="notif-content">
+                                <div className="notif-title">Announcement: {ann.title}</div>
+                                <div className="notif-text">{ann.content}</div>
+                                <div className="notif-time">by {ann.creator?.userName}</div>
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* Registration Notifications (Manager only) */}
+                          {isManager && pendingRegistrations.map(reg => (
+                            <Link
+                              key={`reg-${reg.id}`}
+                              to="/manager-stalls/requests"
+                              className="notif-item"
+                              onClick={() => setShowNotifications(false)}
+                            >
+                              <span className="notif-dot" />
+                              <div className="notif-content">
+                                <span className="notif-text">
+                                  New stall registration by <strong>{reg.email}</strong> is waiting for approval
+                                </span>
+                              </div>
+                            </Link>
+                          ))}
+                        </>
                       )}
                     </div>
-                    <Link
-                      to="/manager-stalls/requests"
-                      className="notif-footer"
-                      onClick={() => setShowNotifications(false)}
-                    >
-                      View all requests
-                    </Link>
+                    {isManager && (
+                      <Link
+                        to="/manager-stalls/requests"
+                        className="notif-footer"
+                        onClick={() => setShowNotifications(false)}
+                      >
+                        View all requests
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>

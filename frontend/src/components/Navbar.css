@@ -262,16 +262,42 @@
   flex-shrink: 0;
 }
 
+.notif-content {
+  flex: 1;
+}
+
 .notif-text {
   font-size: 13px;
   line-height: 1.5;
   color: #374151;
 }
 
-.notif-empty {
-  padding: 20px 18px;
-  color: #9CA3AF;
+/* Specific styling for announcement notifications */
+.notif-item--ann {
+  background: #ffffff;
+}
+
+.notif-title {
   font-size: 13px;
+  font-weight: 700;
+  color: #1E40AF;
+  margin-bottom: 2px;
+}
+
+.notif-time {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-top: 4px;
+}
+
+.notif-dot--blue {
+  background: #2563EB;
+}
+
+.notif-empty {
+  padding: 30px 18px;
+  color: #9CA3AF;
+  font-size: 14px;
   text-align: center;
 }
 
