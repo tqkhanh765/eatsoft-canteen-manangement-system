@@ -30,13 +30,13 @@ const OrderCart = () => {
 
   // Cart state and actions
   const cartState = useCart();
-  const { order, items, loading, error, setError } = cartState;
+  const { order, items, loading, error, setError, updateItemNote } = cartState;
   const orderActions = useOrderActions(cartState);
   const { actionLoading, checkoutLoading, handleQuantityChange, handleRemoveItem } = orderActions;
 
   // ── Checkout ─────────────────────────────────────────────────────────────
   const handleCheckout = async () => {
-    if (!room.trim()) {
+    if (deliveryOption === APP_CONSTANTS.DELIVERY_OPTIONS.DELIVERY && !room.trim()) {
       setErrorMessage('Please enter your room number');
       setShowErrorModal(true);
       return;
@@ -95,6 +95,7 @@ const OrderCart = () => {
                   item={item}
                   onQuantityChange={handleQuantityChange}
                   onRemove={handleRemoveItem}
+                  onUpdateNote={updateItemNote}
                   isLoading={actionLoading[item.orderItemId]}
                   storeName={order?.store?.storeName || order?.store_name || 'Store'}
                 />
@@ -125,6 +126,8 @@ const OrderCart = () => {
                 placeholder="Enter your room number"
                 value={room}
                 onChange={(e) => setRoom(e.target.value)}
+                disabled={deliveryOption === APP_CONSTANTS.DELIVERY_OPTIONS.PICKUP}
+                style={deliveryOption === APP_CONSTANTS.DELIVERY_OPTIONS.PICKUP ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
               />
             </div>
             <div className="info-row">

@@ -72,16 +72,16 @@ export const deleteOrder = async (orderId) => {
 // ── Order Items ──────────────────────────────────────────────────────────────
 
 /**
- * Update quantity (and optionally unit_price) of a single order item.
+ * Update quantity, unit_price, and/or note of a single order item.
  * PUT /api/order-items/:id
- * Body: { quantity, unit_price }
+ * Body: { quantity, unit_price, note }
  * Note: backend automatically recalculates order total_price.
  */
-export const updateOrderItem = async (itemId, { quantity, unit_price }) => {
+export const updateOrderItem = async (itemId, { quantity, unit_price, note }) => {
   const res = await fetch(`${API_CONFIG.BASE_URL}/order-items/${itemId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ quantity, unit_price }),
+    body: JSON.stringify({ quantity, unit_price, note }),
   });
   if (!res.ok) {
     const err = await res.json();

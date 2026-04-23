@@ -99,6 +99,7 @@
   width: 90px;
   text-align: right;
   color: #111;
+  white-space: nowrap;
 }
 
 .item-buttons {
@@ -120,4 +121,74 @@
 
 .action-btn:hover {
   transform: scale(1.1);
+}
+
+.item-note {
+  font-size: 13px;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.item-note-editor {
+  margin-top: 8px;
+}
+
+.item-note-editor textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+  background-color: #fff;
+  color: #374151;
+}
+
+.item-note-editor textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.note-editor-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.note-btn-cancel,
+.note-btn-save {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.note-btn-cancel {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.note-btn-cancel:hover {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.note-btn-save {
+  background-color: #007bff;
+  color: white;
+}
+
+.note-btn-save:hover {
+  background-color: #0056b3;
 }

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { fetchOrders, fetchOrderById, createOrder, addItemToOrder } from '../services/orderService';
+import { fetchOrders, fetchOrderById, createOrder, addItemToOrder, updateOrderItem } from '../services/orderService';
 import { APP_CONSTANTS } from '../constants/appConstants';
 import authService from '../../services/authService';
 
@@ -142,6 +142,26 @@ export const useCart = () => {
     }
   }, [loadCart]);
 
+  // Update item note
+  const updateItemNote = useCallback(async (itemId, note) => {
+    try {
+      const item = items.find(i => (i.id || i.orderItemId) === itemId);
+      if (!item) throw new Error('Item not found');
+
+      await updateOrderItem(itemId, {
+        quantity: item.quantity,
+        unit_price: item.unitPrice || item.unit_price,
+        note
+      });
+
+      // Reload cart to get updated items
+      await loadCart();
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  }, [items, loadCart]);
+
   return {
     order,
     items,
@@ -150,6 +170,7 @@ export const useCart = () => {
     loadCart,
     clearCart,
     addItem,
+    updateItemNote,
     setError,
     setItems
   };
