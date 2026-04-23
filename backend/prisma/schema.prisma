@@ -43,6 +43,7 @@ model Store {
   storeId    Int      @id @default(autoincrement())
   storeName  String
   description String?
+  logoURL    String?
   location   String
   isOpen     Boolean  @default(true)
 
@@ -150,6 +151,7 @@ model StallRegistration {
   phoneNumber   String
   stallName  String
   description   String?
+  logoURL       String?
   documents     String[]
   
   // Workflow tracking

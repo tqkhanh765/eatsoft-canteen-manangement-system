@@ -288,6 +288,14 @@ const AdminStallRegistration = () => {
                   <p>{selectedRegistration.email}</p>
                 </div>
               </div>
+              {selectedRegistration.logoURL && (
+                <div className="admin-summary-item">
+                  <label>Stall Logo</label>
+                  <div className="admin-logo-preview">
+                    <img src={selectedRegistration.logoURL} alt="Stall logo" />
+                  </div>
+                </div>
+              )}
             </div>
             
             <form onSubmit={handleCreateVendor}>

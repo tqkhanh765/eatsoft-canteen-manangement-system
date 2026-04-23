@@ -20,30 +20,32 @@ const StallCard = ({ store }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/stalls-menu/${store.id}`);
+    navigate(`/stalls-menu/${store.storeId}`);
   };
 
   return (
     <div className={`stall-card ${!store.isOpen ? 'closed' : ''}`} onClick={handleClick} style={{ cursor: 'pointer' }}>
       <div className="card-image-box">
         <div className="stall-logo-wrap">
-          <StallLogo style={store.style} name={store.name} bg={store.bg} />
+          <StallLogo logoURL={store.logoURL} name={store.storeName} />
         </div>
         {!store.isOpen && <div className="closed-overlay">Currently Closed</div>}
-        <div className="time-badge">
-          <ClockIcon /> {store.time}
-        </div>
       </div>
       <div className="card-content">
         <div className="card-header">
-          <h3>{store.name}</h3>
+          <div className="card-title-group">
+            <h3>{store.storeName}</h3>
+            <div className="card-time-info">
+              <ClockIcon /> 8:00 AM - 14:00 PM
+            </div>
+          </div>
           <div className="rating">
             <StarIcon />
-            <span>{store.rating} <span className="reviews">({store.reviews})</span></span>
+            <span>{store.rating || 'New'} <span className="reviews">({store.reviews || '0'})</span></span>
           </div>
         </div>
         <div className="tags">
-          {store.tags.map(tag => (
+          {(store.tags || ['Asian', 'Quick Bite']).map(tag => (
             <span key={tag} className="tag">{tag}</span>
           ))}
         </div>

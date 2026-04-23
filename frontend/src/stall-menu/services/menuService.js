@@ -89,31 +89,28 @@ const fetchStoreById = async (storeId) => {
 };
 
 export const getMenuByStall = async (stall) => {
-  // Map frontend stall id to backend storeId
-  // For now, assume frontend id = backend storeId
-  const storeId = stall?.id || 1;
+  // Use storeId from the database object
+  const storeId = stall?.storeId || stall?.id || 1;
 
   // Fetch products from database
   const products = await fetchProductsByStore(storeId);
-
-  // Fetch store data to get isOpen status
-  const storeData = await fetchStoreById(storeId);
 
   // Extract unique categories from products
   const categories = ['All', ...new Set(products.map(p => p.category?.categoryName || 'All'))];
 
   return {
     categories: categories.filter(Boolean),
-    stallName: stall?.name || "Campus stall",
+    stallName: stall?.storeName || stall?.name || "Campus stall",
     stallInfo: {
-      name: stall?.name || "Campus stall",
-      tagline: "Delicious food",
+      name: stall?.storeName || stall?.name || "Campus stall",
+      tagline: stall?.description || "Delicious food",
       minimumOrder: "No minimum",
-      deliveryTime: stall?.time || "15-20 min",
+      deliveryTime: "15-20 min",
       openHours: "08:00 A.M. - 14:00 P.M.",
-      rating: stall?.rating?.toString() || "4.5",
+      rating: stall?.rating || "4.5",
       reviews: `${stall?.reviews || 0} reviews`,
-      isOpen: storeData?.isOpen ?? true,
+      isOpen: stall?.isOpen ?? true,
+      logoURL: stall?.logoURL,
     },
     offers: [],
     products: products.map(mapProductToUI),

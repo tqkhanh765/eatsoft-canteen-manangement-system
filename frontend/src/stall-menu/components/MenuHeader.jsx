@@ -1,9 +1,19 @@
 import React from "react";
 
 const StallHeroLogo = ({ stall, stallInfo }) => {
-  const style = stall?.style || stallInfo?.style;
+  const logoURL = stall?.logoURL || stallInfo?.logoURL;
+  const name = stall?.storeName || stallInfo?.name || "Big U";
+
+  if (logoURL) {
+    return (
+      <div className="stall-hero-logo custom">
+        <img src={logoURL} alt={name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      </div>
+    );
+  }
+
+  const style = stall?.style || stallInfo?.style || (name ? name.toLowerCase().replace(/\s/g, '') : '');
   const bg = stall?.bg || stallInfo?.bg;
-  const name = stall?.name || stallInfo?.name || "Big U";
 
   const logos = {
     bigu: (
@@ -17,14 +27,14 @@ const StallHeroLogo = ({ stall, stallInfo }) => {
         <p>COM VIET</p>
       </div>
     ),
-    hd: (
-      <div className="stall-hero-logo stall-hero-logo-hd" style={{ background: bg }}>
+    hdfoodcourt: (
+      <div className="stall-hero-logo stall-hero-logo-hd" style={{ background: '#C53030' }}>
         <p>H &amp; D</p>
         <small>FOOD COURT</small>
       </div>
     ),
     gaonoi: (
-      <div className="stall-hero-logo stall-hero-logo-gaonoi" style={{ background: bg }}>
+      <div className="stall-hero-logo stall-hero-logo-gaonoi" style={{ background: '#D4A017' }}>
         <p>Gao &amp; Noi</p>
       </div>
     ),
@@ -35,8 +45,8 @@ const StallHeroLogo = ({ stall, stallInfo }) => {
         <small>EST. 2014</small>
       </div>
     ),
-    zerocoffee: (
-      <div className="stall-hero-logo stall-hero-logo-zerocoffee" style={{ background: bg }}>
+    thezerocoffee: (
+      <div className="stall-hero-logo stall-hero-logo-zerocoffee" style={{ background: '#1A1A2E' }}>
         <p>THE ZERO COFFEE</p>
       </div>
     ),
@@ -61,7 +71,7 @@ const MenuHeader = ({ stall, stallInfo, stats, onBack }) => {
           )}
 
           <p className="stall-menu-eyebrow">{stallInfo?.tagline || "I'm lovin' it!"}</p>
-          <h1 className="stall-menu-title">{stall?.name || stallInfo?.name || "Big U"}</h1>
+          <h1 className="stall-menu-title">{stall?.storeName || stallInfo?.name || "Big U"}</h1>
 
           <div className="stall-hero-badges">
             <div className="stall-hero-badge">
@@ -80,7 +90,7 @@ const MenuHeader = ({ stall, stallInfo, stats, onBack }) => {
             <div className="brand-card-score">
               <strong>{stats.rating}</strong>
               <span>★★★★★</span>
-              <small>{stats.reviews}</small>
+              <small>{stats.reviews} reviews</small>
             </div>
             <div className="brand-card-logo">
               <StallHeroLogo stall={stall} stallInfo={stallInfo} />

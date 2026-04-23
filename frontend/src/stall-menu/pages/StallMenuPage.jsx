@@ -8,10 +8,11 @@ import { getMenuByStall } from "../services/menuService";
 import { STORES } from "../../food-stalls/data/stores";
 import "../styles/stallMenu.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+
 const StallMenuPage = ({ onLoginClick }) => {
   const { stallId } = useParams();
   const navigate = useNavigate();
-  const stall = STORES.find(store => store.id === parseInt(stallId));
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [offers, setOffers] = useState([]);
@@ -31,23 +32,30 @@ const StallMenuPage = ({ onLoginClick }) => {
       setIsLoading(true);
 
       try {
-        const data = await getMenuByStall(stall);
+        // Fetch stall info first
+        const storeResponse = await fetch(`${API_BASE_URL}/stores/${stallId}`);
+        if (!storeResponse.ok) throw new Error('Failed to fetch stall info');
+        const storeData = await storeResponse.json();
+        setStallInfo(storeData);
+
+        const data = await getMenuByStall(storeData);
         setCategories(data.categories || ["All"]);
         setProducts(data.products || []);
         setOffers(data.offers || []);
-        setStallInfo(data.stallInfo || null);
         
         // Show modal if store is closed
-        if (data.stallInfo?.isOpen === false) {
+        if (storeData.isOpen === false) {
           setShowClosedModal(true);
         }
+      } catch (error) {
+        console.error('Error fetching menu:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchMenu();
-  }, [stall]);
+  }, [stallId]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((item) => {
@@ -69,12 +77,14 @@ const StallMenuPage = ({ onLoginClick }) => {
     return {
       total: products.length,
       available: availableCount,
-      rating: stallInfo?.rating || "3.4",
-      reviews: stallInfo?.reviews || "1,360 reviews",
+      rating: stallInfo?.rating || "0.0",
+      reviews: stallInfo?.reviews || "0",
     };
   }, [products, stallInfo]);
 
-  const activeSectionTitle = selectedCategory === "All" ? "Burgers" : selectedCategory;
+  const activeSectionTitle = useMemo(() => {
+    return selectedCategory === "All" ? "Our Menu" : selectedCategory;
+  }, [selectedCategory]);
 
   const handleBack = () => {
     navigate('/stalls');
@@ -82,13 +92,13 @@ const StallMenuPage = ({ onLoginClick }) => {
 
   return (
     <div className="stall-menu-page">
-      <MenuHeader stall={stall} stallInfo={stallInfo} stats={stats} onBack={handleBack} />
+      <MenuHeader stall={stallInfo} stallInfo={stallInfo} stats={stats} onBack={handleBack} />
 
       <section className="stall-menu-content">
         <div className="stall-menu-toolbar">
           <div>
             <h2 className="toolbar-title">
-              Offers from {stall?.name || stallInfo?.name || "Big U"}
+              Offers from {stallInfo?.storeName || "Big U"}
             </h2>
           </div>
 
@@ -166,7 +176,7 @@ const StallMenuPage = ({ onLoginClick }) => {
         <ProductDetailModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
-          storeId={stall?.id}
+          storeId={stallInfo?.storeId}
           onLoginClick={onLoginClick}
         />
       )}

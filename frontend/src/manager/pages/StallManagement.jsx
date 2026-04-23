@@ -29,7 +29,7 @@ const StallManagement = ({ user, onLogout }) => {
           setStores(data.map(store => ({
             id: store.storeId,
             name: store.storeName,
-            logo: store.logo || null,
+            logo: store.logoURL || null,
             location: store.location,
             isOpen: store.isOpen,
             registrationDate: store.createdAt

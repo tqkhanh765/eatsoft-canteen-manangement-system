@@ -100,12 +100,22 @@ async function main() {
   // ----------------------------------------
   console.log('Seeding Stores...');
   const storeNames = ['Big U', 'Cơm Việt', 'H&D Food Court', 'Gạo & Nồi', 'Coffee Story', 'The Zero Coffee'];
+  const storeLogos = [
+    '/stalls/bigu.png',
+    '/stalls/comviet.png',
+    '/stalls/hd.png',
+    '/stalls/gaonoi.png',
+    '/stalls/caffestory.png',
+    '/stalls/zerocoffee.png'
+  ];
+
   const stores = [];
   for(let i=0; i<storeNames.length; i++) {
     stores.push(await prisma.store.create({
       data: {
         storeName: storeNames[i],
         description: `Chào mừng đến với cửa hàng ${storeNames[i]} tại Canteen IU.`,
+        logoURL: storeLogos[i],
         location: `Khu vực sảnh số ${i+1}`,
         managerId: vendors[i].userId // Map exact 6 vendors to the 6 stores
       }

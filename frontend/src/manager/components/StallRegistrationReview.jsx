@@ -249,6 +249,15 @@ const StallRegistrationReview = () => {
                   <p className="description-text">{selectedRegistration.description}</p>
                 </div>
               )}
+
+              {selectedRegistration.logoURL && (
+                <div className="detail-group">
+                  <label>Stall Logo</label>
+                  <div className="review-logo-preview">
+                    <img src={selectedRegistration.logoURL} alt="Stall logo" />
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="review-form">

@@ -10,9 +10,11 @@ const StallRegistrationForm = ({ isOpen, onClose, onSuccess }) => {
     phoneNumber: '',
     stallName: '',
     description: '',
+    logoURL: '',
     documents: [],
   });
   
+  const [logoUploading, setLogoUploading] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -57,13 +59,39 @@ const StallRegistrationForm = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setLogoUploading(true);
+    const formDataUpload = new FormData();
+    formDataUpload.append('image', file);
+
+    try {
+      const response = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setFormData(prev => ({ ...prev, logoURL: data.url }));
+      } else {
+        alert(data.error || 'Failed to upload logo');
+      }
+    } catch (err) {
+      console.error('Logo upload error:', err);
+      alert('Network error while uploading logo');
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    // In a real app, you would upload these files to get URLs
-    // For now, we'll just store the file names
     setFormData(prev => ({
       ...prev,
-      documents: files.map(f => f.name),
+      documents: [...prev.documents, ...files.map(f => f.name)],
     }));
   };
 
@@ -181,6 +209,28 @@ const StallRegistrationForm = ({ isOpen, onClose, onSuccess }) => {
               className={errors.stallName ? 'error' : ''}
             />
             {errors.stallName && <span className="error-text">{errors.stallName}</span>}
+          </div>
+
+          <div className="form-group">
+            <label>Stall Logo</label>
+            <div className="logo-upload-container">
+              {formData.logoURL && (
+                <div className="logo-preview">
+                  <img src={formData.logoURL} alt="Logo preview" />
+                  <button type="button" className="remove-logo" onClick={() => setFormData(p => ({ ...p, logoURL: '' }))}>×</button>
+                </div>
+              )}
+              <input
+                type="file"
+                id="stall-logo-upload"
+                onChange={handleLogoUpload}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+              <label htmlFor="stall-logo-upload" className="logo-upload-btn">
+                {logoUploading ? 'Uploading...' : formData.logoURL ? 'Change Logo' : 'Upload Logo'}
+              </label>
+            </div>
           </div>
           
           <div className="form-group">

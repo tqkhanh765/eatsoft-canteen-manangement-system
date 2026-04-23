@@ -33,34 +33,44 @@ const PopularDishCard = ({ dish, onClick }) => (
   </div>
 );
 
-const StallLogo = ({ style, name, bg }) => {
+const StallLogo = ({ logoURL, name }) => {
+  if (logoURL) {
+    return (
+      <div className="stall-logo custom">
+        <img src={logoURL} alt={name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      </div>
+    );
+  }
+
+  // Fallback map for legacy/mocked styles if logoURL is missing
+  const style = name.toLowerCase().replace(/\s/g, '');
   const map = {
     bigu:        <div className="stall-logo bigu"><span className="bigu-icon">🍽</span><p>BIG U</p></div>,
     comviet:     <div className="stall-logo comviet"><p>CƠM VIỆT</p></div>,
-    hd:          <div className="stall-logo hd" style={{ background: bg }}><p>H &amp; D</p><small>FOOD COURT</small></div>,
-    gaonoi:      <div className="stall-logo gaonoi" style={{ background: bg }}><p>Gạo &amp; Nồi</p></div>,
+    hdfoodcourt: <div className="stall-logo hd" style={{ background: '#C53030' }}><p>H &amp; D</p><small>FOOD COURT</small></div>,
+    gaonoi:      <div className="stall-logo gaonoi" style={{ background: '#D4A017' }}><p>Gạo &amp; Nồi</p></div>,
     coffeestory: <div className="stall-logo coffeestory"><p>CAFFÈ</p><p className="cs-sub">STORY</p><small>EST. 2014</small></div>,
-    zerocoffee:  <div className="stall-logo zerocoffee" style={{ background: bg }}><p>THE ZERO COFFEE</p></div>,
+    thezerocoffee:  <div className="stall-logo zerocoffee" style={{ background: '#1A1A2E' }}><p>THE ZERO COFFEE</p></div>,
   };
   return map[style] || <div className="stall-logo"><p>{name}</p></div>;
 };
 
-const StallCard = ({ stall, onVisit }) => {
+const StallCard = ({ stall }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="stall-card" id={`stall-${stall.id}`}>
+    <div className="stall-card" id={`stall-${stall.storeId}`}>
       <div className="stall-logo-wrap">
-        <StallLogo style={stall.style} name={stall.name} bg={stall.bg} />
+        <StallLogo logoURL={stall.logoURL} name={stall.storeName} />
       </div>
       <div className="stall-card-footer">
-        <p className="stall-name">{stall.name}</p>
+        <p className="stall-name">{stall.storeName}</p>
         <button
           className="stall-btn"
-          id={`stall-visit-${stall.id}`}
+          id={`stall-visit-${stall.storeId}`}
           type="button"
           onClick={() => {
-            navigate(`/stalls-menu/${stall.id}`);
+            navigate(`/stalls-menu/${stall.storeId}`);
           }}
         >
           Visit
@@ -74,7 +84,9 @@ const StallCard = ({ stall, onVisit }) => {
 const HomePage = ({ onVisitStall }) => {
   const navigate = useNavigate();
   const [popularDishes, setPopularDishes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [stalls, setStalls] = useState([]);
+  const [loadingDishes, setLoadingDishes] = useState(true);
+  const [loadingStalls, setLoadingStalls] = useState(true);
 
   useEffect(() => {
     const fetchPopularDishes = async () => {
@@ -83,14 +95,28 @@ const HomePage = ({ onVisitStall }) => {
         if (!response.ok) throw new Error('Failed to fetch popular dishes');
         const data = await response.json();
         setPopularDishes(data);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching popular dishes:', error);
-        setLoading(false);
+      } finally {
+        setLoadingDishes(false);
+      }
+    };
+
+    const fetchStalls = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/stores`);
+        if (!response.ok) throw new Error('Failed to fetch stalls');
+        const data = await response.json();
+        setStalls(data);
+      } catch (error) {
+        console.error('Error fetching stalls:', error);
+      } finally {
+        setLoadingStalls(false);
       }
     };
 
     fetchPopularDishes();
+    fetchStalls();
   }, []);
 
   const handleDishClick = (dish) => {
@@ -106,7 +132,7 @@ const HomePage = ({ onVisitStall }) => {
             <h2 className="section-title">Most Popular Dishes</h2>
           </div>
           <div className="categories-grid">
-            {loading ? (
+            {loadingDishes ? (
               <p>Loading popular dishes...</p>
             ) : popularDishes.length === 0 ? (
               <p>No popular dishes found</p>
@@ -130,7 +156,13 @@ const HomePage = ({ onVisitStall }) => {
             <h2 className="section-title">Associative Food Stalls</h2>
           </div>
           <div className="stalls-grid">
-            {STALLS.map(stall => <StallCard key={stall.id} stall={stall} onVisit={onVisitStall} />)}
+            {loadingStalls ? (
+              <p>Loading stalls...</p>
+            ) : stalls.length === 0 ? (
+              <p>No stalls found</p>
+            ) : (
+              stalls.map(stall => <StallCard key={stall.storeId} stall={stall} />)
+            )}
           </div>
         </div>
       </section>

@@ -39,7 +39,7 @@ const StallDetail = ({ user, onLogout }) => {
           location: storeData.location,
           isOpen: storeData.isOpen,
           description: storeData.description,
-          logo: storeData.logo || '/stalls/bigu.png',
+          logo: storeData.logoURL || '/stalls/bigu.png',
           sell: storeData.category || 'Food',
           stallNumber: storeData.stallNumber || storeData.storeId,
         });

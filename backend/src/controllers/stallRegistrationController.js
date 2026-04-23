@@ -7,7 +7,7 @@ const { sendRegistrationStatusEmail } = require('../services/emailService');
  */
 const submitRegistration = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, stallName, description, documents } = req.body;
+    const { fullName, email, phoneNumber, stallName, description, logoURL, documents } = req.body;
 
     // Validate required fields
     if (!fullName || !email || !phoneNumber || !stallName) {
@@ -42,6 +42,7 @@ const submitRegistration = async (req, res) => {
         phoneNumber,
         stallName,
         description: description || null,
+        logoURL: logoURL || null,
         documents: documents || [],
         status: 'MANAGER_PENDING',
       },
@@ -292,6 +293,7 @@ const createVendorAndStore = async (req, res) => {
         data: {
           storeName: registration.stallName,
           description: registration.description,
+          logoURL: registration.logoURL,
           location: storeLocation,
           managerId: vendor.userId,
         },

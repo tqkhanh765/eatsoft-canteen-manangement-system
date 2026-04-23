@@ -5,9 +5,46 @@ const getAllStores = async (req, res) => {
   try {
     const stores = await prisma.store.findMany({
       orderBy: { storeId: 'asc' },
-      include: { manager: { omit: { password: true } } },
+      include: {
+        manager: { omit: { password: true } },
+        orders: {
+          include: {
+            orderItems: {
+              include: {
+                feedback: true
+              }
+            }
+          }
+        }
+      },
     });
-    res.json(stores);
+
+    // Compute average rating and review count for each store
+    const storesWithRatings = stores.map(store => {
+      let totalRating = 0;
+      let reviewCount = 0;
+
+      store.orders.forEach(order => {
+        order.orderItems.forEach(item => {
+          if (item.feedback) {
+            totalRating += item.feedback.rating;
+            reviewCount++;
+          }
+        });
+      });
+
+      const avgRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : null;
+      
+      // Clean up orders from the response to keep it light
+      const { orders, ...storeData } = store;
+      return {
+        ...storeData,
+        rating: avgRating,
+        reviews: reviewCount
+      };
+    });
+
+    res.json(storesWithRatings);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -18,10 +55,43 @@ const getStoreById = async (req, res) => {
   try {
     const store = await prisma.store.findUnique({
       where:   { storeId: Number(req.params.id) },
-      include: { manager: { omit: { password: true } }, products: true },
+      include: { 
+        manager: { omit: { password: true } }, 
+        products: true,
+        orders: {
+          include: {
+            orderItems: {
+              include: {
+                feedback: true
+              }
+            }
+          }
+        }
+      },
     });
+
     if (!store) return res.status(404).json({ error: 'Store not found' });
-    res.json(store);
+
+    let totalRating = 0;
+    let reviewCount = 0;
+
+    store.orders.forEach(order => {
+      order.orderItems.forEach(item => {
+        if (item.feedback) {
+          totalRating += item.feedback.rating;
+          reviewCount++;
+        }
+      });
+    });
+
+    const avgRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : null;
+    const { orders, ...storeData } = store;
+
+    res.json({
+      ...storeData,
+      rating: avgRating,
+      reviews: reviewCount
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
