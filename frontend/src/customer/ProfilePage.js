@@ -4,6 +4,7 @@ import PersonalInfo from './PersonalInfo';
 import OrderHistory from './OrderHistory';
 import OrderDetail from './OrderDetail';
 import authService from '../services/authService';
+import { fetchOrderById } from '../customer-order-tab/services/orderService';
 import './ProfilePage.css';
 
 // SVGs for Sidebar
@@ -44,6 +45,18 @@ const ProfilePage = () => {
   // Handle user data update from PersonalInfo
   const handleUserUpdate = (updatedUser) => {
     setUser(updatedUser);
+  };
+
+  // Handle order update (e.g., after feedback submission)
+  const handleOrderUpdate = async () => {
+    if (selectedOrder) {
+      try {
+        const updatedOrder = await fetchOrderById(selectedOrder.orderId);
+        setSelectedOrder(updatedOrder);
+      } catch (error) {
+        console.error('Failed to refresh order:', error);
+      }
+    }
   };
 
   // Set active tab based on URL path
@@ -90,7 +103,7 @@ const ProfilePage = () => {
       <main className="profile-content">
         {selectedOrder ? (
           /* ORDER DETAIL */
-          <OrderDetail order={selectedOrder} onBack={() => setSelectedOrder(null)} />
+          <OrderDetail order={selectedOrder} onBack={() => setSelectedOrder(null)} onOrderUpdate={handleOrderUpdate} />
         ) : activeTab === 'info' ? (
           /* PERSONAL INFO */
           <PersonalInfo onUserUpdate={handleUserUpdate} />

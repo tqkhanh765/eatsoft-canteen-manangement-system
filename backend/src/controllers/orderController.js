@@ -50,7 +50,7 @@ const getAllOrders = async (req, res) => {
           }
         },
         store:      true,
-        orderItems: { include: { product: { include: { store: true } } } },
+        orderItems: { include: { product: { include: { store: true } }, feedback: true } },
       },
     });
     console.log('getAllOrders - Sample order items:', orders[0]?.orderItems?.[0]);
@@ -81,7 +81,7 @@ const getOrderById = async (req, res) => {
           }
         },
         store:      true,
-        orderItems: { include: { product: { include: { store: true } } } },
+        orderItems: { include: { product: { include: { store: true } }, feedback: true } },
       },
     });
     if (!order) return res.status(404).json({ error: 'Order not found' });

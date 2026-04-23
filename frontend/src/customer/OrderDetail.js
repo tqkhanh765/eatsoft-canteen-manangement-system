@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './OrderDetail.css';
+import { createFeedback } from '../services/feedbackService';
 
 // Helper to format price
 const formatPrice = (price) => {
@@ -75,11 +76,58 @@ const IconShop = () => (
 
 
 
-const OrderDetail = ({ order, onBack }) => {
+const OrderDetail = ({ order, onBack, onOrderUpdate }) => {
+  // Feedback state - must be before any early return
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+
   if (!order) return <div className="order-detail"><p>No order data</p></div>;
 
   const orderItems = order.orderItems || [];
   const orderStoreName = order.store?.storeName || 'Unknown';
+
+  const handleFeedbackClick = (item) => {
+    // Check if feedback already exists
+    if (item.feedback) {
+      alert('You have already submitted feedback for this item.');
+      return;
+    }
+    setSelectedItem(item);
+    setRating(5);
+    setComment('');
+    setFeedbackSuccess(false);
+    setShowFeedbackModal(true);
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!selectedItem) return;
+
+    setSubmitting(true);
+    try {
+      await createFeedback({
+        orderItemId: selectedItem.orderItemId,
+        rating,
+        comment,
+      });
+      setFeedbackSuccess(true);
+      // Refresh order data to show feedback
+      if (onOrderUpdate) {
+        await onOrderUpdate();
+      }
+      setTimeout(() => {
+        setShowFeedbackModal(false);
+        setSelectedItem(null);
+      }, 1500);
+    } catch (error) {
+      alert(error.message || 'Failed to submit feedback');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="order-detail">
@@ -124,6 +172,7 @@ const OrderDetail = ({ order, onBack }) => {
             <div className="items-list-container">
               {orderItems.map((item, index) => {
                 const itemStoreName = item.product?.store?.storeName || 'Unknown';
+                const hasFeedback = !!item.feedback;
                 return (
                   <div key={index} className="order-item-card">
                     <div className="item-info">
@@ -132,9 +181,24 @@ const OrderDetail = ({ order, onBack }) => {
                       <div className="food-options">
                         <span>Qty: {item.quantity}</span>
                       </div>
+                      {item.note && <p className="item-note">Note: {item.note}</p>}
+                      {hasFeedback && (
+                        <div className="existing-feedback">
+                          <span className="feedback-rating">{'★'.repeat(item.feedback.rating)}{'☆'.repeat(5 - item.feedback.rating)}</span>
+                          {item.feedback.comment && <span className="feedback-comment">"{item.feedback.comment}"</span>}
+                        </div>
+                      )}
                     </div>
                     <div className="item-qty">{item.quantity}</div>
                     <div className="item-price">{formatPrice(item.unitPrice)}</div>
+                    {order.status === 'COMPLETED' && !hasFeedback && (
+                      <button 
+                        className="item-feedback-btn" 
+                        onClick={() => handleFeedbackClick(item)}
+                      >
+                        Feedback
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -170,13 +234,66 @@ const OrderDetail = ({ order, onBack }) => {
               </div>
             </div>
             
-            <button className="feedback-btn">Give feedback</button>
             <p className="contact-seller-text">
               Meet any problems? <a href="#contact">Contact seller</a>
             </p>
           </div>
         </div>
       </div>
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && selectedItem && (
+        <div className="modal-overlay" onClick={() => !submitting && !feedbackSuccess && setShowFeedbackModal(false)}>
+          <div className="feedback-modal" onClick={(e) => e.stopPropagation()}>
+            {feedbackSuccess ? (
+              <div className="feedback-success">
+                <div className="success-icon">✓</div>
+                <h3>Feedback Submitted!</h3>
+                <p>Thank you for your feedback.</p>
+              </div>
+            ) : (
+              <>
+                <h3>Rate your experience</h3>
+                <p className="item-name">{selectedItem.product?.name}</p>
+                <div className="rating-stars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      className={`star-btn ${star <= rating ? 'active' : ''}`}
+                      onClick={() => setRating(star)}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  className="feedback-comment-input"
+                  placeholder="Share your experience (optional)"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={4}
+                />
+                <div className="modal-actions">
+                  <button
+                    className="cancel-btn"
+                    onClick={() => setShowFeedbackModal(false)}
+                    disabled={submitting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="submit-btn"
+                    onClick={handleSubmitFeedback}
+                    disabled={submitting}
+                  >
+                    {submitting ? 'Submitting...' : 'Submit Feedback'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
