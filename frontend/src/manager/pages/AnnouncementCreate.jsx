@@ -71,6 +71,7 @@ const AnnouncementCreate = ({ user, onLogout }) => {
   const [error, setError] = useState(null);
   const [vendors, setVendors] = useState([]);
   const [loadingVendors, setLoadingVendors] = useState(true);
+  const [vendorSearch, setVendorSearch] = useState('');
 
   useEffect(() => {
     fetchVendors();
@@ -169,6 +170,15 @@ const AnnouncementCreate = ({ user, onLogout }) => {
     }
   };
 
+  const filteredVendors = vendors.filter(v => 
+    v.userName.toLowerCase().includes(vendorSearch.toLowerCase()) ||
+    v.email.toLowerCase().includes(vendorSearch.toLowerCase())
+  );
+
+  const getInitials = (name) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  };
+
   return (
     <>
       <Navbar onLoginClick={handleLoginClick} user={user} onLogout={onLogout} />
@@ -220,30 +230,67 @@ const AnnouncementCreate = ({ user, onLogout }) => {
             {targetUser === 'Vendors' && (
               <div className="form-group">
                 <label className="form-label">Select Vendors</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedVendors.length === vendors.length && vendors.length > 0}
-                      onChange={handleSelectAllVendors}
-                      disabled={loadingVendors}
-                    />
-                    <span style={{ fontWeight: '600' }}>Select All Vendors ({selectedVendors.length}/{vendors.length} selected)</span>
-                  </label>
+                <div className="vendor-selector-container">
+                  <div className="vendor-selector-header">
+                    <div className="select-all-wrapper" onClick={handleSelectAllVendors}>
+                      <div className={`custom-checkbox ${selectedVendors.length === vendors.length && vendors.length > 0 ? 'checked' : ''}`}>
+                        {selectedVendors.length === vendors.length && vendors.length > 0 && (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        )}
+                      </div>
+                      <span className="select-all-label">
+                        Select All Vendors ({selectedVendors.length}/{vendors.length})
+                      </span>
+                    </div>
+
+                    <div className="vendor-search-wrapper">
+                      <input
+                        type="text"
+                        placeholder="Search vendors..."
+                        className="vendor-search-input"
+                        value={vendorSearch}
+                        onChange={(e) => setVendorSearch(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
                   {loadingVendors ? (
-                    <div style={{ padding: '20px', textAlign: 'center' }}>Loading vendors...</div>
+                    <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>
+                      Loading vendors...
+                    </div>
+                  ) : filteredVendors.length === 0 ? (
+                    <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>
+                      No vendors found matching "{vendorSearch}"
+                    </div>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}>
-                      {vendors.map(vendor => (
-                        <label key={vendor.userId} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px', borderRadius: '4px', backgroundColor: selectedVendors.includes(vendor.userId.toString()) ? '#E8F5E9' : 'transparent' }}>
-                          <input
-                            type="checkbox"
-                            checked={selectedVendors.includes(vendor.userId.toString())}
-                            onChange={() => handleVendorToggle(vendor.userId.toString())}
-                          />
-                          <span>{vendor.userName} ({vendor.email})</span>
-                        </label>
-                      ))}
+                    <div className="vendor-grid">
+                      {filteredVendors.map(vendor => {
+                        const isSelected = selectedVendors.includes(vendor.userId.toString());
+                        return (
+                          <div 
+                            key={vendor.userId} 
+                            className={`vendor-card ${isSelected ? 'selected' : ''}`}
+                            onClick={() => handleVendorToggle(vendor.userId.toString())}
+                          >
+                            <div className={`custom-checkbox ${isSelected ? 'checked' : ''}`}>
+                              {isSelected && (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                              )}
+                            </div>
+                            <div className="vendor-avatar">
+                              {getInitials(vendor.userName)}
+                            </div>
+                            <div className="vendor-card-info">
+                              <span className="vendor-name">{vendor.userName}</span>
+                              <span className="vendor-email">{vendor.email}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
