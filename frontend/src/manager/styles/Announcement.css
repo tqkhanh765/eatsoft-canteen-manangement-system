@@ -576,7 +576,7 @@
   pointer-events: none;
 }
 
-.vendor-grid {
+.vendor-selector-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;
@@ -585,16 +585,16 @@
   padding: 4px 8px 4px 0;
 }
 
-.vendor-grid::-webkit-scrollbar {
+.vendor-selector-grid::-webkit-scrollbar {
   width: 6px;
 }
 
-.vendor-grid::-webkit-scrollbar-track {
+.vendor-selector-grid::-webkit-scrollbar-track {
   background: #F1F1F1;
   border-radius: 10px;
 }
 
-.vendor-grid::-webkit-scrollbar-thumb {
+.vendor-selector-grid::-webkit-scrollbar-thumb {
   background: #D1D5DB;
   border-radius: 10px;
 }

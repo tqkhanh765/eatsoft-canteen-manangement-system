@@ -17,7 +17,7 @@ const VendorMenu = ({ user, onLogout }) => {
         <>
             <Navbar onLoginClick={handleLoginClick} user={user} onLogout={onLogout} />
             <main className="vendor-page">
-                <div className="container">
+                <div className="vendor-container">
                     <div className="vendor-grid">
                         <div className="vendor-left">
                             <VendorNewOrders />

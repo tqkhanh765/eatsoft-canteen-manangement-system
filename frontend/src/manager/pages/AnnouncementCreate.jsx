@@ -265,7 +265,7 @@ const AnnouncementCreate = ({ user, onLogout }) => {
                       No vendors found matching "{vendorSearch}"
                     </div>
                   ) : (
-                    <div className="vendor-grid">
+                    <div className="vendor-selector-grid">
                       {filteredVendors.map(vendor => {
                         const isSelected = selectedVendors.includes(vendor.userId.toString());
                         return (
