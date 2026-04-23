@@ -26,6 +26,7 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.store.deleteMany();
+  await prisma.stallRegistration.deleteMany();
   await prisma.user.deleteMany();
   await prisma.role.deleteMany();
 
@@ -338,7 +339,8 @@ async function main() {
       orderItemsData.push({
         productId: product.productId,
         quantity: qty,
-        unitPrice: unitPrice
+        unitPrice: unitPrice,
+        note: randomInt(1, 10) > 7 ? 'Ít cay, không hành' : null // 30% chance for a note
       });
     }
 
@@ -466,6 +468,49 @@ async function main() {
       }
     });
     console.log(`  - Created announcement: "${createdAnn.title}" for ${ann.type}${ann.vendorIds.length > 0 ? ` (${ann.vendorIds.length} vendors)` : ''}`);
+  }
+
+  // ----------------------------------------
+  // 8. SEED STALL REGISTRATIONS (Sample data for testing approval flow)
+  // ----------------------------------------
+  console.log('Seeding Stall Registrations...');
+  const registrationData = [
+    {
+      fullName: 'Trần Đại Nghĩa',
+      email: 'nghia.tran@gmail.com',
+      phoneNumber: '0945556667',
+      stallName: 'Bún Đậu Mắm Tôm Cô Ba',
+      description: 'Chuyên bún đậu mắm tôm chuẩn vị Hà Nội.',
+      status: 'MANAGER_PENDING',
+      documents: ['cmnd.pdf', 'giay_phep_kinh_doanh.jpg']
+    },
+    {
+      fullName: 'Lê Thị Thu',
+      email: 'thu.le@outlook.com',
+      phoneNumber: '0988777888',
+      stallName: 'Nước Ép Trái Cây Tươi',
+      description: 'Cung cấp các loại nước ép trái cây nguyên chất 100%.',
+      status: 'MANAGER_PENDING',
+      documents: ['health_cert.pdf']
+    },
+    {
+      fullName: 'Hoàng Văn Thái',
+      email: 'thai.hoang@student.hcmiu.edu.vn',
+      phoneNumber: '0912345678',
+      stallName: 'Bánh Mì Huynh Hoa (IU Branch)',
+      description: 'Bánh mì kẹp thịt đầy đủ topping.',
+      status: 'MANAGER_APPROVED',
+      managerId: managers[0].userId,
+      managerNote: 'Hồ sơ đầy đủ, món ăn tiềm năng.',
+      reviewedAt: new Date(),
+      documents: ['profile.pdf']
+    }
+  ];
+
+  for (const reg of registrationData) {
+    await prisma.stallRegistration.create({
+      data: reg
+    });
   }
 
   console.log('✅ Seed data successfully');
