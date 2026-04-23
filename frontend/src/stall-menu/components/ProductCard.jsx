@@ -1,13 +1,18 @@
 import React from "react";
 
-const ProductCard = ({ product, onClick }) => {
+const ProductCard = ({ product, onClick, disabled }) => {
   const priceLabel =
     product.currency === "VND"
       ? `${Math.round(product.price).toLocaleString("vi-VN")}VND`
       : `GBP ${product.price.toFixed(2)}`;
 
   return (
-    <button className="product-card" onClick={onClick} type="button">
+    <button 
+      className={`product-card ${disabled ? 'product-card-disabled' : ''}`} 
+      onClick={onClick} 
+      type="button"
+      disabled={disabled}
+    >
       <div className="product-info">
         <h3>{product.name}</h3>
         <p className="product-description">{product.description}</p>

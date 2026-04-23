@@ -72,6 +72,22 @@ const mapProductToUI = (dbProduct) => ({
   isFeatured: false,
 });
 
+/**
+ * Fetch store by ID
+ * @param {number} storeId - The store ID
+ * @returns {Promise<Object>} Store data
+ */
+const fetchStoreById = async (storeId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stores/${storeId}`);
+    if (!response.ok) throw new Error('Failed to fetch store');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching store:', error);
+    return null;
+  }
+};
+
 export const getMenuByStall = async (stall) => {
   // Map frontend stall id to backend storeId
   // For now, assume frontend id = backend storeId
@@ -79,6 +95,9 @@ export const getMenuByStall = async (stall) => {
 
   // Fetch products from database
   const products = await fetchProductsByStore(storeId);
+
+  // Fetch store data to get isOpen status
+  const storeData = await fetchStoreById(storeId);
 
   // Extract unique categories from products
   const categories = ['All', ...new Set(products.map(p => p.category?.categoryName || 'All'))];
@@ -94,6 +113,7 @@ export const getMenuByStall = async (stall) => {
       openHours: "08:00 A.M. - 14:00 P.M.",
       rating: stall?.rating?.toString() || "4.5",
       reviews: `${stall?.reviews || 0} reviews`,
+      isOpen: storeData?.isOpen ?? true,
     },
     offers: [],
     products: products.map(mapProductToUI),

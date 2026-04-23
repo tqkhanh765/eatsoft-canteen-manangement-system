@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { getOrders, updateOrder } from "../services/orderService";
+import { toggleStoreStatus, getStoreById } from "../services/storeService";
 
 export const OrderContext = createContext();
 
@@ -13,7 +14,20 @@ export const OrderProvider = ({ children, user }) => {
 
     useEffect(() => {
         loadOrders();
+        loadStoreStatus();
     }, [user]);
+
+    const loadStoreStatus = async () => {
+        try {
+            const storeId = user?.stores?.[0]?.storeId;
+            if (storeId) {
+                const store = await getStoreById(storeId);
+                setIsOpen(store.isOpen);
+            }
+        } catch (err) {
+            console.error('Failed to load store status:', err);
+        }
+    };
 
     const loadOrders = async () => {
         try {
@@ -56,8 +70,16 @@ export const OrderProvider = ({ children, user }) => {
     };
 
     // 🔥 toggle pause ordering
-    const toggleStore = () => {
-        setIsOpen(prev => !prev);
+    const toggleStore = async () => {
+        try {
+            const storeId = user?.stores?.[0]?.storeId;
+            if (storeId) {
+                await toggleStoreStatus(storeId);
+                setIsOpen(prev => !prev);
+            }
+        } catch (err) {
+            console.error('Failed to toggle store status:', err);
+        }
     };
 
     return (

@@ -20,6 +20,7 @@ const StallMenuPage = ({ onLoginClick }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [showClosedModal, setShowClosedModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,6 +36,11 @@ const StallMenuPage = ({ onLoginClick }) => {
         setProducts(data.products || []);
         setOffers(data.offers || []);
         setStallInfo(data.stallInfo || null);
+        
+        // Show modal if store is closed
+        if (data.stallInfo?.isOpen === false) {
+          setShowClosedModal(true);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -142,7 +148,8 @@ const StallMenuPage = ({ onLoginClick }) => {
             <ProductCard
               key={product.id}
               product={product}
-              onClick={() => setSelectedProduct(product)}
+              onClick={() => stallInfo?.isOpen !== false && setSelectedProduct(product)}
+              disabled={stallInfo?.isOpen === false}
             />
           ))}
 
@@ -162,6 +169,25 @@ const StallMenuPage = ({ onLoginClick }) => {
           storeId={stall?.id}
           onLoginClick={onLoginClick}
         />
+      )}
+
+      {showClosedModal && (
+        <div className="store-closed-modal-overlay">
+          <div className="store-closed-modal-content">
+            <div className="store-closed-icon">🔒</div>
+            <h2>Store Closed</h2>
+            <p>This store is currently not accepting orders. Please check back later.</p>
+            <button 
+              className="store-closed-btn"
+              onClick={() => {
+                setShowClosedModal(false);
+                navigate('/stalls');
+              }}
+            >
+              Back to Stalls
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
