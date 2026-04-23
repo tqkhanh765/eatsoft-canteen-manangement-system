@@ -18,7 +18,9 @@ export default function VendorOrder({ order, onAction }) {
             ? order.items
                 .map((i) => {
                     const itemText = `${i.name}${i.qty ? ` (${i.qty})` : ""}`;
-                    return i.note ? `${itemText} <span style="font-style: italic; color: #666;">- ${i.note}</span>` : itemText;
+                    const noteText = i.note ? `<span style="font-style: italic; color: #666;">- ${i.note}</span>` : "";
+                    const feedbackText = i.feedback ? `<span style="font-style: italic; color: #FFC107; margin-left: 8px;">★${i.feedback.rating}</span>` : "";
+                    return `${itemText} ${noteText}${feedbackText}`;
                 })
                 .join(", ")
             : order?.name ?? "Order items";

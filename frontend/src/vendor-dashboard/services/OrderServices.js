@@ -8,7 +8,8 @@ const mapOrderToDashboard = (order) => ({
     date: new Date(order.orderDate).toLocaleDateString('vi-VN', { weekday: 'short' }),
     items: order.orderItems?.map(item => ({
         name: item.product?.name || 'Unknown',
-        qty: item.quantity
+        qty: item.quantity,
+        feedback: item.feedback || null
     })) || []
 });
 

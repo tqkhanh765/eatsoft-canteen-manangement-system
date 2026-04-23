@@ -25,7 +25,8 @@ const mapOrderToVendor = (order) => ({
   items: order.orderItems?.map(item => ({
     name: item.product?.name || 'Unknown',
     qty: item.quantity,
-    note: item.note || null
+    note: item.note || null,
+    feedback: item.feedback || null
   })) || [],
   createdAt: new Date(order.orderDate).getTime()
 });
