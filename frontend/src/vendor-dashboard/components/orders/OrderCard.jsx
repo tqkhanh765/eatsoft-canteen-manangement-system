@@ -53,7 +53,6 @@ export default function OrderCard({ order }) {
                     <div className="feedback-modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="feedback-modal-header">
                             <h3>Order {order.id} Feedback</h3>
-                            <button className="close-btn" onClick={() => setShowFeedbackModal(false)}>×</button>
                         </div>
                         <div className="feedback-items-list">
                             {order.items.map((item, index) => (
