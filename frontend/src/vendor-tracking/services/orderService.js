@@ -24,7 +24,8 @@ const mapOrderToVendor = (order) => ({
   currency: "VND",
   items: order.orderItems?.map(item => ({
     name: item.product?.name || 'Unknown',
-    qty: item.quantity
+    qty: item.quantity,
+    note: item.note || null
   })) || [],
   createdAt: new Date(order.orderDate).getTime()
 });

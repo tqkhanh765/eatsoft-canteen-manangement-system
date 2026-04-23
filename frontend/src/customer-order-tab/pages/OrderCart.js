@@ -16,6 +16,7 @@ import { AlertBanner } from '../components/AlertBanner';
 import { CartItem } from '../components/CartItem';
 import { DeliveryOptions } from '../components/DeliveryOptions';
 import { OrderSummary } from '../components/OrderSummary';
+import authService from '../../services/authService';
 
 // ── Component ────────────────────────────────────────────────────────────────
 const OrderCart = () => {
@@ -33,6 +34,9 @@ const OrderCart = () => {
   const { order, items, loading, error, setError, updateItemNote } = cartState;
   const orderActions = useOrderActions(cartState);
   const { actionLoading, checkoutLoading, handleQuantityChange, handleRemoveItem } = orderActions;
+
+  // Get current user
+  const currentUser = authService.getCurrentUser();
 
   // ── Checkout ─────────────────────────────────────────────────────────────
   const handleCheckout = async () => {
@@ -132,7 +136,7 @@ const OrderCart = () => {
             </div>
             <div className="info-row">
               <span className="info-label">Name:</span>
-              <span className="info-value">{order?.customer_name || APP_CONSTANTS.DEFAULT_CUSTOMER_NAME}</span>
+              <span className="info-value">{currentUser?.userName || order?.user?.userName || order?.customer_name || APP_CONSTANTS.DEFAULT_CUSTOMER_NAME}</span>
             </div>
 
             {/* ── Pickup / Delivery toggle ── */}

@@ -16,7 +16,10 @@ export default function VendorOrder({ order, onAction }) {
     const itemsLine =
         Array.isArray(order?.items) && order.items.length > 0
             ? order.items
-                .map((i) => `${i.name}${i.qty ? ` (${i.qty})` : ""}`)
+                .map((i) => {
+                    const itemText = `${i.name}${i.qty ? ` (${i.qty})` : ""}`;
+                    return i.note ? `${itemText} <span style="font-style: italic; color: #666;">- ${i.note}</span>` : itemText;
+                })
                 .join(", ")
             : order?.name ?? "Order items";
 
@@ -29,7 +32,7 @@ export default function VendorOrder({ order, onAction }) {
                     <span className="order-dot" aria-hidden="true" />
                     Order #{order?.id ?? "-"}
                 </div>
-                <div className="order-items">{itemsLine}</div>
+                <div className="order-items" dangerouslySetInnerHTML={{ __html: itemsLine }} style={{ wordBreak: 'keep-all', whiteSpace: 'normal' }}></div>
             </div>
 
             <div className="order-mid">

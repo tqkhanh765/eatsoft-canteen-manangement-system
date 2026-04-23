@@ -40,7 +40,11 @@ export const OrderProvider = ({ children, user }) => {
         try {
             setOrders(prev =>
                 prev.map(o =>
-                    o.id === id ? { ...o, status: action } : o
+                    o.id === id ? {
+                        ...o,
+                        status: action,
+                        stage: action === 'active' ? 'cooking' : action === 'completed' ? 'done' : o.stage
+                    } : o
                 )
             );
 
