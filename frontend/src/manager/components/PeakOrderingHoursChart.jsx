@@ -3,16 +3,15 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
-// Color scale based on order count
 const getBarColor = (orders, maxOrders) => {
   if (maxOrders === 0) return '#FFE066';
   const ratio = orders / maxOrders;
-  if (ratio > 0.8) return '#FFA500'; // Orange for peak
-  if (ratio > 0.5) return '#FFD43B'; // Yellow for medium
-  return '#FFE066'; // Light yellow for low
+  if (ratio > 0.8) return '#FFA500';
+  if (ratio > 0.5) return '#FFD43B';
+  return '#FFE066';
 };
 
-const PeakOrderingHoursChart = () => {
+const PeakOrderingHoursChart = ({ startDate, endDate }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,63 +19,47 @@ const PeakOrderingHoursChart = () => {
   useEffect(() => {
     const fetchPeakHours = async () => {
       try {
-        const response = await fetch(`${API_URL}/orders/stats/peak-hours`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch peak ordering hours');
-        }
-        const result = await response.json();
-        setData(result);
+        setLoading(true);
+        setError(null);
+        const params = new URLSearchParams();
+        if (startDate) params.set('startDate', startDate);
+        if (endDate)   params.set('endDate', endDate);
+        const response = await fetch(`${API_URL}/orders/stats/peak-hours?${params}`);
+        if (!response.ok) throw new Error('Failed to fetch peak ordering hours');
+        setData(await response.json());
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPeakHours();
-  }, []);
+  }, [startDate, endDate]);
 
   const maxOrders = data.length > 0 ? Math.max(...data.map(d => d.orders)) : 0;
 
-  if (loading) {
-    return (
-      <div className="manager-chart-container">
-        <h3 className="manager-chart-title">PEAK ORDERING HOURS</h3>
-        <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          Loading...
-        </div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="manager-chart-container">
+      <h3 className="manager-chart-title">PEAK ORDERING HOURS</h3>
+      <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="manager-chart-container">
-        <h3 className="manager-chart-title">PEAK ORDERING HOURS</h3>
-        <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
-          Error: {error}
-        </div>
-      </div>
-    );
-  }
+  if (error) return (
+    <div className="manager-chart-container">
+      <h3 className="manager-chart-title">PEAK ORDERING HOURS</h3>
+      <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>Error: {error}</div>
+    </div>
+  );
 
   return (
     <div className="manager-chart-container">
       <h3 className="manager-chart-title">PEAK ORDERING HOURS</h3>
       <ResponsiveContainer width="100%" height={250}>
-        <BarChart
-          data={data}
-          layout="vertical"
-          margin={{ top: 5, right: 30, left: 20, bottom: 0 }}
-        >
+        <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" horizontal={false} />
           <XAxis type="number" hide />
-          <YAxis 
-            dataKey="time" 
-            type="category" 
-            width={80}
-            tick={{ fontSize: 12, fill: '#666' }}
-          />
+          <YAxis dataKey="time" type="category" width={80} tick={{ fontSize: 12, fill: '#666' }} />
           <Tooltip />
           <Bar dataKey="orders" radius={[0, 4, 4, 0]}>
             {data.map((entry, index) => (

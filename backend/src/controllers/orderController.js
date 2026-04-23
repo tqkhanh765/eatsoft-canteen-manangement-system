@@ -1,5 +1,26 @@
 const prisma = require('../lib/prisma');
 
+/**
+ * Build a Prisma date-range filter object from optional startDate / endDate strings.
+ * endDate is expanded to end-of-day so the full day is included.
+ * Returns null when neither date is provided (meaning: no filter).
+ */
+const buildDateFilter = (startDate, endDate) => {
+  if (!startDate && !endDate) return null;
+  const filter = {};
+  if (startDate) {
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    filter.gte = start;
+  }
+  if (endDate) {
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    filter.lte = end;
+  }
+  return filter;
+};
+
 const VALID_STATUSES = ['PENDING', 'ACCEPTED', 'COOKING', 'COMPLETED'];
 
 // GET /orders  (supports ?userId=&storeId=&status= filters)
@@ -214,36 +235,33 @@ const addItemToOrder = async (req, res) => {
 // GET /orders/stats/peak-hours - Get order count by hour of day
 const getPeakOrderingHours = async (req, res) => {
   try {
+    const { startDate, endDate } = req.query;
+
+    // Build optional date range filter
+    const dateFilter = buildDateFilter(startDate, endDate);
+
     const orders = await prisma.order.findMany({
-      select: {
-        orderDate: true,
-      },
+      where: dateFilter ? { orderDate: dateFilter } : undefined,
+      select: { orderDate: true },
     });
 
-    // Initialize hours 8-14 (8AM to 2PM)
     const hourlyData = [
-      { time: '8:00 AM', orders: 0, hour: 8 },
-      { time: '9:00 AM', orders: 0, hour: 9 },
+      { time: '8:00 AM',  orders: 0, hour: 8  },
+      { time: '9:00 AM',  orders: 0, hour: 9  },
       { time: '10:00 AM', orders: 0, hour: 10 },
       { time: '11:00 AM', orders: 0, hour: 11 },
       { time: '12:00 PM', orders: 0, hour: 12 },
-      { time: '1:00 PM', orders: 0, hour: 13 },
-      { time: '2:00 PM', orders: 0, hour: 14 },
+      { time: '1:00 PM',  orders: 0, hour: 13 },
+      { time: '2:00 PM',  orders: 0, hour: 14 },
     ];
 
-    // Count orders by hour
     orders.forEach(order => {
-      const orderHour = new Date(order.orderDate).getHours();
-      const hourData = hourlyData.find(h => h.hour === orderHour);
-      if (hourData) {
-        hourData.orders += 1;
-      }
+      const hour = new Date(order.orderDate).getHours();
+      const slot = hourlyData.find(h => h.hour === hour);
+      if (slot) slot.orders += 1;
     });
 
-    // Remove the hour property before sending response
-    const result = hourlyData.map(({ time, orders }) => ({ time, orders }));
-
-    res.json(result);
+    res.json(hourlyData.map(({ time, orders }) => ({ time, orders })));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -252,29 +270,28 @@ const getPeakOrderingHours = async (req, res) => {
 // GET /orders/stats/peak-day - Get order count by day of week
 const getPeakDay = async (req, res) => {
   try {
+    const { startDate, endDate } = req.query;
+    const dateFilter = buildDateFilter(startDate, endDate);
+
     const orders = await prisma.order.findMany({
-      select: {
-        orderDate: true,
-      },
+      where: dateFilter ? { orderDate: dateFilter } : undefined,
+      select: { orderDate: true },
     });
 
-    // Initialize days of week
     const dayData = [
-      { day: 'Monday', orders: 0 },
-      { day: 'Tuesday', orders: 0 },
+      { day: 'Monday',    orders: 0 },
+      { day: 'Tuesday',   orders: 0 },
       { day: 'Wednesday', orders: 0 },
-      { day: 'Thursday', orders: 0 },
-      { day: 'Friday', orders: 0 },
-      { day: 'Saturday', orders: 0 },
-      { day: 'Sunday', orders: 0 },
+      { day: 'Thursday',  orders: 0 },
+      { day: 'Friday',    orders: 0 },
+      { day: 'Saturday',  orders: 0 },
+      { day: 'Sunday',    orders: 0 },
     ];
 
-    // Count orders by day of week
     orders.forEach(order => {
-      const orderDay = new Date(order.orderDate).getDay();
-      // getDay() returns 0 for Sunday, 1 for Monday, etc.
-      const dayIndex = orderDay === 0 ? 6 : orderDay - 1; // Convert to 0=Monday, 6=Sunday
-      dayData[dayIndex].orders += 1;
+      const dayIndex = new Date(order.orderDate).getDay();
+      const idx = dayIndex === 0 ? 6 : dayIndex - 1;
+      dayData[idx].orders += 1;
     });
 
     res.json(dayData);
@@ -286,40 +303,33 @@ const getPeakDay = async (req, res) => {
 // GET /orders/stats/top-ordering - Get total products ordered by store
 const getTopOrderingByStore = async (req, res) => {
   try {
-    // Get all stores first
+    const { startDate, endDate } = req.query;
+    const dateFilter = buildDateFilter(startDate, endDate);
+
     const allStores = await prisma.store.findMany({
-      select: {
-        storeId: true,
-        storeName: true,
-      },
+      select: { storeId: true, storeName: true },
     });
 
-    // Get all order items with product and store info
+    // Filter order items via orders that fall in the date range
     const orderItems = await prisma.orderItem.findMany({
+      where: dateFilter
+        ? { order: { orderDate: dateFilter } }
+        : undefined,
       include: {
-        product: {
-          include: {
-            store: true,
-          },
-        },
+        product: { include: { store: true } },
       },
     });
 
-    // Initialize all stores with 0 quantity
     const storeQuantities = {};
-    allStores.forEach(store => {
-      storeQuantities[store.storeName] = 0;
-    });
+    allStores.forEach(store => { storeQuantities[store.storeName] = 0; });
 
-    // Sum quantities by store (via product->store relationship)
     orderItems.forEach(item => {
       const storeName = item.product?.store?.storeName;
-      if (storeName && storeQuantities.hasOwnProperty(storeName)) {
+      if (storeName && Object.prototype.hasOwnProperty.call(storeQuantities, storeName)) {
         storeQuantities[storeName] += item.quantity;
       }
     });
 
-    // Convert to array and sort by quantity (descending - most to least)
     const result = Object.entries(storeQuantities)
       .map(([name, products]) => ({ name, products }))
       .sort((a, b) => b.products - a.products);
