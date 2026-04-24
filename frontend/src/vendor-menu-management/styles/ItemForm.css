@@ -27,7 +27,6 @@
   justify-content: center;
   cursor: pointer;
   overflow: hidden;
-  margin-bottom: 28px;
   border: 2px dashed #D1D5DB;
   transition: border-color 0.2s, background 0.2s;
 }
@@ -96,6 +95,25 @@
   background-repeat: no-repeat;
   background-position: right 14px center;
   cursor: pointer;
+}
+
+/* Validation */
+.required-star {
+  color: #EF4444;
+  margin-left: 2px;
+}
+
+.field-error {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #EF4444;
+}
+
+.field-input-error {
+  box-shadow: 0 0 0 2px #FCA5A5 !important;
+  background: #FEF2F2 !important;
 }
 
 /* Action buttons */

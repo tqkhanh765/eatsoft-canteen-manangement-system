@@ -4,6 +4,10 @@ import ConfirmDialog from './ConfirmDialog';
 import { CATEGORIES } from '../constants';
 import '../styles/ItemForm.css';
 
+// Error message component
+const FieldError = ({ message }) =>
+  message ? <span className="field-error">{message}</span> : null;
+
 const ImageIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -30,6 +34,20 @@ const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel, isSaving
 
   // Dialog state: which dialog is open and what action it will confirm
   const [dialog, setDialog] = useState(null); // null | 'cancel' | 'save'
+
+  // Validation errors
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const e = {};
+    if (!form.image)                      e.image    = 'Please upload a photo.';
+    if (!form.name?.trim())               e.name     = 'Item name is required.';
+    if (!form.price && form.price !== 0)  e.price    = 'Price is required.';
+    if (Number(form.price) <= 0)          e.price    = 'Price must be greater than 0.';
+    if (!form.desc?.trim())               e.desc     = 'Description is required.';
+    if (!form.type)                       e.type     = 'Please select a category.';
+    return e;
+  };
 
   /* ── File upload to Cloudinary ── */
   const handleFileChange = async (e) => {
@@ -59,9 +77,18 @@ const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel, isSaving
   };
 
   /* ── Dialog helpers ── */
-  const askCancel    = () => setDialog('cancel');
-  const askSave      = () => setDialog('save');
-  const closeDialog  = () => setDialog(null);
+  const askCancel   = () => setDialog('cancel');
+  const closeDialog = () => setDialog(null);
+
+  const askSave = () => {
+    const e = validate();
+    if (Object.keys(e).length > 0) {
+      setErrors(e);
+      return;
+    }
+    setErrors({});
+    setDialog('save');
+  };
 
   const handleConfirm = () => {
     closeDialog();
@@ -82,84 +109,98 @@ const ItemForm = ({ title, form, onChange, onSave, onCancel, saveLabel, isSaving
           <h1 className="form-page-title">{title}</h1>
 
           {/* Photo upload */}
-          <div
-            className="photo-upload-area"
-            id="photo-upload-area"
-            onClick={() => !uploading && fileRef.current.click()}
-            style={{ cursor: uploading ? 'not-allowed' : 'pointer' }}
-          >
-            {uploading ? (
-              <div className="photo-placeholder">
-                <span>Uploading...</span>
-              </div>
-            ) : form.image ? (
-              <img src={form.image} alt="Preview" className="photo-preview" />
-            ) : (
-              <div className="photo-placeholder">
-                <ImageIcon />
-                <span>+ Add Photo</span>
-              </div>
-            )}
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-              disabled={uploading}
-            />
+          <div className="field-group">
+            <div
+              className={`photo-upload-area${errors.image ? ' field-input-error' : ''}`}
+              id="photo-upload-area"
+              onClick={() => !uploading && fileRef.current.click()}
+              style={{ cursor: uploading ? 'not-allowed' : 'pointer' }}
+            >
+              {uploading ? (
+                <div className="photo-placeholder">
+                  <span>Uploading...</span>
+                </div>
+              ) : form.image ? (
+                <img src={form.image} alt="Preview" className="photo-preview" />
+              ) : (
+                <div className="photo-placeholder">
+                  <ImageIcon />
+                  <span>+ Add Photo</span>
+                </div>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                required
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+            </div>
+            <FieldError message={errors.image} />
           </div>
 
           {/* Name */}
           <div className="field-group">
-            <label className="field-label" htmlFor="field-name">Name of dish:</label>
+            <label className="field-label" htmlFor="field-name">Name of dish: <span className="required-star">*</span></label>
             <input
               id="field-name"
-              className="field-input"
+              className={`field-input${errors.name ? ' field-input-error' : ''}`}
               type="text"
               placeholder="Item name"
               value={form.name}
-              onChange={(e) => onChange('name', e.target.value)}
+              required
+              onChange={(e) => { onChange('name', e.target.value); setErrors(prev => ({ ...prev, name: '' })); }}
             />
+            <FieldError message={errors.name} />
           </div>
 
           {/* Price */}
           <div className="field-group">
-            <label className="field-label" htmlFor="field-price">Price:</label>
+            <label className="field-label" htmlFor="field-price">Price: <span className="required-star">*</span></label>
             <input
               id="field-price"
-              className="field-input"
+              className={`field-input${errors.price ? ' field-input-error' : ''}`}
               type="number"
               placeholder="0.00"
+              min="0.01"
+              step="0.01"
               value={form.price}
-              onChange={(e) => onChange('price', e.target.value)}
+              required
+              onChange={(e) => { onChange('price', e.target.value); setErrors(prev => ({ ...prev, price: '' })); }}
             />
+            <FieldError message={errors.price} />
           </div>
 
           {/* Description */}
           <div className="field-group">
-            <label className="field-label" htmlFor="field-desc">Description:</label>
+            <label className="field-label" htmlFor="field-desc">Description: <span className="required-star">*</span></label>
             <textarea
               id="field-desc"
-              className="field-input field-textarea"
+              className={`field-input field-textarea${errors.desc ? ' field-input-error' : ''}`}
               placeholder="Write your description..."
               value={form.desc}
-              onChange={(e) => onChange('desc', e.target.value)}
+              required
+              onChange={(e) => { onChange('desc', e.target.value); setErrors(prev => ({ ...prev, desc: '' })); }}
             />
+            <FieldError message={errors.desc} />
           </div>
 
           {/* Category */}
           <div className="field-group">
-            <label className="field-label" htmlFor="field-category">Category:</label>
+            <label className="field-label" htmlFor="field-category">Category: <span className="required-star">*</span></label>
             <select
               id="field-category"
-              className="field-input field-select"
+              className={`field-input field-select${errors.type ? ' field-input-error' : ''}`}
               value={form.type}
-              onChange={(e) => onChange('type', e.target.value)}
+              required
+              onChange={(e) => { onChange('type', e.target.value); setErrors(prev => ({ ...prev, type: '' })); }}
             >
               <option value="" disabled>Select category</option>
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
+            <FieldError message={errors.type} />
           </div>
 
           {/* Action buttons – both open a confirmation dialog first */}
