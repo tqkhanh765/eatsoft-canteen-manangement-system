@@ -1,0 +1,247 @@
+/* Manager Dashboard Styles */
+.manager-dashboard-page {
+  min-height: calc(100vh - 140px);
+  background-color: #f8f9fa;
+  padding: 30px 20px;
+}
+
+.manager-dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.manager-dashboard-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.manager-dashboard-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 15px 0;
+}
+
+.manager-export-btn {
+  background-color: #0085FF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.manager-export-btn:hover {
+  background-color: #006fd6;
+}
+
+.manager-charts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Date Range Bar ──────────────────────────────────────── */
+.manager-date-range-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 8px;
+}
+
+.manager-date-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.manager-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manager-date-field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.manager-date-field input[type="date"] {
+  padding: 8px 12px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  background: #F8FAFC;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.manager-date-field input[type="date"]:focus {
+  border-color: #2563EB;
+  background: #fff;
+}
+
+.manager-date-separator {
+  font-size: 18px;
+  color: #CBD5E1;
+  margin-top: 18px;
+}
+
+.manager-date-range-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.manager-apply-btn {
+  padding: 8px 20px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.manager-apply-btn:hover { background: #1D4ED8; }
+
+.manager-reset-btn {
+  padding: 8px 16px;
+  background: #F1F5F9;
+  color: #475569;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.manager-reset-btn:hover { background: #E2E8F0; }
+
+.manager-date-error {
+  width: 100%;
+  font-size: 12px;
+  color: #EF4444;
+  font-weight: 500;
+}
+
+
+.manager-chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.manager-chart-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.manager-chart-wide {
+  width: 100%;
+}
+
+.manager-chart-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+}
+
+/* Performance Table Styles */
+.manager-table-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+}
+
+.manager-performance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.manager-performance-table thead {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.manager-performance-table th {
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.manager-performance-table td {
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 13px;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.manager-performance-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.open {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.close,
+.status-badge.closed {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .manager-chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-dashboard-title {
+    font-size: 24px;
+  }
+
+  .manager-performance-table {
+    font-size: 11px;
+  }
+
+  .manager-performance-table th,
+  .manager-performance-table td {
+    padding: 8px 4px;
+  }
+}

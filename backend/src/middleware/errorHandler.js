@@ -3,23 +3,23 @@ const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
 
-  // Mongoose bad ObjectId
-  if (err.name === 'CastError') {
+  // Prisma unique constraint violation
+  if (err.code === 'P2002') {
+    statusCode = 409; // Conflict
+    const target = err.meta?.target || 'field';
+    message = `A record with that ${target} already exists`;
+  }
+
+  // Prisma record not found (for update/delete)
+  if (err.code === 'P2025') {
     statusCode = 404;
-    message = `Resource not found`;
+    message = 'Resource not found';
   }
 
-  // Mongoose duplicate key
-  if (err.code === 11000) {
+  // Prisma validation error (missing required fields, wrong type, etc.)
+  if (err.name === 'PrismaClientValidationError') {
     statusCode = 400;
-    const field = Object.keys(err.keyValue)[0];
-    message = `A record with that ${field} already exists`;
-  }
-
-  // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    statusCode = 400;
-    message = Object.values(err.errors).map((e) => e.message).join(', ');
+    message = 'Invalid data provided';
   }
 
   // JWT errors
@@ -34,9 +34,8 @@ const errorHandler = (err, req, res, next) => {
   }
 
   res.status(statusCode).json({
-    success: false,
-    message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    error: message,
+    ...(process.env.NODE_ENV === 'development' && { details: err.message, stack: err.stack }),
   });
 };
 

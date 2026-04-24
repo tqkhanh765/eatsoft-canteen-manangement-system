@@ -1,0 +1,85 @@
+/* ================== LAYOUT ================== */
+.profile-container {
+    display: flex;
+    flex: 1;
+    padding: 40px 1%;
+    gap: 40px;
+    background-color: #fff;
+    max-width: 1800px;
+    margin: 0 auto;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.profile-container.full-width {
+    justify-content: center;
+    max-width: 1400px;
+    padding: 40px 40px;
+}
+
+/* ================== SIDEBAR ================== */
+.sidebar {
+    width: 250px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.user-avatar-section {
+    margin-bottom: 30px;
+}
+
+.avatar-circle {
+    width: 120px;
+    height: 120px;
+    background-color: #FF8A00;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-avatar-section h3 {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 5px 0;
+    color: #000;
+}
+
+.user-avatar-section p {
+    font-size: 15px;
+    margin: 0;
+    color: #333;
+}
+
+.sidebar-nav {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 10px 0;
+    font-weight: 600;
+    color: #A0A0A0;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.tab-btn.active {
+    color: #000;
+    font-weight: 800;
+}
+
+/* ================== CONTENT ================== */
+.profile-content {
+    flex: 1;
+    min-width: 0;
+}

@@ -1,30 +1,18 @@
 const express = require('express');
-const { body } = require('express-validator');
-const { register, login, getProfile, updateProfile } = require('../controllers/authController');
+const router = express.Router();
+const { login, register, getMe, updateMe, forgotPassword, verifyOTP, resetPassword, admin2faVerify } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
-const router = express.Router();
+// Public routes
+router.post('/login', login);
+router.post('/register', register);
+router.post('/forgot-password', forgotPassword);
+router.post('/verify-otp', verifyOTP);
+router.post('/reset-password', resetPassword);
+router.post('/admin-2fa', admin2faVerify); // Admin 2FA second step
 
-router.post(
-  '/register',
-  [
-    body('name').notEmpty().withMessage('Name is required'),
-    body('email').isEmail().withMessage('Please provide a valid email'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  ],
-  register
-);
-
-router.post(
-  '/login',
-  [
-    body('email').isEmail().withMessage('Please provide a valid email'),
-    body('password').notEmpty().withMessage('Password is required'),
-  ],
-  login
-);
-
-router.get('/profile', protect, getProfile);
-router.put('/profile', protect, updateProfile);
+// Protected routes - requires valid JWT token
+router.get('/me', protect, getMe);
+router.patch('/me', protect, updateMe);
 
 module.exports = router;

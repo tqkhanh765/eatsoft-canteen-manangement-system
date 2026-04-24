@@ -1,70 +1,55 @@
-# Getting Started with Create React App
+# EatSoft Canteen Management - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 1. Preconditions
+You must have the following installed before starting:
+- **Node.js (v16+)**: [Download & Install Node.js](https://nodejs.org/)
 
-## Available Scripts
+*(Note: Ensure the Backend is properly running before starting the Frontend so the API functions correctly.)*
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 2. First-time Setup
+Open a terminal at the **root** of the project and run the following commands sequentially:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+# 1. Navigate to the frontend folder
+cd frontend
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# 2. Install all required dependencies
+npm install
+```
 
-### `npm test`
+*(Optional)* If you have an environment variables template:
+```bash
+cp .env.example .env
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Once installed, start the local development server:
+```bash
+# 3. Start the app!
+npm start
+```
+*(This will automatically open your default browser to `http://localhost:3000`)*
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 3. Daily Run
+When you return to work on the frontend another day, you only need to run:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+# 1. Go to the frontend folder
+cd frontend
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# 2. Start the local server
+npm start
+```
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 4. Useful Commands (run inside `frontend/`)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Action | Command |
+| :--- | :--- |
+| **Start Development Server** | `npm start` |
+| **Run Tests** | `npm test` |
+| **Build for Production** | `npm run build` |

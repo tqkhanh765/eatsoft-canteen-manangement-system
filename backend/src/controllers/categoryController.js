@@ -1,75 +1,63 @@
-const Category = require('../models/Category');
+const prisma = require('../lib/prisma');
 
-// @desc    Get all categories
-// @route   GET /api/categories
-// @access  Public
-const getCategories = async (req, res, next) => {
+// GET /categories
+const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find({ isActive: true }).sort({ createdAt: -1 });
-    res.json({ success: true, count: categories.length, data: categories });
-  } catch (error) {
-    next(error);
+    const categories = await prisma.category.findMany({ orderBy: { categoryId: 'asc' } });
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// @desc    Get single category
-// @route   GET /api/categories/:id
-// @access  Public
-const getCategoryById = async (req, res, next) => {
+// GET /categories/:id
+const getCategoryById = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
-    if (!category) {
-      return res.status(404).json({ success: false, message: 'Category not found' });
-    }
-    res.json({ success: true, data: category });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Create a category
-// @route   POST /api/categories
-// @access  Private/Admin
-const createCategory = async (req, res, next) => {
-  try {
-    const category = await Category.create(req.body);
-    res.status(201).json({ success: true, data: category });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Update a category
-// @route   PUT /api/categories/:id
-// @access  Private/Admin
-const updateCategory = async (req, res, next) => {
-  try {
-    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
+    const category = await prisma.category.findUnique({
+      where: { categoryId: Number(req.params.id) },
     });
-    if (!category) {
-      return res.status(404).json({ success: false, message: 'Category not found' });
-    }
-    res.json({ success: true, data: category });
-  } catch (error) {
-    next(error);
+    if (!category) return res.status(404).json({ error: 'Category not found' });
+    res.json(category);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// @desc    Delete a category
-// @route   DELETE /api/categories/:id
-// @access  Private/Admin
-const deleteCategory = async (req, res, next) => {
+// POST /categories
+const createCategory = async (req, res) => {
   try {
-    const category = await Category.findByIdAndDelete(req.params.id);
-    if (!category) {
-      return res.status(404).json({ success: false, message: 'Category not found' });
-    }
-    res.json({ success: true, message: 'Category deleted successfully' });
-  } catch (error) {
-    next(error);
+    const { categoryName } = req.body;
+    const category = await prisma.category.create({ data: { categoryName } });
+    res.status(201).json(category);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-module.exports = { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory };
+// PUT /categories/:id
+const updateCategory = async (req, res) => {
+  try {
+    const { categoryName } = req.body;
+    const category = await prisma.category.update({
+      where: { categoryId: Number(req.params.id) },
+      data:  { categoryName },
+    });
+    res.json(category);
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Category not found' });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// DELETE /categories/:id
+const deleteCategory = async (req, res) => {
+  try {
+    await prisma.category.delete({ where: { categoryId: Number(req.params.id) } });
+    res.json({ message: 'Category deleted successfully' });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Category not found' });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getAllCategories, getCategoryById, createCategory, updateCategory, deleteCategory };

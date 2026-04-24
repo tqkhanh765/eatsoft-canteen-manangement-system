@@ -1,0 +1,82 @@
+/* ── Page Shell ──────────────────────────────────────────────── */
+.vendor-page {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ── Page Header (Menu title + Add button) ───────────────────── */
+.vendor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 0 24px;
+}
+
+.vendor-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.add-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.add-item-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+/* ── Menu Grid ───────────────────────────────────────────────── */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding-bottom: 48px;
+}
+
+/* ── Results count ───────────────────────────────────────────── */
+.results-count {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.menu-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 64px 20px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.menu-empty-reset {
+  padding: 9px 24px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.menu-empty-reset:hover {
+  background: #F3F4F6;
+  border-color: #D1D5DB;
+}

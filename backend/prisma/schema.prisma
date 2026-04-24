@@ -4,23 +4,185 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+model Role {
+  roleId   Int     @id @default(autoincrement())
+  roleName String
+
+  users    User[]
 }
 
 model User {
-  id        Int      @id @default(autoincrement()) // Or use String @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      String   @default("customer")
-  createdAt DateTime @default(now())
-  orders    Order[]
+  userId         Int     @id @default(autoincrement())
+  userName       String
+  password       String
+  email          String  @unique
+  phone          String
+  status         String
+
+  // Additional profile fields (nullable)
+  studentId      String? @unique
+  universityName String?
+  country        String?
+
+  roleId         Int
+  role           Role    @relation(fields: [roleId], references: [roleId])
+
+  stores         Store[]   // manage
+  orders         Order[]   // place
+  announcements  Announcement[] // created
+  vendorAnnouncements AnnouncementVendor[] // received as vendor
+
+  // Stall registration relations
+  managerReviews StallRegistration[] @relation("ManagerReviews")
+  adminApprovals StallRegistration[] @relation("AdminApprovals")
+}
+
+model Store {
+  storeId    Int      @id @default(autoincrement())
+  storeName  String
+  description String?
+  logoURL    String?
+  location   String
+  isOpen     Boolean  @default(true)
+
+  managerId  Int
+  manager    User     @relation(fields: [managerId], references: [userId])
+
+  products   Product[]
+  orders     Order[]
+}
+
+model Product {
+  productId   Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal
+  imageURL    String?
+  isAvailable Boolean  @default(true)
+  soldCount   Int      @default(0)
+
+  storeId     Int
+  store       Store    @relation(fields: [storeId], references: [storeId])
+
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [categoryId])
+
+  orderItems  OrderItem[]
+}
+
+model Category {
+  categoryId   Int      @id @default(autoincrement())
+  categoryName String
+
+  products     Product[]
 }
 
 model Order {
-  id         Int      @id @default(autoincrement())
-  totalPrice Float
-  status     String   @default("pending")
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id])
+  orderId     Int       @id @default(autoincrement())
+  orderDate   DateTime  @default(now())
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal
+
+  userId      Int
+  user        User      @relation(fields: [userId], references: [userId])
+
+  storeId     Int
+  store       Store     @relation(fields: [storeId], references: [storeId])
+
+  orderItems  OrderItem[]
+}
+
+model OrderItem {
+  orderItemId Int      @id @default(autoincrement())
+  quantity    Int
+  unitPrice   Decimal
+  note        String?
+
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [orderId])
+
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [productId], onDelete: Cascade)
+
+  feedback    Feedback?
+}
+
+model Feedback {
+  feedbackId Int      @id @default(autoincrement())
+  rating     Int
+  comment    String?
   createdAt  DateTime @default(now())
+
+  orderItemId    Int      @unique
+  orderItem  OrderItem    @relation(fields: [orderItemId], references: [orderItemId], onDelete: Cascade)
+}
+
+model Announcement {
+  announcementId Int      @id @default(autoincrement())
+  title          String
+  content        String
+  type           String   // 'customers', 'vendors', 'all'
+  status         String   @default("published") // 'published', 'draft'
+  createdAt      DateTime @default(now())
+
+  createdBy      Int
+  creator        User     @relation(fields: [createdBy], references: [userId])
+
+  vendors        AnnouncementVendor[]
+}
+
+model AnnouncementVendor {
+  announcementId Int
+  vendorId       Int
+
+  announcement   Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
+  vendor         User         @relation(fields: [vendorId], references: [userId], onDelete: Cascade)
+
+  @@id([announcementId, vendorId])
+}
+
+model StallRegistration {
+  id            Int      @id @default(autoincrement())
+
+  fullName      String
+  email         String
+  phoneNumber   String
+  stallName  String
+  description   String?
+  logoURL       String?
+  documents     String[]
+  
+  // Workflow tracking
+  status        RegistrationStatus @default(MANAGER_PENDING)
+  
+  // Manager review
+  managerId     Int?
+  manager       User?    @relation("ManagerReviews", fields: [managerId], references: [userId])
+  managerNote   String?
+  reviewedAt    DateTime?
+  
+  // Admin completion
+  adminId       Int?
+  admin         User?    @relation("AdminApprovals", fields: [adminId], references: [userId])
+  createdVendorId Int?   // Reference to created User (vendor) after approval
+  createdStoreId  Int?   // Reference to created Store after approval
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum RegistrationStatus {
+  MANAGER_PENDING
+  MANAGER_APPROVED
+  MANAGER_REJECTED
+  ADMIN_COMPLETED
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  COOKING
+  COMPLETED
 }

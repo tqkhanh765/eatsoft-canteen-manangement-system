@@ -1,0 +1,192 @@
+/* ── Card shell ──────────────────────────────────────────────── */
+.menu-card {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  /* horizontal: image | body */
+  flex-direction: row;
+  transition: box-shadow 0.2s, transform 0.2s;
+  min-height: 160px;
+}
+
+.menu-card:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+/* ── Left: square image ──────────────────────────────────────── */
+.menu-card-img-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 160px;
+  /* fixed square width */
+  align-self: stretch;
+  /* fill the full card height */
+}
+
+.menu-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.menu-type-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border);
+  color: #374151;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+/* ── Right: body ─────────────────────────────────────────────── */
+.menu-card-body {
+  flex: 1;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Top row: title block left, actions + price right */
+.menu-card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.menu-card-title-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.menu-card-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right column: action buttons stacked above price */
+.menu-card-right-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.menu-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.action-btn.edit {
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+}
+
+.action-btn.edit:hover {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.action-btn.delete {
+  color: #EF4444;
+  border: 1px solid #FECACA;
+}
+
+.action-btn.delete:hover {
+  background: #FEF2F2;
+  border-color: #EF4444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+/* Price block */
+.menu-card-price-block {
+  text-align: right;
+}
+
+.menu-card-price-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.menu-card-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #16A34A;
+}
+
+/* ── Bottom: availability footer ─────────────────────────────── */
+.menu-card-footer {
+  display: flex;
+  align-items: center;
+}
+
+.availability-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.availability-label {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.availability-label.available {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.availability-label.soldout {
+  background: #F3F4F6;
+  color: #6B7280;
+}
