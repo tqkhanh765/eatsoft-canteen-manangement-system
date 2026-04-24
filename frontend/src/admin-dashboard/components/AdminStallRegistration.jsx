@@ -15,6 +15,8 @@ const AdminStallRegistration = () => {
   const [formErrors, setFormErrors] = useState({});
   const [submitLoading, setSubmitLoading] = useState(false);
   const [filter, setFilter] = useState('MANAGER_APPROVED');
+  const [showRejectInput, setShowRejectInput] = useState(false);
+  const [rejectNote, setRejectNote] = useState('');
 
   const fetchRegistrations = async () => {
     try {
@@ -108,9 +110,6 @@ const AdminStallRegistration = () => {
   };
 
   const handleAdminReject = async () => {
-    const note = prompt('Enter rejection reason (optional):');
-    if (note === null) return; // Cancelled
-    
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
@@ -121,22 +120,23 @@ const AdminStallRegistration = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({ note }),
+          body: JSON.stringify({ note: rejectNote }),
         }
       );
       
       const data = await response.json();
       
       if (!response.ok) {
-        alert(data.error || 'Failed to reject application');
+        setError(data.error || 'Failed to reject application');
         return;
       }
       
-      alert('Application rejected');
       setSelectedRegistration(null);
+      setShowRejectInput(false);
+      setRejectNote('');
       fetchRegistrations();
     } catch (err) {
-      alert('Network error. Please try again.');
+      setError('Network error. Please try again.');
     }
   };
 
@@ -266,6 +266,8 @@ const AdminStallRegistration = () => {
                 setSelectedRegistration(null);
                 setFormData({ vendorPassword: '', storeLocation: '' });
                 setFormErrors({});
+                setShowRejectInput(false);
+                setRejectNote('');
               }}
             >
               ×
@@ -339,21 +341,53 @@ const AdminStallRegistration = () => {
               </div>
               
               <div className="admin-modal-actions">
-                <button
-                  type="button"
-                  className="admin-btn-reject"
-                  onClick={handleAdminReject}
-                  disabled={submitLoading}
-                >
-                  Reject Application
-                </button>
-                <button
-                  type="submit"
-                  className="admin-btn-create"
-                  disabled={submitLoading}
-                >
-                  {submitLoading ? 'Creating...' : 'Create Vendor & Store'}
-                </button>
+                {!showRejectInput ? (
+                  <>
+                    <button
+                      type="button"
+                      className="admin-btn-reject"
+                      onClick={() => setShowRejectInput(true)}
+                      disabled={submitLoading}
+                    >
+                      Reject Application
+                    </button>
+                    <button
+                      type="submit"
+                      className="admin-btn-create"
+                      disabled={submitLoading}
+                    >
+                      {submitLoading ? 'Creating...' : 'Create Vendor & Store'}
+                    </button>
+                  </>
+                ) : (
+                  <div className="reject-note-section">
+                    <label className="admin-label">Rejection reason (will be emailed)</label>
+                    <textarea
+                      className="reject-textarea"
+                      rows={3}
+                      placeholder="Provide a reason for rejection…"
+                      value={rejectNote}
+                      onChange={e => setRejectNote(e.target.value)}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                      <button
+                        type="button"
+                        className="admin-btn-reject"
+                        onClick={handleAdminReject}
+                        disabled={submitLoading}
+                      >
+                        {submitLoading ? 'Rejecting…' : 'Confirm Reject'}
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-btn-cancel"
+                        onClick={() => { setShowRejectInput(false); setRejectNote(''); }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </form>
           </div>

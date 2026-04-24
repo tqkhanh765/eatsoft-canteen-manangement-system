@@ -178,6 +178,7 @@ enum RegistrationStatus {
   MANAGER_APPROVED
   MANAGER_REJECTED
   ADMIN_COMPLETED
+  ADMIN_REJECTED
 }
 
 enum OrderStatus {
