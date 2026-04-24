@@ -23,8 +23,8 @@ const SignupView = ({ onClose, onSwitchLogin }) => {
 
     if (!form.email) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = 'Invalid email format';
+    } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(form.email)) {
+      newErrors.email = 'Please provide a valid email address';
     }
 
     if (!form.fullName) {

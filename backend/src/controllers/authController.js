@@ -116,6 +116,15 @@ const register = async (req, res) => {
       });
     }
 
+    // Validate email format
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a valid email address',
+      });
+    }
+
     // Check if email already exists
     const existingEmail = await prisma.user.findUnique({
       where: { email },
@@ -232,6 +241,15 @@ const updateMe = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'Full name, email, and phone number are required',
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a valid email address',
       });
     }
 
