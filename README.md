@@ -108,4 +108,4 @@ The frontend will typically be accessible at `http://localhost:3000` and the bac
 
 ## 📜 License
 
-This project is licensed under the ISC License.
+This project is licensed under the MIT License.
